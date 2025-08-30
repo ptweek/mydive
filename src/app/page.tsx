@@ -24,6 +24,7 @@ return (
           className="absolute inset-0 w-full h-full object-cover z-0"
         >
           <source src="/videos/skydiving-background.mp4" type="video/mp4" />
+
           {/* Fallback gradient background */}
         </video>
         
@@ -35,6 +36,7 @@ return (
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem] text-center drop-shadow-lg">
             MyDive Skydiving
           </h1>
+          <span className="text-4xl font-extrabold tracking-tighttext-center drop-shadow-lg underline">Book now</span>
           {session?.user && <LatestPost />}
         </div>
       </main>
