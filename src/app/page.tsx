@@ -2,13 +2,16 @@ import { useAuth, SignInButton, useUser } from "@clerk/nextjs";
 import { LatestPost } from "mydive/app/_components/post";
 import { auth } from "mydive/server/auth";
 import { api, HydrateClient } from "mydive/trpc/server";
+import { redirect } from "next/navigation";
+import { currentUser } from "@clerk/nextjs/server";
 
 export default async function Home() {
   const hello = await api.post.hello({ text: "from tRPC" });
   const session = await auth();
+  const clerkUser = await currentUser();
 
-  if (session?.user) {
-    void api.post.getLatest.prefetch();
+  if (clerkUser) {
+    redirect("dashboard");
   }
 
   return (

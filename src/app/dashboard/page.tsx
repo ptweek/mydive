@@ -1,15 +1,14 @@
-import Link from "next/link";
-
-import { LatestPost } from "mydive/app/_components/post";
 import { auth } from "mydive/server/auth";
 import { api, HydrateClient } from "mydive/trpc/server";
+import DashboardClient from "./dashboard-client";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-  const session = await auth();
+export default async function CustomerDashboardEntry() {
+  const user = await currentUser();
 
-  if (session?.user) {
-    void api.post.getLatest.prefetch();
+  if (!user) {
+    redirect("/");
   }
 
   return (
@@ -32,20 +31,7 @@ export default async function Home() {
         <div className="absolute inset-0 z-10 bg-black/40"></div>
 
         {/* Content */}
-        <div className="relative z-20 container flex items-center justify-center gap-12 px-4 py-16">
-          <div className="flex flex-col text-center">
-            <h1 className="flex flex-col text-center text-5xl font-extrabold tracking-tight drop-shadow-lg sm:text-[5rem]">
-              Book now
-            </h1>
-          </div>
-          <div className="flex flex-col text-center">
-            <h1 className="flex flex-col text-center text-5xl font-extrabold tracking-tight drop-shadow-lg sm:text-[5rem]">
-              My bookings
-            </h1>
-          </div>
-
-          {session?.user && <LatestPost />}
-        </div>
+        <DashboardClient userId={user.id} />
       </main>
     </HydrateClient>
   );
