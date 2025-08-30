@@ -1,7 +1,25 @@
 import "mydive/styles/globals.css";
 
 import { type Metadata } from "next";
-import { Geist } from "next/font/google";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
+import { Geist, Geist_Mono } from "next/font/google";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 import { TRPCReactProvider } from "mydive/trpc/react";
 
@@ -22,7 +40,24 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <ClerkProvider>
+          <TRPCReactProvider>
+            <header className="fixed top-0 right-0 z-50 flex h-16 items-center justify-end gap-4 p-4">
+              <SignedOut>
+                <SignInButton />
+                <SignUpButton>
+                  <button className="text-ceramic-white h-10 cursor-pointer rounded-full bg-white px-4 text-sm font-medium sm:h-12 sm:px-5 sm:text-base">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </header>
+            {children}
+          </TRPCReactProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
