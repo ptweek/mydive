@@ -1,13 +1,8 @@
 import moment from "moment";
 import { useState } from "react";
+import type { ToolbarProps } from "react-big-calendar";
 
-export default function CalendarToolbar({
-  label,
-  onNavigate,
-  onView,
-  view,
-  date,
-}) {
+export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
   // Generate month/year options for the next 2 years
   const generateDateOptions = () => {
     const options = [];
@@ -33,7 +28,7 @@ export default function CalendarToolbar({
   const dateOptions = generateDateOptions();
   const [dateState, setDateState] = useState(date);
 
-  const handleDateSelect = (event) => {
+  const handleDateSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedDate = new Date(event.target.value);
     setDateState(selectedDate);
     onNavigate("DATE", selectedDate);
@@ -91,7 +86,7 @@ export default function CalendarToolbar({
                     moment(option.value).format("MMMM YYYY") ===
                     moment(dateState).format("MMMM YYYY"),
                 )
-                ?.value.toISOString() || dateOptions[0]?.value.toISOString()
+                ?.value.toISOString() ?? dateOptions[0]?.value.toISOString()
             }
             onChange={handleDateSelect}
             className="min-w-[160px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-700 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -106,7 +101,4 @@ export default function CalendarToolbar({
       </div>
     </div>
   );
-}
-function onNavigate(arg0: string, selectedDate: Date) {
-  throw new Error("Function not implemented.");
 }

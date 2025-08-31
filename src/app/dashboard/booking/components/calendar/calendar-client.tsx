@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { Calendar, momentLocalizer } from "react-big-calendar";
+import {
+  Calendar,
+  momentLocalizer,
+  // type SlotInfo,
+  type Event,
+} from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import CalendarToolbar from "./toolbar";
@@ -26,7 +31,7 @@ export default function SchedulingCalendar() {
   const [showEventForm, setShowEventForm] = useState(false);
 
   // STATE: Stores the date/time slot that user clicked on the calendar
-  const [selectedSlot, setSelectedSlot] = useState(null);
+  // const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
 
   // STATE: Form data for creating new events
   const [newEvent, setNewEvent] = useState({
@@ -37,20 +42,20 @@ export default function SchedulingCalendar() {
 
   // HANDLER: Called when user clicks on an empty calendar slot
   // useCallback prevents unnecessary re-renders by memoizing the function
-  const handleSelectSlot = useCallback((slotInfo) => {
-    // Store the clicked date for reference
-    setSelectedSlot(slotInfo.start);
+  // const handleSelectSlot = useCallback((slotInfo: SlotInfo) => {
+  //   // Store the clicked date for reference
+  //   setSelectedSlot(slotInfo.start);
 
-    // Pre-populate the form with the clicked date
-    setNewEvent({
-      title: "",
-      startDate: moment(slotInfo.start).format("YYYY-MM-DD"), // Convert to string format for input
-      idealizedDay: 1, // Default to first day being idealized
-    });
+  //   // Pre-populate the form with the clicked date
+  //   setNewEvent({
+  //     title: "",
+  //     startDate: moment(slotInfo.start).format("YYYY-MM-DD"), // Convert to string format for input
+  //     idealizedDay: 1, // Default to first day being idealized
+  //   });
 
-    // Show the event creation modal
-    setShowEventForm(true);
-  }, []);
+  //   // Show the event creation modal
+  //   setShowEventForm(true);
+  // }, []);
 
   // HANDLER: Creates a new 3-day event from the form data
   const createEvent = () => {
@@ -87,9 +92,10 @@ export default function SchedulingCalendar() {
   };
 
   // STYLING FUNCTION: Defines how events should look on the calendar
-  const eventPropGetter = (event) => {
+  const eventPropGetter = (event: Event) => {
     // Check if this is one of our custom 3-day events
-    if (event.resource?.type === "custom-3day") {
+    const type = (event.resource as unknown as { type: string }).type;
+    if (type === "custom-3day") {
       // Return custom styling for our 3-day events
       return {
         className: "three-day-event", // CSS class name
@@ -106,37 +112,31 @@ export default function SchedulingCalendar() {
     return {};
   };
 
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showEventModal, setShowEventModal] = useState(false);
 
-  // Handle clicking on an existing event
-  const handleSelectEvent = useCallback((event) => {
-    setSelectedEvent(event);
-    setShowEventModal(true);
-  }, []);
-
   // Handle deleting an event
-  const handleDeleteEvent = useCallback(() => {
-    if (selectedEvent) {
-      setEvents((prev) =>
-        prev.filter((event) => event.id !== selectedEvent.id),
-      );
-      setShowEventModal(false);
-      setSelectedEvent(null);
-    }
-  }, [selectedEvent]);
+  // const handleDeleteEvent = useCallback(() => {
+  //   if (selectedEvent) {
+  //     setEvents((prev) =>
+  //       prev.filter((event) => event.id !== selectedEvent.id),
+  //     );
+  //     setShowEventModal(false);
+  //     setSelectedEvent(null);
+  //   }
+  // }, [selectedEvent]);
 
   // Add this function to style individual day cells
   const dayPropGetter = useCallback(
-    (date) => {
+    (date: Date) => {
       // Check if this date has any events
-      const maybeEvent = events.filter((event) => {
+      const maybeEvent = events.find((event) => {
         return (
           moment(event.start).isSame(moment(date), "day") ||
           moment(event.start).isSame(moment(date).subtract(1, "day"), "day") ||
           moment(event.start).isSame(moment(date).subtract(2, "day"), "day")
         );
-      })[0];
+      });
 
       if (maybeEvent) {
         // Check if this day matches the idealized day
@@ -192,7 +192,7 @@ export default function SchedulingCalendar() {
           startAccessor="start" // Which property contains event start time
           endAccessor="end" // Which property contains event end time
           style={{ height: 500 }} // Fixed height for calendar (keep as inline style for Big React Calendar)
-          onSelectSlot={handleSelectSlot} // Called when user clicks empty calendar slot
+          // onSelectSlot={handleSelectSlot} // Called when user clicks empty calendar slot
           selectable={true} // Enables clicking on empty slots
           dayPropGetter={dayPropGetter}
           components={{
@@ -298,12 +298,12 @@ export default function SchedulingCalendar() {
               </div>
             </div>
             <div className="flex space-x-3">
-              <button
+              {/* <button
                 onClick={handleDeleteEvent}
                 className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
               >
                 Delete Event
-              </button>
+              </button> */}
               <button
                 onClick={() => setShowEventModal(false)}
                 className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
