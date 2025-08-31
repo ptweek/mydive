@@ -1,15 +1,13 @@
 import "mydive/styles/globals.css";
-import { NextUIProvider } from "@nextui-org/react";
 import { type Metadata } from "next";
 import {
-  ClerkProvider,
   SignInButton,
   SignUpButton,
   SignedIn,
   SignedOut,
   UserButton,
 } from "@clerk/nextjs";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 
 import { Providers } from "./providers";
 
@@ -31,18 +29,33 @@ export default function RootLayout({
     <html lang="en" className={`${geist.variable}`}>
       <body>
         <Providers>
-          <header className="fixed top-0 right-0 z-50 flex h-16 items-center justify-end gap-4 p-4">
-            <SignedOut>
-              <SignInButton />
-              <SignUpButton>
-                <button className="text-ceramic-white h-10 cursor-pointer rounded-full bg-white px-4 text-sm font-medium sm:h-12 sm:px-5 sm:text-base">
-                  Sign Up
-                </button>
-              </SignUpButton>
-            </SignedOut>
+          <header className="fixed top-0 right-0 left-0 z-50 flex h-16 items-center justify-between bg-black/10 px-4 backdrop-blur-sm">
             <SignedIn>
-              <UserButton />
+              <div className="flex items-center gap-6">
+                <nav className="hidden items-center gap-4 md:flex">
+                  <a
+                    href="/dashboard"
+                    className="text-white underline transition-colors hover:text-gray-300"
+                  >
+                    Dashboard
+                  </a>
+                </nav>
+              </div>
             </SignedIn>
+
+            <div className="flex items-center gap-4">
+              <SignedOut>
+                <SignInButton />
+                <SignUpButton>
+                  <button className="text-ceramic-white h-10 cursor-pointer rounded-full bg-white px-4 text-sm font-medium sm:h-12 sm:px-5 sm:text-base">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </div>
           </header>
           {children}
         </Providers>

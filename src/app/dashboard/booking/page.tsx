@@ -1,7 +1,8 @@
-import { HydrateClient } from "mydive/trpc/server";
-import DashboardClient from "./dashboard-client";
+import { auth } from "mydive/server/auth";
+import { api, HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import CalendarClient from "./components/calendar-client";
 
 export default async function CustomerDashboardEntry() {
   const user = await currentUser();
@@ -23,12 +24,14 @@ export default async function CustomerDashboardEntry() {
         >
           <source src="/videos/skydiving-background.mp4" type="video/mp4" />
         </video>
-
-        {/* Dark overlay for better text readability */}
+        x{/* Dark overlay for better text readability */}
         <div className="absolute inset-0 z-0 bg-black/40"></div>
-
         {/* Content */}
-        <DashboardClient userId={user.id} />
+        <div className="z-10 flex w-full justify-center">
+          <div className="w-3/4">
+            <CalendarClient />
+          </div>
+        </div>
       </main>
     </HydrateClient>
   );
