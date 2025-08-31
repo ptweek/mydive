@@ -30,8 +30,8 @@ export default function RootLayout({
       <body>
         <Providers>
           <header className="fixed top-0 right-0 left-0 z-50 flex h-16 items-center justify-between bg-black/10 px-4 backdrop-blur-sm">
-            <SignedIn>
-              <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6">
+              <SignedIn>
                 <nav className="hidden items-center gap-4 md:flex">
                   <a
                     href="/dashboard"
@@ -40,10 +40,10 @@ export default function RootLayout({
                     Dashboard
                   </a>
                 </nav>
-              </div>
-            </SignedIn>
+              </SignedIn>
+            </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-end gap-4">
               <SignedOut>
                 <SignInButton />
                 <SignUpButton>

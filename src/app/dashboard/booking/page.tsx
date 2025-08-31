@@ -2,7 +2,7 @@ import { auth } from "mydive/server/auth";
 import { api, HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import CalendarClient from "./components/calendar-client";
+import CalendarClient from "./components/calendar/calendar-client";
 
 export default async function CustomerDashboardEntry() {
   const user = await currentUser();
