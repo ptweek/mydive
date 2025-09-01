@@ -28,7 +28,7 @@ export default function HomePageClient() {
             Book Now
           </Button>
         ) : (
-          <SignUpButton mode="redirect" forceRedirectUrl="/booking-calendar">
+          <SignUpButton mode="redirect" forceRedirectUrl={"/booking-calendar"}>
             <Button
               size="lg"
               variant="shadow"
