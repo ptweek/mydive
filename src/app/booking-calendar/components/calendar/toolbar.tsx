@@ -1,36 +1,40 @@
 import moment from "moment";
 import { useState } from "react";
 import type { ToolbarProps } from "react-big-calendar";
+import clsx from "clsx";
+
+const generateDateOptions = () => {
+  const options = [];
+  const currentDate = new Date();
+
+  // Generate options for next 24 months
+  for (let i = 0; i < 36; i++) {
+    const optionDate = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + i,
+      1,
+    );
+    options.push({
+      value: optionDate,
+      label: moment(optionDate).format("MMMM YYYY"),
+      key: moment(optionDate).format("YYYY-MM"),
+    });
+  }
+
+  return options;
+};
 
 export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
-  // Generate month/year options for the next 2 years
-  const generateDateOptions = () => {
-    const options = [];
-    const currentDate = new Date();
-
-    // Generate options for next 24 months
-    for (let i = 0; i < 36; i++) {
-      const optionDate = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + i,
-        1,
-      );
-      options.push({
-        value: optionDate,
-        label: moment(optionDate).format("MMMM YYYY"),
-        key: moment(optionDate).format("YYYY-MM"),
-      });
-    }
-
-    return options;
-  };
+  console.log("date from parent:", date);
 
   const dateOptions = generateDateOptions();
-  const [dateState, setDateState] = useState(date);
-
+  const isFirstMonth = moment(date).isSame(dateOptions[0]?.value, "month");
+  const isLastMonth = moment(date).isSame(
+    dateOptions[dateOptions.length - 1]?.value,
+    "month",
+  );
   const handleDateSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedDate = new Date(event.target.value);
-    setDateState(selectedDate);
     onNavigate("DATE", selectedDate);
   };
 
@@ -39,39 +43,47 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
       {/* Navigation buttons */}
       <div className="flex items-center space-x-2">
         <button
+          disabled={isFirstMonth}
           onClick={() => {
             onNavigate("PREV");
-            const prevMonth = moment(dateState).subtract(1, "month").toDate();
-            setDateState(prevMonth);
           }}
-          className="rounded-lg bg-blue-500 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-600"
+          className={clsx(
+            "rounded-lg px-4 py-2 font-medium transition-colors",
+            {
+              "cursor-not-allowed bg-gray-300 text-gray-500": isFirstMonth,
+              "bg-blue-500 text-white hover:bg-blue-600": !isFirstMonth,
+            },
+          )}
         >
           ← Prev
         </button>
         <button
           onClick={() => {
             onNavigate("TODAY");
-            const thisMonth = moment().toDate();
-            setDateState(thisMonth);
           }}
           className="rounded-lg bg-gray-700 px-4 py-2 font-medium text-white transition-colors hover:bg-gray-800"
         >
           This month
         </button>
         <button
+          disabled={isLastMonth}
           onClick={() => {
             onNavigate("NEXT");
-            const nextMonth = moment(dateState).add(1, "month").toDate();
-            setDateState(nextMonth);
           }}
-          className="rounded-lg bg-blue-500 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-600"
+          className={clsx(
+            "rounded-lg px-4 py-2 font-medium transition-colors",
+            {
+              "cursor-not-allowed bg-gray-300 text-gray-500": isLastMonth,
+              "bg-blue-500 text-white hover:bg-blue-600": !isLastMonth,
+            },
+          )}
         >
           Next →
         </button>
       </div>
 
       <h2 className="text-xl font-bold text-gray-900">
-        {moment(dateState).format("MMMM YYYY")}
+        {moment(date).format("MMMM YYYY")}
       </h2>
 
       {/* Center section with current month and dropdown */}
@@ -84,7 +96,7 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
                 .find(
                   (option) =>
                     moment(option.value).format("MMMM YYYY") ===
-                    moment(dateState).format("MMMM YYYY"),
+                    moment(date).format("MMMM YYYY"),
                 )
                 ?.value.toISOString() ?? dateOptions[0]?.value.toISOString()
             }

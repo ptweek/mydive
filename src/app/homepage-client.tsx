@@ -3,11 +3,9 @@
 import { SignUpButton } from "@clerk/nextjs";
 import { Button } from "@nextui-org/react";
 import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
 
 export default function HomePageClient() {
   const isSignedInUser = useUser().isSignedIn;
-  const router = useRouter();
   return (
     <div className="relative z-20 container flex flex-col items-center justify-center gap-12 px-4 py-16">
       <div className="flex flex-col text-center">
@@ -24,7 +22,7 @@ export default function HomePageClient() {
             variant="shadow"
             className="w-full cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-700 py-6 text-lg font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30 sm:w-48"
             onPress={() => {
-              router.push("/booking-calendar");
+              window.location.href = "/booking-calendar"; // for some reason need to force a full refresh on this
             }}
           >
             Book Now

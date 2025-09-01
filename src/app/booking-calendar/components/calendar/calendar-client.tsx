@@ -16,6 +16,15 @@ import CalendarLegend from "./calendar-legend";
 // Setup the localizer for React Big Calendar
 const localizer = momentLocalizer(moment);
 export default function SchedulingCalendar() {
+  const [showEventForm, setShowEventForm] = useState(false);
+  const [selectedEvent] = useState<Event | null>(null);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
+  const [newEvent, setNewEvent] = useState({
+    title: "", // Event name entered by user
+    startDate: "", // Date string in YYYY-MM-DD format
+    idealizedDay: 1, // Which day of the 3-day span is idealized (1, 2, or 3)
+  });
   const [events, setEvents] = useState([
     {
       id: 1,
@@ -26,19 +35,6 @@ export default function SchedulingCalendar() {
       resource: { type: "custom-3day" }, // Custom metadata to identify our special event type
     },
   ]);
-
-  // STATE: Controls whether the event creation modal is visible
-  const [showEventForm, setShowEventForm] = useState(false);
-
-  // STATE: Stores the date/time slot that user clicked on the calendar
-  // const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
-
-  // STATE: Form data for creating new events
-  const [newEvent, setNewEvent] = useState({
-    title: "", // Event name entered by user
-    startDate: "", // Date string in YYYY-MM-DD format
-    idealizedDay: 1, // Which day of the 3-day span is idealized (1, 2, or 3)
-  });
 
   // HANDLER: Called when user clicks on an empty calendar slot
   // useCallback prevents unnecessary re-renders by memoizing the function
@@ -111,22 +107,6 @@ export default function SchedulingCalendar() {
     }
     return {};
   };
-
-  const [selectedEvent] = useState<Event | null>(null);
-  const [showEventModal, setShowEventModal] = useState(false);
-
-  // Handle deleting an event
-  // const handleDeleteEvent = useCallback(() => {
-  //   if (selectedEvent) {
-  //     setEvents((prev) =>
-  //       prev.filter((event) => event.id !== selectedEvent.id),
-  //     );
-  //     setShowEventModal(false);
-  //     setSelectedEvent(null);
-  //   }
-  // }, [selectedEvent]);
-
-  // Add this function to style individual day cells
   const dayPropGetter = useCallback(
     (date: Date) => {
       // Check if this date has any events
@@ -170,6 +150,17 @@ export default function SchedulingCalendar() {
     },
     [events],
   );
+
+  // Handle deleting an event
+  // const handleDeleteEvent = useCallback(() => {
+  //   if (selectedEvent) {
+  //     setEvents((prev) =>
+  //       prev.filter((event) => event.id !== selectedEvent.id),
+  //     );
+  //     setShowEventModal(false);
+  //     setSelectedEvent(null);
+  //   }
+  // }, [selectedEvent]);
 
   return (
     <div className="p-6">
