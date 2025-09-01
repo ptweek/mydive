@@ -112,7 +112,7 @@ export default function SchedulingCalendar() {
     return {};
   };
 
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedEvent] = useState<Event | null>(null);
   const [showEventModal, setShowEventModal] = useState(false);
 
   // Handle deleting an event

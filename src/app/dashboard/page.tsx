@@ -28,7 +28,7 @@ export default async function CustomerDashboardEntry() {
         <div className="absolute inset-0 z-0 bg-black/40"></div>
 
         {/* Content */}
-        <DashboardClient userId={user.id} />
+        <DashboardClient />
       </main>
     </HydrateClient>
   );
