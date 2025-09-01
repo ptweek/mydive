@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import moment from "moment";
 import type { ToolbarProps } from "react-big-calendar";
 
@@ -24,12 +23,9 @@ const generateDateOptions = () => {
 };
 
 export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
+  console.log("Toolbar received date:", date);
+
   const dateOptions = generateDateOptions();
-  const isFirstMonth = moment(date).isSame(dateOptions[0]?.value, "month");
-  const isLastMonth = moment(date).isSame(
-    dateOptions[dateOptions.length - 1]?.value,
-    "month",
-  );
 
   const handleDateSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedDate = new Date(event.target.value);
@@ -57,15 +53,8 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
       {/* Navigation buttons */}
       <div className="flex items-center space-x-2">
         <button
-          disabled={isFirstMonth}
           onClick={handlePrevClick}
-          className={clsx(
-            "rounded-lg px-4 py-2 font-medium transition-colors",
-            {
-              "cursor-not-allowed bg-gray-300 text-gray-500": isFirstMonth,
-              "bg-blue-500 text-white hover:bg-blue-600": !isFirstMonth,
-            },
-          )}
+          className="rounded-lg bg-blue-500 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-600"
         >
           ← Prev
         </button>
@@ -76,15 +65,8 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
           This month
         </button>
         <button
-          disabled={isLastMonth}
           onClick={handleNextClick}
-          className={clsx(
-            "rounded-lg px-4 py-2 font-medium transition-colors",
-            {
-              "cursor-not-allowed bg-gray-300 text-gray-500": isLastMonth,
-              "bg-blue-500 text-white hover:bg-blue-600": !isLastMonth,
-            },
-          )}
+          className="rounded-lg bg-blue-500 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-600"
         >
           Next →
         </button>

@@ -4,8 +4,8 @@ import React, { useState, useCallback } from "react";
 import {
   Calendar,
   momentLocalizer,
-  // type SlotInfo,
   type Event,
+  type NavigateAction,
 } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -15,6 +15,7 @@ import CalendarLegend from "./calendar-legend";
 
 // Setup the localizer for React Big Calendar
 const localizer = momentLocalizer(moment);
+
 export default function SchedulingCalendar() {
   const [showEventForm, setShowEventForm] = useState(false);
   const [selectedEvent] = useState<Event | null>(null);
@@ -36,22 +37,17 @@ export default function SchedulingCalendar() {
     },
   ]);
 
-  // HANDLER: Called when user clicks on an empty calendar slot
-  // useCallback prevents unnecessary re-renders by memoizing the function
-  // const handleSelectSlot = useCallback((slotInfo: SlotInfo) => {
-  //   // Store the clicked date for reference
-  //   setSelectedSlot(slotInfo.start);
+  // CRITICAL: Add state to manage the current calendar date
+  const [currentDate, setCurrentDate] = useState(new Date());
 
-  //   // Pre-populate the form with the clicked date
-  //   setNewEvent({
-  //     title: "",
-  //     startDate: moment(slotInfo.start).format("YYYY-MM-DD"), // Convert to string format for input
-  //     idealizedDay: 1, // Default to first day being idealized
-  //   });
-
-  //   // Show the event creation modal
-  //   setShowEventForm(true);
-  // }, []);
+  // CRITICAL: Handle navigation properly - this is what was missing!
+  const handleNavigate = useCallback(
+    (newDate: Date, view?: string, action?: NavigateAction) => {
+      console.log("Navigation triggered:", { newDate, view, action });
+      setCurrentDate(newDate);
+    },
+    [],
+  );
 
   // HANDLER: Creates a new 3-day event from the form data
   const createEvent = () => {
@@ -107,6 +103,7 @@ export default function SchedulingCalendar() {
     }
     return {};
   };
+
   const dayPropGetter = useCallback(
     (date: Date) => {
       // Check if this date has any events
@@ -151,17 +148,6 @@ export default function SchedulingCalendar() {
     [events],
   );
 
-  // Handle deleting an event
-  // const handleDeleteEvent = useCallback(() => {
-  //   if (selectedEvent) {
-  //     setEvents((prev) =>
-  //       prev.filter((event) => event.id !== selectedEvent.id),
-  //     );
-  //     setShowEventModal(false);
-  //     setSelectedEvent(null);
-  //   }
-  // }, [selectedEvent]);
-
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -179,11 +165,13 @@ export default function SchedulingCalendar() {
       >
         <Calendar
           localizer={localizer} // Date handling utility
-          events={[]} // Array of events to display
+          events={events} // Array of events to display
           startAccessor="start" // Which property contains event start time
           endAccessor="end" // Which property contains event end time
           style={{ height: 500 }} // Fixed height for calendar (keep as inline style for Big React Calendar)
-          // onSelectSlot={handleSelectSlot} // Called when user clicks empty calendar slot
+          // CRITICAL: Add these props to make Calendar controlled
+          date={currentDate}
+          onNavigate={handleNavigate}
           selectable={true} // Enables clicking on empty slots
           dayPropGetter={dayPropGetter}
           components={{
@@ -289,12 +277,6 @@ export default function SchedulingCalendar() {
               </div>
             </div>
             <div className="flex space-x-3">
-              {/* <button
-                onClick={handleDeleteEvent}
-                className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-              >
-                Delete Event
-              </button> */}
               <button
                 onClick={() => setShowEventModal(false)}
                 className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
