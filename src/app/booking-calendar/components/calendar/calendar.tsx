@@ -27,9 +27,10 @@ const localizer = momentLocalizer(moment);
 
 export default function SchedulingCalendar() {
   const router = useRouter();
-  const [newEvent, setNewEvent] = useState<CalendarEvent | null>(null);
   const [showEventForm, setShowEventForm] = useState(false);
   const [showWaitlistForm, setShowWaitlistForm] = useState(false);
+  const [newEvent, setNewEvent] = useState<CalendarEvent | null>(null);
+  console.log("newEvent", newEvent);
   const [events, setEvents] = useState<CalendarEvent[]>([
     {
       start: new Date(2025, 8, 15),
@@ -50,10 +51,8 @@ export default function SchedulingCalendar() {
     try {
       // Create the event first
       createEvent();
-
       // Show nice success alert
       setShowSuccessAlert(true);
-
       // Wait 2 seconds, then navigate
       setTimeout(() => {
         router.push("/dashboard");
@@ -99,32 +98,50 @@ export default function SchedulingCalendar() {
     if (!newEvent) {
       return;
     }
-    // Calculate the 3-day span using moment.js
-    const startDate = moment(newEvent.start);
-    const endDate = moment(startDate).add(3, "days"); // Add 3 days for the span
 
-    // Calculate which specific day within the span is idealized
-    // idealizedDay is 1-indexed (1, 2, or 3), so subtract 1 for 0-indexed addition
-
-    // Create the event object that matches Big React Calendar's expected format
-    const event: CalendarEvent = {
-      start: startDate.toDate(), // Convert moment back to JavaScript Date object
-      end: endDate.toDate(),
-      idealizedDay: newEvent.idealizedDay, // Our custom field for the special day
-      numJumpers: 1,
-      resource: { type: "custom-3day" }, // Metadata to identify our custom event type
-    };
-
-    // Add the new event to the existing events array
-    setEvents([...events, event]);
-
-    // Close the modal and reset the form
+    setEvents([...events, newEvent]); // hacky, needs fix
     setShowEventForm(false);
   };
 
   const dayPropGetter = useCallback(
     (date: Date) => {
-      // Check if this date has any events
+      if (newEvent) {
+        const newEventStart = moment(newEvent.start);
+        const newEventEnd = moment(newEvent.start).add(3, "days");
+        const checkDate = moment(date);
+
+        // Check if current date falls within the newEvent's 3-day range
+        if (checkDate.isBetween(newEventStart, newEventEnd, "day", "[)")) {
+          const isNewEventIdealizedDay = moment(date).isSame(
+            moment(newEvent.idealizedDay),
+            "day",
+          );
+
+          if (isNewEventIdealizedDay) {
+            // GREEN for new event's idealized day with diagonal stripes and strikethrough
+            return {
+              style: {
+                backgroundColor: "#dcfce7",
+                fontWeight: "700",
+                textDecoration: "line-through", // Strikethrough to show it's the idealized day
+                opacity: 0.8, // Slightly transparent
+              },
+            };
+          } else {
+            // LIGHTER GREEN for other new event days with diagonal stripes (no strikethrough)
+            return {
+              style: {
+                background:
+                  "repeating-linear-gradient(45deg, #dcfce7, #dcfce7 2px, #bbf7d0 2px, #bbf7d0 6px)",
+                fontWeight: "700",
+                opacity: 0.8, // Slightly transparent
+                textDecoration: "line-through", // Strikethrough to show it's the idealized day
+              },
+            };
+          }
+        }
+      }
+
       const maybeEvent = events.find((event) => {
         return (
           moment(event.start).isSame(moment(date), "day") ||
