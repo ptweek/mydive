@@ -6,41 +6,37 @@ import {
   momentLocalizer,
   type Event,
   type NavigateAction,
+  type SlotInfo,
 } from "react-big-calendar";
 import moment from "moment";
-import "react-big-calendar/lib/css/react-big-calendar.css";
 import CalendarToolbar from "./toolbar";
 import EventComponent from "./event";
 import CalendarLegend from "./calendar-legend";
+import EventCreationModal from "./event-creation-modal";
+import type { CalendarEvent } from "./types";
+
+import "react-big-calendar/lib/css/react-big-calendar.css";
 
 // Setup the localizer for React Big Calendar
 const localizer = momentLocalizer(moment);
 
 export default function SchedulingCalendar() {
-  const [showEventForm, setShowEventForm] = useState(false);
-  const [selectedEvent] = useState<Event | null>(null);
+  // States
+  const [selectedEvent] = useState<CalendarEvent | null>(null);
   const [showEventModal, setShowEventModal] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
-  const [newEvent, setNewEvent] = useState({
-    title: "", // Event name entered by user
-    startDate: "", // Date string in YYYY-MM-DD format
-    idealizedDay: 1, // Which day of the 3-day span is idealized (1, 2, or 3)
-  });
-  const [events, setEvents] = useState([
+  const [showEventForm, setShowEventForm] = useState(false);
+  const [newEvent, setNewEvent] = useState<CalendarEvent | null>(null);
+  const [events, setEvents] = useState<CalendarEvent[]>([
     {
-      id: 1,
-      title: "Booked Window",
-      start: new Date(2025, 7, 15), // September 15 (start of 3-day period)
-      end: new Date(2025, 7, 18), // September 18 (exclusive end - so event shows 15,16,17)
-      idealizedDay: new Date(2025, 7, 16), // September 16 (the special day within the 3-day span)
+      start: new Date(2025, 8, 15), // September 15 (start of 3-day period)
+      end: new Date(2025, 8, 18), // September 18 (exclusive end - so event shows 15,16,17)
+      idealizedDay: new Date(2025, 8, 15), // September 16 (the special day within the 3-day span)
       resource: { type: "custom-3day" }, // Custom metadata to identify our special event type
     },
   ]);
-
-  // CRITICAL: Add state to manage the current calendar date
+  console.log("events", events);
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  // CRITICAL: Handle navigation properly - this is what was missing!
   const handleNavigate = useCallback(
     (newDate: Date, view?: string, action?: NavigateAction) => {
       console.log("Navigation triggered:", { newDate, view, action });
@@ -49,29 +45,27 @@ export default function SchedulingCalendar() {
     [],
   );
 
-  // HANDLER: Creates a new 3-day event from the form data
-  const createEvent = () => {
-    // Validation: Don't create event if title or date is missing
-    if (!newEvent.title || !newEvent.startDate) return;
+  const handleSelectSlot = (slotInfo: SlotInfo) => {
+    setNewEvent({ start: slotInfo.start, idealizedDay: slotInfo.start }); // Store the selected date
+    setShowEventForm(true); // Open the modal
+  };
 
+  const createEvent = () => {
+    if (!newEvent) {
+      return;
+    }
     // Calculate the 3-day span using moment.js
-    const startDate = moment(newEvent.startDate);
+    const startDate = moment(newEvent.start);
     const endDate = moment(startDate).add(3, "days"); // Add 3 days for the span
 
     // Calculate which specific day within the span is idealized
     // idealizedDay is 1-indexed (1, 2, or 3), so subtract 1 for 0-indexed addition
-    const idealizedDate = moment(startDate).add(
-      newEvent.idealizedDay - 1,
-      "days",
-    );
 
     // Create the event object that matches Big React Calendar's expected format
-    const event = {
-      id: Date.now(), // Simple ID generation (use proper UUID in production)
-      title: newEvent.title,
+    const event: CalendarEvent = {
       start: startDate.toDate(), // Convert moment back to JavaScript Date object
       end: endDate.toDate(),
-      idealizedDay: idealizedDate.toDate(), // Our custom field for the special day
+      idealizedDay: newEvent.idealizedDay, // Our custom field for the special day
       resource: { type: "custom-3day" }, // Metadata to identify our custom event type
     };
 
@@ -80,7 +74,7 @@ export default function SchedulingCalendar() {
 
     // Close the modal and reset the form
     setShowEventForm(false);
-    setNewEvent({ title: "", startDate: "", idealizedDay: 1 });
+    setNewEvent(null);
   };
 
   // STYLING FUNCTION: Defines how events should look on the calendar
@@ -165,13 +159,14 @@ export default function SchedulingCalendar() {
       >
         <Calendar
           localizer={localizer} // Date handling utility
-          events={events} // Array of events to display
+          events={[]} // Array of events to display
           startAccessor="start" // Which property contains event start time
           endAccessor="end" // Which property contains event end time
           style={{ height: 500 }} // Fixed height for calendar (keep as inline style for Big React Calendar)
           // CRITICAL: Add these props to make Calendar controlled
           date={currentDate}
           onNavigate={handleNavigate}
+          onSelectSlot={handleSelectSlot}
           selectable={true} // Enables clicking on empty slots
           dayPropGetter={dayPropGetter}
           components={{
@@ -185,74 +180,13 @@ export default function SchedulingCalendar() {
         />
       </div>
 
-      {/* MODAL: Event creation form with Tailwind styling */}
-      {showEventForm && (
-        <>
-          {/* Dark overlay that closes modal when clicked */}
-          <div
-            className="bg-opacity-50 fixed inset-0 z-[999] bg-black"
-            onClick={() => setShowEventForm(false)}
-          />
-
-          {/* Modal content with Tailwind classes */}
-          <div className="fixed top-1/2 left-1/2 z-[1000] min-w-[400px] -translate-x-1/2 -translate-y-1/2 transform rounded-xl bg-white p-8 shadow-2xl">
-            <h3 className="mb-4 text-xl font-bold text-black">
-              Create 3-Day Booking Window
-            </h3>
-
-            {/* Show user what date they clicked and the resulting 3-day span */}
-            <p className="mb-6 text-gray-700">
-              Booking window: {moment(newEvent.startDate).format("MMM DD")} -{" "}
-              {moment(newEvent.startDate).add(2, "days").format("MMM DD")}
-            </p>
-            {/* Idealized Day Selection */}
-            <div className="mb-5 text-black">
-              <label className="mb-1.5 block font-bold text-gray-800">
-                Select Desired Jump Day:
-              </label>
-              <select
-                value={newEvent.idealizedDay}
-                onChange={(e) =>
-                  setNewEvent({
-                    ...newEvent,
-                    idealizedDay: parseInt(e.target.value),
-                  })
-                }
-                className="w-full rounded-lg border-2 border-gray-300 p-2.5 text-sm focus:border-blue-600 focus:outline-none"
-              >
-                {/* Option for each day in the 3-day span, showing the actual date */}
-                <option value={1}>
-                  Day 1 - {moment(newEvent.startDate).format("MMM DD")}
-                </option>
-                <option value={2}>
-                  Day 2 -{" "}
-                  {moment(newEvent.startDate).add(1, "day").format("MMM DD")}
-                </option>
-                <option value={3}>
-                  Day 3 -{" "}
-                  {moment(newEvent.startDate).add(2, "days").format("MMM DD")}
-                </option>
-              </select>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-2.5">
-              <button
-                className="cursor-pointer rounded-lg bg-gray-600 px-5 py-2.5 text-sm font-bold text-white hover:opacity-90"
-                onClick={() => setShowEventForm(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="cursor-pointer rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={createEvent}
-                disabled={!newEvent.title} // Disable if no title entered
-              >
-                Create Event
-              </button>
-            </div>
-          </div>
-        </>
+      {showEventForm && newEvent && (
+        <EventCreationModal
+          newEvent={newEvent}
+          setNewEvent={setNewEvent}
+          setShowEventForm={setShowEventForm}
+          createEvent={createEvent}
+        />
       )}
 
       {/* Event Details Modal */}
