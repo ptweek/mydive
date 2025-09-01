@@ -18,7 +18,20 @@ const CalendarLegend = () => {
       label: "Open",
       backgroundColor: "transparent",
       borderColor: "#e5e7eb",
-      description: "Days that have not been booked or reserved",
+      description:
+        "Days that have not been booked and are valid start dates for booking window",
+    },
+    {
+      label: "Out of window",
+      backgroundColor: "#fecaca",
+      borderColor: "#e5e7eb",
+      background:
+        "repeating-linear-gradient(45deg, #ffffff, #ffffff 2px, #f1f5f9 2px, #f1f5f9 6px)",
+      color: "#64748b", // Slate gray text
+      opacity: 0.9,
+      textDecoration: "line-through", // Add strikethrough for extra visual indication
+      description:
+        "Days that can be booked, but not as the start date of a booking window",
     },
   ];
 
@@ -37,6 +50,7 @@ const CalendarLegend = () => {
               style={{
                 backgroundColor: item.backgroundColor,
                 borderColor: item.borderColor,
+                background: item.background,
                 fontWeight:
                   item.label === "Idealized Days"
                     ? "700"
