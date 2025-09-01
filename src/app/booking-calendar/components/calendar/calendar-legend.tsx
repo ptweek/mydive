@@ -3,26 +3,14 @@ import React from "react";
 const CalendarLegend = () => {
   const legendItems = [
     {
-      label: "Reserved",
-      backgroundColor: "#fecaca",
-      borderColor: "#dc2626",
-      description: "Days that have been reserved for jump",
-    },
-    {
-      label: "Waitlist",
-      backgroundColor: "#fef3c7",
-      borderColor: "#f59e0b",
-      description: "Days that have been booked but have waitlist availability",
-    },
-    {
       label: "Open",
       backgroundColor: "transparent",
       borderColor: "#e5e7eb",
       description:
-        "Days that have not been booked and are valid start dates for booking window",
+        "Days that are open and can be booked as start dates for booking window",
     },
     {
-      label: "Out of window",
+      label: "Out of start window",
       backgroundColor: "#fecaca",
       borderColor: "#e5e7eb",
       background:
@@ -31,7 +19,21 @@ const CalendarLegend = () => {
       opacity: 0.9,
       textDecoration: "line-through", // Add strikethrough for extra visual indication
       description:
-        "Days that can be booked, but not as the start date of a booking window",
+        "Days are open as part of a booking window, but not as the start date",
+    },
+    {
+      label: "Reserved",
+      backgroundColor: "#fecaca",
+      borderColor: "#dc2626",
+      description:
+        "Days that have been reserved as a jump day in the window, and therefore do not have waitlist avaibility ",
+    },
+    {
+      label: "Waitlist",
+      backgroundColor: "#fef3c7",
+      borderColor: "#f59e0b",
+      description:
+        "Days that have been booked as part of window but have waitlist availability",
     },
   ];
 

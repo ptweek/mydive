@@ -16,22 +16,28 @@ import type { CalendarEvent } from "./types";
 
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./calendar-overrides.css"; // Add this line
+import { isDateBookable, isDatePartOfEvent, isIdealizedDay } from "./helpers";
+import WaitlistModal from "./waitlist-modal";
 
 // Setup the localizer for React Big Calendar
 const localizer = momentLocalizer(moment);
 
 export default function SchedulingCalendar() {
-  const [showEventForm, setShowEventForm] = useState(false);
   const [newEvent, setNewEvent] = useState<CalendarEvent | null>(null);
+  const [showEventForm, setShowEventForm] = useState(false);
+  const [showWaitlistForm, setShowWaitlistForm] = useState(false);
+
   const [events, setEvents] = useState<CalendarEvent[]>([
     {
-      start: new Date(2025, 8, 15), // September 15 (start of 3-day period)
-      end: new Date(2025, 8, 18), // September 18 (exclusive end - so event shows 15,16,17)
-      idealizedDay: new Date(2025, 8, 15), // September 16 (the special day within the 3-day span)
-      resource: { type: "custom-3day" }, // Custom metadata to identify our special event type
+      start: new Date(2025, 8, 15),
+      end: new Date(2025, 8, 18),
+      idealizedDay: new Date(2025, 8, 15),
+      numJumpers: 1,
+      resource: { type: "custom-3day" },
     },
   ]);
   const [currentDate, setCurrentDate] = useState(new Date());
+
   const handleNavigate = useCallback(
     (newDate: Date, view?: string, action?: NavigateAction) => {
       console.log("Navigation triggered:", { newDate, view, action });
@@ -40,29 +46,25 @@ export default function SchedulingCalendar() {
     [],
   );
   const handleSelectSlot = (slotInfo: SlotInfo) => {
-    setNewEvent({ start: slotInfo.start, idealizedDay: slotInfo.start }); // Store the selected date
-    setShowEventForm(true); // Open the modal
+    if (isIdealizedDay(slotInfo.start, events)) {
+      return;
+    }
+    if (
+      !isIdealizedDay(slotInfo.start, events) &&
+      isDatePartOfEvent(slotInfo.start, events)
+    ) {
+      setShowWaitlistForm(true);
+    }
+    if (isDateBookable(slotInfo.start, events)) {
+      setNewEvent({
+        start: slotInfo.start,
+        idealizedDay: slotInfo.start,
+        numJumpers: 1,
+      });
+      setShowEventForm(true);
+    }
   };
 
-  const isDateBookable = (date: Date, events: CalendarEvent[]) => {
-    const checkDate = moment(date);
-    const day1 = checkDate.clone();
-    const day2 = checkDate.clone().add(1, "day");
-    const day3 = checkDate.clone().add(2, "day");
-
-    // Check if any existing event conflicts with this 3-day span
-    return !events.some((event) => {
-      const eventStart = moment(event.start);
-      const eventEnd = moment(event.end);
-
-      // Check if any of our 3 days fall within an existing event's range
-      return (
-        day1.isBetween(eventStart, eventEnd, "day", "[)") ||
-        day2.isBetween(eventStart, eventEnd, "day", "[)") ||
-        day3.isBetween(eventStart, eventEnd, "day", "[)")
-      );
-    });
-  };
   const createEvent = () => {
     if (!newEvent) {
       return;
@@ -79,6 +81,7 @@ export default function SchedulingCalendar() {
       start: startDate.toDate(), // Convert moment back to JavaScript Date object
       end: endDate.toDate(),
       idealizedDay: newEvent.idealizedDay, // Our custom field for the special day
+      numJumpers: 1,
       resource: { type: "custom-3day" }, // Metadata to identify our custom event type
     };
 
@@ -172,7 +175,6 @@ export default function SchedulingCalendar() {
           startAccessor="start" // Which property contains event start time
           endAccessor="end" // Which property contains event end time
           style={{ height: 500 }} // Fixed height for calendar (keep as inline style for Big React Calendar)
-          // CRITICAL: Add these props to make Calendar controlled
           date={currentDate}
           onNavigate={handleNavigate}
           onSelectSlot={handleSelectSlot}
@@ -194,6 +196,12 @@ export default function SchedulingCalendar() {
           setNewEvent={setNewEvent}
           setShowEventForm={setShowEventForm}
           createEvent={createEvent}
+        />
+      )}
+      {showWaitlistForm && (
+        <WaitlistModal
+          isOpen={showWaitlistForm}
+          onClose={() => setShowWaitlistForm(false)}
         />
       )}
     </div>

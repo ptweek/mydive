@@ -8,7 +8,6 @@ const getIdealizedDate = (startDate: Date, dayNumber: number): Date => {
   return date;
 };
 
-// Helper function to get day number from idealized date and start date
 const getDayNumber = (startDate: Date, idealizedDate: Date): number => {
   return moment(idealizedDate).diff(moment(startDate), "days") + 1;
 };
@@ -43,6 +42,29 @@ export default function EventCreationModal({
           Booking window: {moment(newEvent.start).format("MMM DD YYYY")} -{" "}
           {moment(newEvent.start).add(2, "days").format("MMM DD YYYY")}
         </p>
+        <div className="mb-5 text-black">
+          <label className="mb-1.5 block font-bold text-gray-800">
+            Number of Jumpers
+          </label>
+          <select
+            value={newEvent.numJumpers ?? 1}
+            onChange={(e) => {
+              const numJumpers = parseInt(e.target.value);
+              setNewEvent({
+                ...newEvent,
+                numJumpers,
+              });
+            }}
+            className="w-full rounded-lg border-2 border-gray-300 p-2.5 text-sm focus:border-blue-600 focus:outline-none"
+          >
+            <option value={1}>1</option>
+            <option value={2}>2</option>
+            <option value={3}>3</option>
+            <option value={4}>4</option>
+            <option value={5}>5</option>
+          </select>
+        </div>
+
         {/* Idealized Day Selection */}
         <div className="mb-5 text-black">
           <label className="mb-1.5 block font-bold text-gray-800">
