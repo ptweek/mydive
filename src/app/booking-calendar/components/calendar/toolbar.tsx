@@ -52,6 +52,10 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
     onNavigate("NEXT");
   };
 
+  const currentDateOption = dateOptions.find((option) =>
+    moment(option.value).isSame(moment(date), "month"),
+  );
+
   return (
     <div className="mb-6 flex flex-col items-center justify-between gap-4 rounded-lg border bg-white p-4 shadow-sm sm:flex-row">
       {/* Navigation buttons */}
@@ -100,13 +104,8 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
         <div className="relative">
           <select
             value={
-              dateOptions
-                .find(
-                  (option) =>
-                    moment(option.value).format("MMMM YYYY") ===
-                    moment(date).format("MMMM YYYY"),
-                )
-                ?.value.toISOString() ?? dateOptions[0]?.value.toISOString()
+              currentDateOption?.value.toISOString() ??
+              dateOptions[0]?.value.toISOString()
             }
             onChange={handleDateSelect}
             className="min-w-[160px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-700 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
