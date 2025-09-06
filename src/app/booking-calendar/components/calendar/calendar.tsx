@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Calendar,
   momentLocalizer,
@@ -33,15 +33,25 @@ export default function SchedulingCalendar() {
   const [newEvent, setNewEvent] = useState<CalendarEvent | null>(null);
 
   const { data, isLoading } = api.booking.getBookings.useQuery();
-  const [events, setEvents] = useState<CalendarEvent[]>([
-    {
-      start: new Date(2025, 8, 15),
-      end: new Date(2025, 8, 18),
-      idealizedDay: new Date(2025, 8, 15),
-      numJumpers: 1,
-      resource: { type: "custom-3day" },
-    },
-  ]);
+
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  useEffect(() => {
+    if (data && !isLoading) {
+      // Transform your API data into CalendarEvent format
+      const transformedEvents: CalendarEvent[] = data.bookings.map(
+        (booking) => ({
+          start: new Date(booking.windowStartDay), // assuming your API returns startDate
+          end: new Date(booking.windowEndDate), // assuming your API returns endDate
+          idealizedDay: new Date(booking.idealizedJumpDay),
+          numJumpers: booking.numJumpers,
+          resource: "custom-3day",
+          // Add any other properties you need from your booking data
+        }),
+      );
+
+      setEvents(transformedEvents);
+    }
+  }, [data, isLoading]);
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Add this to your component state
@@ -107,6 +117,17 @@ export default function SchedulingCalendar() {
 
   const dayPropGetter = useCallback(
     (date: Date) => {
+      if (isLoading) {
+        return {
+          style: {
+            background:
+              "repeating-linear-gradient(45deg, #ffffff, #ffffff 2px, #f1f5f9 2px, #f1f5f9 6px)",
+            opacity: 0.9,
+            pointerEvents: "none", // Disable interactions
+          },
+        };
+      }
+
       if (newEvent) {
         const newEventStart = moment(newEvent.start);
         const newEventEnd = moment(newEvent.start).add(3, "days");
@@ -125,7 +146,6 @@ export default function SchedulingCalendar() {
               style: {
                 background:
                   "repeating-linear-gradient(45deg, #dcfce7, #dcfce7 2px, #bbf7d0 2px, #bbf7d0 6px)",
-
                 fontWeight: "700",
                 textDecoration: "line-through", // Strikethrough to show it's the idealized day
                 opacity: 0.8, // Slightly transparent

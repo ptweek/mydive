@@ -1,4 +1,5 @@
 import { createTRPCRouter, publicProcedure } from "mydive/server/api/trpc";
+import type { RouterOutputs } from "mydive/trpc/react";
 
 export const bookingRouter = createTRPCRouter({
   getBookings: publicProcedure.query(async ({ ctx }) => {
@@ -6,3 +7,6 @@ export const bookingRouter = createTRPCRouter({
     return { bookings };
   }),
 });
+
+export type BookingData =
+  RouterOutputs["booking"]["getBookings"]["bookings"][number];
