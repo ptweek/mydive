@@ -1,5 +1,5 @@
-import { postRouter } from "mydive/server/api/routers/post";
 import { createCallerFactory, createTRPCRouter } from "mydive/server/api/trpc";
+import { bookingRouter } from "mydive/server/api/routers/booking";
 
 /**
  * This is the primary router for your server.
@@ -7,7 +7,7 @@ import { createCallerFactory, createTRPCRouter } from "mydive/server/api/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  post: postRouter,
+  booking: bookingRouter,
 });
 
 // export type definition of API

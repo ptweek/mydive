@@ -21,6 +21,7 @@ import WaitlistModal from "./waitlist-modal";
 import { Button } from "@nextui-org/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
+import { api } from "mydive/trpc/react";
 
 // Setup the localizer for React Big Calendar
 const localizer = momentLocalizer(moment);
@@ -30,7 +31,8 @@ export default function SchedulingCalendar() {
   const [showEventForm, setShowEventForm] = useState(false);
   const [showWaitlistForm, setShowWaitlistForm] = useState(false);
   const [newEvent, setNewEvent] = useState<CalendarEvent | null>(null);
-  console.log("newEvent", newEvent);
+
+  const { data, isLoading } = api.booking.getBookings.useQuery();
   const [events, setEvents] = useState<CalendarEvent[]>([
     {
       start: new Date(2025, 8, 15),
@@ -121,7 +123,9 @@ export default function SchedulingCalendar() {
             // GREEN for new event's idealized day with diagonal stripes and strikethrough
             return {
               style: {
-                backgroundColor: "#dcfce7",
+                background:
+                  "repeating-linear-gradient(45deg, #dcfce7, #dcfce7 2px, #bbf7d0 2px, #bbf7d0 6px)",
+
                 fontWeight: "700",
                 textDecoration: "line-through", // Strikethrough to show it's the idealized day
                 opacity: 0.8, // Slightly transparent
@@ -131,8 +135,7 @@ export default function SchedulingCalendar() {
             // LIGHTER GREEN for other new event days with diagonal stripes (no strikethrough)
             return {
               style: {
-                background:
-                  "repeating-linear-gradient(45deg, #dcfce7, #dcfce7 2px, #bbf7d0 2px, #bbf7d0 6px)",
+                backgroundColor: "#dcfce7",
                 fontWeight: "700",
                 opacity: 0.8, // Slightly transparent
                 textDecoration: "line-through", // Strikethrough to show it's the idealized day
