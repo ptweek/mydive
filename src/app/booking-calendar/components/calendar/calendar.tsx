@@ -8,16 +8,16 @@ import {
   type SlotInfo,
 } from "react-big-calendar";
 import moment from "moment";
-import CalendarToolbar from "./toolbar";
-import EventComponent from "./event";
-import CalendarLegend from "./calendar-legend";
-import EventCreationModal from "./event-creation-modal";
+import CalendarToolbar from "./components/toolbar";
+import EventComponent from "./components/event";
+import CalendarLegend from "./components/calendar-legend";
+import EventCreationModal from "./components/event-creation-modal";
 import type { CalendarEvent } from "./types";
 
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./calendar-overrides.css"; // Add this line
 import { isDateBookable, isDatePartOfEvent, isIdealizedDay } from "./helpers";
-import WaitlistModal from "./waitlist-modal";
+import WaitlistModal from "./components/waitlist-modal";
 import { Button } from "@nextui-org/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
@@ -28,13 +28,36 @@ const localizer = momentLocalizer(moment);
 
 export default function SchedulingCalendar() {
   const router = useRouter();
+
   const [showEventForm, setShowEventForm] = useState(false);
   const [showWaitlistForm, setShowWaitlistForm] = useState(false);
   const [newEvent, setNewEvent] = useState<CalendarEvent | null>(null);
-
-  const { data, isLoading } = api.booking.getBookings.useQuery();
-
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+
+  const { data, isLoading } = api.booking.getBookings.useQuery(undefined, {
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Data is immediately considered stale
+    gcTime: 0, // Don't cache the data
+  });
+  const createBookingMutation = api.booking.createBooking.useMutation({
+    onSuccess: () => {
+      // Invalidate and refetch bookings after successful creation
+      // Show nice success alert
+      setShowSuccessAlert(true);
+      // Wait 2 seconds, then navigate
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 2000);
+    },
+    onError: (error) => {
+      console.error("Failed to create booking:", error);
+      alert("Error submitting booking. Please try again.");
+    },
+  });
+
   useEffect(() => {
     if (data && !isLoading) {
       // Transform your API data into CalendarEvent format
@@ -52,36 +75,35 @@ export default function SchedulingCalendar() {
       setEvents(transformedEvents);
     }
   }, [data, isLoading]);
-  const [currentDate, setCurrentDate] = useState(new Date());
-
-  // Add this to your component state
-  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-
   const handleBookNow = async () => {
     if (!newEvent) return;
-
     try {
-      // Create the event first
-      createEvent();
-      // Show nice success alert
-      setShowSuccessAlert(true);
-      // Wait 2 seconds, then navigate
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 2000);
+      if (!newEvent.start) {
+        throw new Error("Invalid new event");
+      }
+      const windowStartDay = new Date(newEvent.start);
+      const windowEndDate = new Date(windowStartDay);
+      windowEndDate.setDate(windowEndDate.getDate() + 2);
+
+      console.log({
+        numJumpers: newEvent.numJumpers,
+        windowStartDay: windowStartDay,
+        windowEndDate: windowEndDate,
+        idealizedJumpDay: new Date(newEvent.idealizedDay),
+      });
+
+      // Create the booking using the tRPC mutation
+      createBookingMutation.mutate({
+        numJumpers: newEvent.numJumpers,
+        windowStartDay: windowStartDay,
+        windowEndDate: windowEndDate,
+        idealizedJumpDay: new Date(newEvent.idealizedDay),
+      });
     } catch (error) {
       console.error("Error submitting booking:", error);
       alert("Error submitting booking. Please try again.");
     }
   };
-
-  const handleNavigate = useCallback(
-    (newDate: Date, view?: string, action?: NavigateAction) => {
-      console.log("Navigation triggered:", { newDate, view, action });
-      setCurrentDate(newDate);
-    },
-    [],
-  );
   const handleSelectSlot = (slotInfo: SlotInfo) => {
     // Only allow for the creation of one event
     if (!!newEvent) {
@@ -105,16 +127,20 @@ export default function SchedulingCalendar() {
       setShowEventForm(true);
     }
   };
-
   const createEvent = () => {
     if (!newEvent) {
       return;
     }
-
     setEvents([...events, newEvent]); // hacky, needs fix
     setShowEventForm(false);
   };
-
+  const handleNavigate = useCallback(
+    (newDate: Date, view?: string, action?: NavigateAction) => {
+      console.log("Navigation triggered:", { newDate, view, action });
+      setCurrentDate(newDate);
+    },
+    [],
+  );
   const dayPropGetter = useCallback(
     (date: Date) => {
       if (isLoading) {
@@ -216,7 +242,7 @@ export default function SchedulingCalendar() {
 
       return {}; // No styling for days without events
     },
-    [events],
+    [events, isLoading, newEvent],
   );
 
   return (
