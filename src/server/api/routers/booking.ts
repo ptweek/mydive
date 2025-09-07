@@ -1,4 +1,8 @@
-import { createTRPCRouter, publicProcedure } from "mydive/server/api/trpc";
+import {
+  createTRPCRouter,
+  publicProcedure,
+  protectedProcedure,
+} from "mydive/server/api/trpc";
 import type { RouterOutputs } from "mydive/trpc/react";
 import z from "zod";
 
@@ -7,7 +11,27 @@ export const bookingRouter = createTRPCRouter({
     const bookings = (await ctx.db.booking.findMany()) ?? [];
     return { bookings };
   }),
-  createBooking: publicProcedure
+  getBookingsByUser: protectedProcedure
+    .input(
+      z.object({
+        createdById: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const bookings = await ctx.db.booking.findMany({
+          where: {
+            createdById: input.createdById,
+          },
+        });
+
+        return { bookings };
+      } catch (error) {
+        console.error("Error fetching bookings by user:", error);
+        throw new Error("Failed to fetch user bookings");
+      }
+    }),
+  createBooking: protectedProcedure
     .input(
       z.object({
         numJumpers: z.number().min(1).max(5), // adjust max as needed

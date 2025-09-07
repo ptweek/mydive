@@ -83,13 +83,6 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
       const windowEndDate = new Date(windowStartDay);
       windowEndDate.setDate(windowEndDate.getDate() + 2);
 
-      console.log({
-        numJumpers: newEvent.numJumpers,
-        windowStartDay: windowStartDay,
-        windowEndDate: windowEndDate,
-        idealizedJumpDay: new Date(newEvent.idealizedDay),
-      });
-
       // Create the booking using the tRPC mutation
       createBookingMutation.mutate({
         numJumpers: newEvent.numJumpers,

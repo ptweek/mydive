@@ -3,26 +3,14 @@ import React, { useState, useMemo } from "react";
 import {
   Card,
   CardBody,
-  CardHeader,
   Table,
   TableHeader,
   TableColumn,
   TableBody,
   TableRow,
   TableCell,
-  Chip,
   Button,
-  Input,
-  Select,
-  SelectItem,
-  Tabs,
-  Tab,
   Badge,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   useDisclosure,
   Pagination,
   Tooltip,
@@ -32,80 +20,21 @@ import {
   UsersIcon,
   ClockIcon,
   CheckCircleIcon,
-  XCircleIcon,
   EyeIcon,
-  FilmIcon,
-  StarIcon,
-  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 import type { Booking } from "@prisma/client";
 import moment from "moment";
 
-// Mock booking data based on your schema
-const mockBookings: Booking[] = [
-  {
-    id: 1,
-    createdAt: new Date("2024-01-15T10:30:00"),
-    updatedAt: new Date("2024-01-16T14:20:00"),
-    numJumpers: 4,
-    windowStartDay: new Date("2024-02-01T08:00:00"),
-    windowEndDate: new Date("2024-02-04T20:00:00"),
-    idealizedJumpDay: new Date("2024-02-02T12:00:00"),
-    confirmedJumpDay: new Date("2024-02-02T14:30:00"),
-    createdById: "user-123",
-  },
-  {
-    id: 2,
-    createdAt: new Date("2024-01-20T15:45:00"),
-    updatedAt: new Date("2024-01-20T15:45:00"),
-    numJumpers: 2,
-    windowStartDay: new Date("2024-02-10T08:00:00"),
-    windowEndDate: new Date("2024-02-13T20:00:00"),
-    idealizedJumpDay: new Date("2024-02-11T10:00:00"),
-    confirmedJumpDay: null,
-    createdById: "user-456",
-  },
-  {
-    id: 3,
-    createdAt: new Date("2024-01-25T09:15:00"),
-    updatedAt: new Date("2024-01-26T11:30:00"),
-    numJumpers: 8,
-    windowStartDay: new Date("2024-02-20T08:00:00"),
-    windowEndDate: new Date("2024-02-23T20:00:00"),
-    idealizedJumpDay: new Date("2024-02-21T13:00:00"),
-    confirmedJumpDay: new Date("2024-02-21T13:00:00"),
-    createdById: "user-789",
-  },
-  {
-    id: 4,
-    createdAt: new Date("2024-02-01T12:00:00"),
-    updatedAt: new Date("2024-02-01T12:00:00"),
-    numJumpers: 6,
-    windowStartDay: new Date("2024-03-01T08:00:00"),
-    windowEndDate: new Date("2024-03-04T20:00:00"),
-    idealizedJumpDay: new Date("2024-03-02T15:00:00"),
-    confirmedJumpDay: null,
-    createdById: "user-321",
-  },
-  {
-    id: 5,
-    createdAt: new Date("2024-02-05T16:30:00"),
-    updatedAt: new Date("2024-02-06T09:45:00"),
-    numJumpers: 3,
-    windowStartDay: new Date("2024-03-15T08:00:00"),
-    windowEndDate: new Date("2024-03-18T20:00:00"),
-    idealizedJumpDay: new Date("2024-03-16T11:00:00"),
-    confirmedJumpDay: new Date("2024-03-17T11:00:00"),
-    createdById: "user-654",
-  },
-];
-
-export default function BookingsClient() {
-  const [bookings, setBookings] = useState<Booking[]>(mockBookings);
+export default function BookingsClient({
+  loadedBookings,
+}: {
+  loadedBookings: Booking[];
+}) {
+  const [bookings, setBookings] = useState<Booking[]>(loadedBookings ?? []);
   const [selectedTab, setSelectedTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [_, setSelectedBooking] = useState<Booking | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -354,19 +283,14 @@ export default function BookingsClient() {
 
                       <TableCell>
                         <div className="flex justify-center">
-                          <Tooltip
-                            content={formatDate(booking.idealizedJumpDay)}
-                            placement="top"
-                          >
-                            <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-center">
-                              <div className="text-sm font-semibold text-blue-900">
-                                {formatDateShort(booking.idealizedJumpDay)}
-                              </div>
-                              <div className="text-xs text-blue-600">
-                                Preferred
-                              </div>
+                          <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-center">
+                            <div className="text-sm font-semibold text-blue-900">
+                              {formatDateShort(booking.idealizedJumpDay)}
                             </div>
-                          </Tooltip>
+                            <div className="text-xs text-blue-600">
+                              Preferred
+                            </div>
+                          </div>
                         </div>
                       </TableCell>
 

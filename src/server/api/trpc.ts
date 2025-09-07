@@ -13,6 +13,7 @@ import { ZodError } from "zod";
 
 import { auth } from "mydive/server/auth";
 import { db } from "mydive/server/db";
+import { auth as clerkAuth } from "@clerk/nextjs/server";
 
 /**
  * 1. CONTEXT
@@ -28,9 +29,11 @@ import { db } from "mydive/server/db";
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await auth();
+  const { userId } = await clerkAuth();
 
   return {
     db,
+    userId,
     session,
     ...opts,
   };
@@ -121,13 +124,15 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
-    if (!ctx.session?.user) {
+    // I am using clerk auth instead of nextAuth here. I might go back to make it work for NextAuth
+    if (!ctx.session?.user && !ctx.userId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
     return next({
       ctx: {
         // infers the `session` as non-nullable
-        session: { ...ctx.session, user: ctx.session.user },
+        session: ctx.session ? { ...ctx.session, user: ctx.session.user } : {},
+        userId: ctx.userId,
       },
     });
   });
