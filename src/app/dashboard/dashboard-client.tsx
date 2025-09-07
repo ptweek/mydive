@@ -35,7 +35,9 @@ export default function DashboardClient() {
         <CardBody className="p-8 text-center">
           <div className="mb-6">
             <div className="mb-4 text-6xl">📋</div>
-            <h2 className="mb-2 text-3xl font-bold text-white">My Bookings</h2>
+            <h2 className="mb-2 text-3xl font-bold text-white">
+              Manage Bookings
+            </h2>
             <p className="text-lg text-white/80">
               View and manage your upcoming skydiving reservations
             </p>
@@ -49,7 +51,7 @@ export default function DashboardClient() {
               router.push("/my-bookings");
             }}
           >
-            My Bookings
+            Manage Bookings
           </Button>
         </CardBody>
       </Card>

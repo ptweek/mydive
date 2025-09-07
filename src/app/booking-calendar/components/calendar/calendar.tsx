@@ -31,12 +31,17 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
-  const { data, isLoading } = api.booking.getBookings.useQuery(undefined, {
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
-    staleTime: 0, // Data is immediately considered stale
-    gcTime: 0, // Don't cache the data
-  });
+  const { data, isLoading } = api.booking.getBookings.useQuery(
+    {
+      status: { not: "CANCELED" },
+    },
+    {
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
+      staleTime: 0, // Data is immediately considered stale
+      gcTime: 0, // Don't cache the data
+    },
+  );
   const createBookingMutation = api.booking.createBooking.useMutation({
     onSuccess: () => {
       // Invalidate and refetch bookings after successful creation

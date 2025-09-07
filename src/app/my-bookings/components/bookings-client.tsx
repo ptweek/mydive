@@ -9,7 +9,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Button,
   Badge,
   useDisclosure,
   Pagination,
@@ -20,10 +19,69 @@ import {
   UsersIcon,
   ClockIcon,
   CheckCircleIcon,
-  EyeIcon,
 } from "@heroicons/react/24/outline";
 import type { Booking } from "@prisma/client";
 import moment from "moment";
+import { BookingActionsDropdown } from "./booking-actions-dropdown";
+import { api } from "mydive/trpc/react";
+
+export const getBookingStatus = (booking: Booking) => {
+  if (booking.confirmedJumpDay) {
+    return new Date() > new Date(booking.confirmedJumpDay)
+      ? "completed"
+      : "confirmed";
+  }
+  if (new Date() > new Date(booking.windowEndDate)) {
+    return "expired";
+  }
+  return "pending";
+};
+
+const CancelConfirmationModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  booking,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  booking: Booking;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
+      <div className="mx-4 max-w-md rounded-lg bg-white p-6">
+        <h3 className="mb-4 text-lg font-semibold text-gray-900">
+          Cancel Booking
+        </h3>
+        <p className="mb-6 text-gray-600">
+          Are you sure you want to cancel your booking for {booking?.numJumpers}{" "}
+          jumper(s) on{" "}
+          {booking?.idealizedJumpDay
+            ? new Date(booking.idealizedJumpDay).toLocaleDateString()
+            : "N/A"}
+          ?
+        </p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="rounded-md bg-gray-100 px-4 py-2 text-gray-600 hover:bg-gray-200"
+          >
+            Keep Booking
+          </button>
+          <button
+            onClick={onConfirm}
+            className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+          >
+            Cancel Booking
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function BookingsClient({
   loadedBookings,
@@ -34,24 +92,11 @@ export default function BookingsClient({
   const [selectedTab, setSelectedTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [_, setSelectedBooking] = useState<Booking | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const itemsPerPage = 10;
-
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  // Helper functions
-  const getBookingStatus = (booking: Booking) => {
-    if (booking.confirmedJumpDay) {
-      return new Date() > new Date(booking.confirmedJumpDay)
-        ? "completed"
-        : "confirmed";
-    }
-    if (new Date() > new Date(booking.windowEndDate)) {
-      return "expired";
-    }
-    return "pending";
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -77,7 +122,6 @@ export default function BookingsClient({
       minute: "2-digit",
     });
   };
-
   const formatDateShort = (date: Date) => {
     return moment(date).format("MMM DD YYYY");
   };
@@ -85,21 +129,12 @@ export default function BookingsClient({
   // Statistics calculation
   const stats = useMemo(() => {
     const total = bookings.length;
-    const confirmed = bookings.filter(
-      (b) => getBookingStatus(b) === "confirmed",
-    ).length;
-    const completed = bookings.filter(
-      (b) => getBookingStatus(b) === "completed",
-    ).length;
-    const pending = bookings.filter(
-      (b) => getBookingStatus(b) === "pending",
-    ).length;
-    const expired = bookings.filter(
-      (b) => getBookingStatus(b) === "expired",
-    ).length;
+    const confirmed = bookings.filter((b) => b.status === "CONFIRMED").length;
+    const completed = bookings.filter((b) => b.status === "COMPLETED").length;
+    const pending = bookings.filter((b) => b.status === "PENDING").length;
     const totalJumpers = bookings.reduce((sum, b) => sum + b.numJumpers, 0);
 
-    return { total, confirmed, completed, pending, expired, totalJumpers };
+    return { total, confirmed, completed, pending, totalJumpers };
   }, [bookings]);
 
   // Filtered bookings
@@ -142,6 +177,34 @@ export default function BookingsClient({
     setSelectedBooking(booking);
     onOpen();
   };
+  const utils = api.useUtils();
+  // Cancel booking mutation
+  const cancelBookingMutation = api.booking.cancelBooking.useMutation({
+    onSuccess: async () => {
+      // Invalidate and refetch the bookings data
+      await utils.booking.getBookingsByUser.invalidate();
+      setCancelModalOpen(false);
+      setSelectedBooking(null);
+    },
+    onError: (error) => {
+      console.error("Failed to cancel booking:", error.message);
+      // You could add a toast notification here
+    },
+  });
+
+  const handleCancelClick = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setCancelModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    if (selectedBooking) {
+      cancelBookingMutation.mutate({
+        id: selectedBooking.id,
+        createdById: selectedBooking.createdById,
+      });
+    }
+  };
 
   return (
     <div className="z-0 p-4 md:p-8">
@@ -155,7 +218,6 @@ export default function BookingsClient({
             Manage and track all your jump bookings in one place
           </p>
         </div>
-
         {/* Stats Cards */}
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
           <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
@@ -214,7 +276,6 @@ export default function BookingsClient({
             </CardBody>
           </Card>
         </div>
-
         {/* Main Content */}
         <Card className="shadow-2xl">
           <CardBody className="bg-white p-0">
@@ -244,7 +305,7 @@ export default function BookingsClient({
               </TableHeader>
               <TableBody emptyContent="No bookings found">
                 {paginatedBookings.map((booking) => {
-                  const status = getBookingStatus(booking);
+                  const status = booking.status;
                   return (
                     <TableRow key={booking.id} className="group">
                       <TableCell>
@@ -264,7 +325,7 @@ export default function BookingsClient({
 
                       <TableCell>
                         <div className="flex justify-center text-black">
-                          {status}
+                          {status.toLowerCase()}
                         </div>
                       </TableCell>
 
@@ -343,16 +404,16 @@ export default function BookingsClient({
 
                       <TableCell>
                         <div className="flex justify-center">
-                          <Button
-                            size="sm"
-                            variant="flat"
-                            color="primary"
-                            className="opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-                            startContent={<EyeIcon className="h-4 w-4" />}
-                            onPress={() => viewBookingDetails(booking)}
-                          >
-                            View Details
-                          </Button>
+                          <BookingActionsDropdown
+                            booking={booking}
+                            onCancel={() => handleCancelClick(booking)}
+                            onModify={() => console.log("Modify:", booking)}
+                            onRebook={() => console.log("Rebook:", booking)}
+                            onRemove={() => console.log("Remove:", booking)}
+                            onViewDetails={() =>
+                              console.log("View Details:", booking)
+                            }
+                          />
                         </div>
                       </TableCell>
                     </TableRow>
@@ -376,6 +437,31 @@ export default function BookingsClient({
             )}
           </CardBody>
         </Card>
+        {/* Cancel Confirmation Modal */}
+
+        {selectedBooking && (
+          <CancelConfirmationModal
+            isOpen={cancelModalOpen}
+            onClose={() => {
+              setCancelModalOpen(false);
+              setSelectedBooking(null);
+            }}
+            onConfirm={handleConfirmCancel}
+            booking={selectedBooking}
+          />
+        )}
+
+        {/* Loading state */}
+        {cancelBookingMutation.isPending && (
+          <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
+            <div className="rounded-lg bg-white p-6">
+              <div className="flex items-center gap-3">
+                <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                <span>Canceling booking...</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

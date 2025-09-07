@@ -7,10 +7,27 @@ import type { RouterOutputs } from "mydive/trpc/react";
 import z from "zod";
 
 export const bookingRouter = createTRPCRouter({
-  getBookings: publicProcedure.query(async ({ ctx }) => {
-    const bookings = (await ctx.db.booking.findMany()) ?? [];
-    return { bookings };
-  }),
+  getBookings: publicProcedure
+    .input(
+      z
+        .object({
+          status: z
+            .object({
+              not: z.enum(["PENDING", "CONFIRMED", "CANCELED"]),
+            })
+            .optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const whereClause = input?.status ? { status: input.status } : {};
+
+      const bookings = await ctx.db.booking.findMany({
+        where: whereClause,
+      });
+
+      return { bookings };
+    }),
   getBookingsByUser: protectedProcedure
     .input(
       z.object({
@@ -63,6 +80,7 @@ export const bookingRouter = createTRPCRouter({
             windowEndDate: input.windowEndDate,
             idealizedJumpDay: input.idealizedJumpDay,
             createdById: input.createdById,
+            status: "PENDING", // new field
           },
         });
 
@@ -70,6 +88,30 @@ export const bookingRouter = createTRPCRouter({
       } catch (error) {
         console.error("Error creating booking:", error);
         throw new Error("Failed to create booking");
+      }
+    }),
+  cancelBooking: protectedProcedure
+    .input(
+      z.object({
+        createdById: z.string(),
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const updatedBooking = await ctx.db.booking.update({
+          data: {
+            status: "CANCELED",
+          },
+          where: {
+            createdById: input.createdById,
+            id: input.id,
+          },
+        });
+        return { success: true, booking: updatedBooking };
+      } catch (error) {
+        console.error("Error fetching bookings by user:", error);
+        throw new Error("Failed to fetch user bookings");
       }
     }),
 });
