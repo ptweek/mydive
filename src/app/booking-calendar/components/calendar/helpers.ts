@@ -7,19 +7,13 @@ export const isDateBookable = (date: Date, events: CalendarEvent[]) => {
   const day2 = checkDate.clone().add(1, "day");
   const day3 = checkDate.clone().add(2, "day");
 
-  // Check if any existing event conflicts with this 3-day span
-  return !events.some((event) => {
-    const eventStart = moment(event.start);
-    const eventEnd = moment(event.end);
-
-    // Check if any of our 3 days fall within an existing event's range
-    return (
-      day1.isBetween(eventStart, eventEnd, "day", "[)") ||
-      day2.isBetween(eventStart, eventEnd, "day", "[)") ||
-      day3.isBetween(eventStart, eventEnd, "day", "[)")
-    );
-  });
+  return !(
+    isDatePartOfEvent(day1.toDate(), events) ||
+    isDatePartOfEvent(day2.toDate(), events) ||
+    isDatePartOfEvent(day3.toDate(), events)
+  );
 };
+
 // Helper function to check if a date is part of an existing event
 export const isDatePartOfEvent = (
   date: Date,
@@ -30,9 +24,8 @@ export const isDatePartOfEvent = (
   return events.some((event) => {
     const eventStart = moment(event.start);
     const eventEnd = moment(event.end);
-
     // Check if the date falls within the event's range
-    return checkDate.isBetween(eventStart, eventEnd, "day", "[)");
+    return checkDate.isBetween(eventStart, eventEnd, "day", "[]");
   });
 };
 

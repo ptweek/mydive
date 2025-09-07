@@ -1,5 +1,5 @@
 import moment from "moment";
-import type { CalendarEvent } from "./types";
+import type { CalendarEvent } from "src/app/booking-calendar/components/calendar/types";
 
 const getIdealizedDate = (startDate: Date, dayNumber: number): Date => {
   const date = moment(startDate)
@@ -23,12 +23,17 @@ export default function EventCreationModal({
   setShowEventForm: React.Dispatch<React.SetStateAction<boolean>>;
   createEvent: () => void;
 }) {
+  const handleCloseModal = () => {
+    setNewEvent(null);
+    setShowEventForm(false);
+  };
+
   return (
     <>
       {/* Dark overlay that closes modal when clicked */}
       <div
         className="bg-opacity-50 fixed inset-0 z-[999] bg-black"
-        onClick={() => setShowEventForm(false)}
+        onClick={handleCloseModal}
       />
 
       {/* Modal content with Tailwind classes */}

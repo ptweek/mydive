@@ -33,22 +33,18 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
 
   const handleDateSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedDate = new Date(event.target.value);
-    console.log("Dropdown navigation to:", selectedDate);
     onNavigate("DATE", selectedDate);
   };
 
   const handlePrevClick = () => {
-    console.log("Previous button clicked");
     onNavigate("PREV");
   };
 
   const handleTodayClick = () => {
-    console.log("Today button clicked");
     onNavigate("TODAY");
   };
 
   const handleNextClick = () => {
-    console.log("Next button clicked");
     onNavigate("NEXT");
   };
 

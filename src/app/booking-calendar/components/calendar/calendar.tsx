@@ -75,6 +75,9 @@ export default function SchedulingCalendar() {
       setEvents(transformedEvents);
     }
   }, [data, isLoading]);
+  const clearNewBooking = () => {
+    setNewEvent(null);
+  };
   const handleBookNow = async () => {
     if (!newEvent) return;
     try {
@@ -131,12 +134,11 @@ export default function SchedulingCalendar() {
     if (!newEvent) {
       return;
     }
-    setEvents([...events, newEvent]); // hacky, needs fix
+    setEvents([...events]); // hacky, needs fix
     setShowEventForm(false);
   };
   const handleNavigate = useCallback(
     (newDate: Date, view?: string, action?: NavigateAction) => {
-      console.log("Navigation triggered:", { newDate, view, action });
       setCurrentDate(newDate);
     },
     [],
@@ -278,7 +280,21 @@ export default function SchedulingCalendar() {
           step={60} // Time slot step in minutes (for week/day views)
           showMultiDayTimes // Show times for multi-day events
         />
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex justify-end space-x-3">
+          <Button
+            size="lg"
+            variant="shadow"
+            disabled={!newEvent}
+            onPress={clearNewBooking}
+            className={clsx(
+              "px-3 py-3 text-lg font-semibold tracking-wider uppercase transition-all duration-200",
+              !newEvent
+                ? "cursor-not-allowed bg-gray-400 text-gray-200 shadow-none hover:bg-gray-400 hover:shadow-none"
+                : "bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30",
+            )}
+          >
+            Clear booking
+          </Button>
           <Button
             size="lg"
             variant="shadow"
