@@ -139,12 +139,9 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
     setEvents([...events]); // hacky, needs fix
     setShowEventForm(false);
   };
-  const handleNavigate = useCallback(
-    (newDate: Date, view?: string, action?: NavigateAction) => {
-      setCurrentDate(newDate);
-    },
-    [],
-  );
+  const handleNavigate = useCallback((newDate: Date) => {
+    setCurrentDate(newDate);
+  }, []);
   const dayPropGetter = useCallback(
     (date: Date) => {
       if (isLoading) {
@@ -153,7 +150,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
             background:
               "repeating-linear-gradient(45deg, #ffffff, #ffffff 2px, #f1f5f9 2px, #f1f5f9 6px)",
             opacity: 0.9,
-            pointerEvents: "none", // Disable interactions
+            pointerEvents: "none" as const, // Disable interactions
           },
         };
       }
