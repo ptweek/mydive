@@ -1,0 +1,9 @@
+.user-booking::after {
+  content: "👤"; /* or use a custom icon */
+  position: absolute;
+  top: 2px;
+  left: 2px; /* Changed from right to left */
+  font-size: 10px;
+  opacity: 0.7;
+  pointer-events: none;
+}

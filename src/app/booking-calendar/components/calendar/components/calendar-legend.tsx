@@ -35,6 +35,12 @@ const CalendarLegend = () => {
       description:
         "Days that have been booked as part of window but have waitlist availability",
     },
+    {
+      label: "Your Bookings",
+      backgroundColor: "#fecaca", // Using reserved color as example
+      showUserIcon: true,
+      description: "Days that belong to your bookings",
+    },
   ];
 
   return (
@@ -48,10 +54,11 @@ const CalendarLegend = () => {
           <div key={index} className="flex items-center gap-3">
             {/* Color indicator */}
             <div
-              className="h-6 w-6 flex-shrink-0 rounded border-2"
+              className="relative h-6 w-6 flex-shrink-0 rounded border-2"
               style={{
                 backgroundColor: item.backgroundColor,
                 borderColor: item.borderColor,
+                borderWidth: item.borderWidth || "2px",
                 background: item.background,
                 fontWeight:
                   item.label === "Idealized Days"
@@ -60,7 +67,23 @@ const CalendarLegend = () => {
                       ? "600"
                       : "normal",
               }}
-            />
+            >
+              {/* User icon for "Your Bookings" */}
+              {item.showUserIcon && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: "1px",
+                    left: "1px",
+                    fontSize: "8px",
+                    opacity: 0.7,
+                    pointerEvents: "none",
+                  }}
+                >
+                  👤
+                </span>
+              )}
+            </div>
 
             {/* Label and description */}
             <div className="flex flex-col">

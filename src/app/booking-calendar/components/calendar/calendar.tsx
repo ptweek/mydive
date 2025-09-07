@@ -67,6 +67,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
           end: new Date(booking.windowEndDate), // assuming your API returns endDate
           idealizedDay: new Date(booking.idealizedJumpDay),
           numJumpers: booking.numJumpers,
+          createdBy: booking.createdById,
           resource: "custom-3day",
           // Add any other properties you need from your booking data
         }),
@@ -192,28 +193,47 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
         );
       });
       if (maybeEvent) {
-        // Check if this day matches the idealized day
         const isIdealizedDay = moment(date).isSame(
           moment(maybeEvent.idealizedDay),
           "day",
         );
+
+        // Check if this booking belongs to the current user
+        const isUserBooking = maybeEvent.createdBy === userId;
+
+        const baseStyle = {
+          fontWeight: isIdealizedDay ? "700" : "600",
+          // Add thicker border for user bookings
+          borderRadius: "4px",
+          // Add relative positioning for potential icon overlay
+          position: "relative" as const,
+        };
+
         if (isIdealizedDay) {
-          // RED for idealized days
           return {
             style: {
-              backgroundColor: "#fecaca", // Light red background
-
-              fontWeight: "700",
+              ...baseStyle,
+              backgroundColor: "#fecaca",
+              // Add subtle box shadow for user bookings
+              boxShadow: isUserBooking
+                ? "0 2px 4px rgba(0, 0, 0, 0.1)"
+                : "none",
             },
+            // Add data attribute for potential icon styling via CSS
+            className: isUserBooking
+              ? "user-booking idealized-day"
+              : "idealized-day",
           };
         } else {
-          // YELLOW for other event days (not idealized)
           return {
             style: {
-              backgroundColor: "#fef3c7", // Light yellow background
-
-              fontWeight: "600",
+              ...baseStyle,
+              backgroundColor: "#fef3c7",
+              boxShadow: isUserBooking
+                ? "0 2px 4px rgba(0, 0, 0, 0.1)"
+                : "none",
             },
+            className: isUserBooking ? "user-booking event-day" : "event-day",
           };
         }
       }
