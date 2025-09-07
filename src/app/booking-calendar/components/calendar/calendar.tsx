@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import {
-  Calendar,
-  momentLocalizer,
-  type NavigateAction,
-  type SlotInfo,
-} from "react-big-calendar";
+import { Calendar, momentLocalizer, type SlotInfo } from "react-big-calendar";
 import moment from "moment";
 import CalendarToolbar from "./components/toolbar";
 import EventComponent from "./components/event";
@@ -22,7 +17,6 @@ import { Button } from "@nextui-org/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { api } from "mydive/trpc/react";
-import type { User } from "@clerk/backend";
 
 // Setup the localizer for React Big Calendar
 const localizer = momentLocalizer(moment);

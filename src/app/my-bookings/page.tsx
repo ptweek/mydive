@@ -1,9 +1,9 @@
-import { api, HydrateClient } from "mydive/trpc/server";
+import { HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import CalendarClient from "./components/calendar/calendar";
+import BookingsClient from "./components/bookings-client";
 
-export default async function CalendarPage() {
+export default async function MyBookingsPage() {
   const user = await currentUser();
 
   if (!user) {
@@ -23,14 +23,9 @@ export default async function CalendarPage() {
         >
           <source src="/videos/skydiving-background.mp4" type="video/mp4" />
         </video>
-        x{/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 z-0 bg-black/40"></div>
+
         {/* Content */}
-        <div className="z-10 flex w-full justify-center">
-          <div className="w-3/4">
-            <CalendarClient userId={user.id} />
-          </div>
-        </div>
+        <BookingsClient />
       </main>
     </HydrateClient>
   );
