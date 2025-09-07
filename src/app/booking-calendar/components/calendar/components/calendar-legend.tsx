@@ -58,7 +58,6 @@ const CalendarLegend = () => {
               style={{
                 backgroundColor: item.backgroundColor,
                 borderColor: item.borderColor,
-                borderWidth: item.borderWidth || "2px",
                 background: item.background,
                 fontWeight:
                   item.label === "Idealized Days"
