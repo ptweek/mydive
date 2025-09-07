@@ -177,12 +177,10 @@ export default function BookingsClient() {
   const filteredBookings = useMemo(() => {
     let filtered = bookings;
 
-    // Filter by search term
+    // Filter by search term (removed user id)
     if (searchTerm) {
-      filtered = filtered.filter(
-        (booking) =>
-          booking.id.toString().includes(searchTerm) ||
-          booking.createdById.toLowerCase().includes(searchTerm.toLowerCase()),
+      filtered = filtered.filter((booking) =>
+        booking.id.toString().includes(searchTerm),
       );
     }
 
@@ -454,128 +452,6 @@ export default function BookingsClient() {
             )}
           </CardBody>
         </Card>
-
-        {/* Booking Details Modal */}
-        <Modal
-          isOpen={isOpen}
-          onClose={onClose}
-          size="2xl"
-          scrollBehavior="inside"
-        >
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="flex flex-col gap-1">
-                  <h3>Booking Details #{selectedBooking?.id}</h3>
-                  <Chip
-                    color={getStatusColor(getBookingStatus(selectedBooking))}
-                    size="sm"
-                    variant="flat"
-                    className="w-fit capitalize"
-                  >
-                    {getBookingStatus(selectedBooking)}
-                  </Chip>
-                </ModalHeader>
-                <ModalBody>
-                  {selectedBooking && (
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <Card>
-                          <CardHeader className="pb-2">
-                            <h4 className="font-semibold">Basic Information</h4>
-                          </CardHeader>
-                          <CardBody className="space-y-3 pt-0">
-                            <div>
-                              <span className="text-sm text-gray-500">
-                                Created by:
-                              </span>
-                              <p className="font-medium">
-                                {selectedBooking.createdById}
-                              </p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-gray-500">
-                                Number of jumpers:
-                              </span>
-                              <p className="font-medium">
-                                {selectedBooking.numJumpers}
-                              </p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-gray-500">
-                                Created on:
-                              </span>
-                              <p className="font-medium">
-                                {formatDate(selectedBooking.createdAt)}
-                              </p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-gray-500">
-                                Last updated:
-                              </span>
-                              <p className="font-medium">
-                                {formatDate(selectedBooking.updatedAt)}
-                              </p>
-                            </div>
-                          </CardBody>
-                        </Card>
-
-                        <Card>
-                          <CardHeader className="pb-2">
-                            <h4 className="font-semibold">
-                              Schedule Information
-                            </h4>
-                          </CardHeader>
-                          <CardBody className="space-y-3 pt-0">
-                            <div>
-                              <span className="text-sm text-gray-500">
-                                Booking window start:
-                              </span>
-                              <p className="font-medium">
-                                {formatDate(selectedBooking.windowStartDay)}
-                              </p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-gray-500">
-                                Booking window end:
-                              </span>
-                              <p className="font-medium">
-                                {formatDate(selectedBooking.windowEndDate)}
-                              </p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-gray-500">
-                                Idealized jump day:
-                              </span>
-                              <p className="font-medium">
-                                {formatDate(selectedBooking.idealizedJumpDay)}
-                              </p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-gray-500">
-                                Confirmed jump day:
-                              </span>
-                              <p className="font-medium">
-                                {selectedBooking.confirmedJumpDay
-                                  ? formatDate(selectedBooking.confirmedJumpDay)
-                                  : "Not confirmed yet"}
-                              </p>
-                            </div>
-                          </CardBody>
-                        </Card>
-                      </div>
-                    </div>
-                  )}
-                </ModalBody>
-                <ModalFooter>
-                  <Button color="danger" variant="light" onPress={onClose}>
-                    Close
-                  </Button>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
       </div>
     </div>
   );
