@@ -29,6 +29,24 @@ export const isDatePartOfEvent = (
   });
 };
 
+export const isDatePartOfYourEvent = (
+  date: Date,
+  events: CalendarEvent[],
+  userId: string,
+): boolean => {
+  const checkDate = moment(date);
+
+  return events.some((event) => {
+    const eventStart = moment(event.start);
+    const eventEnd = moment(event.end);
+    // Check if the date falls within the event's range
+    return (
+      checkDate.isBetween(eventStart, eventEnd, "day", "[]") &&
+      event.createdBy === userId
+    );
+  });
+};
+
 // Helper function to check if a date is an idealized day
 export const isIdealizedDay = (
   date: Date,

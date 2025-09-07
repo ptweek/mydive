@@ -11,7 +11,12 @@ import type { CalendarEvent } from "./types";
 
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./calendar-overrides.css"; // Add this line
-import { isDateBookable, isDatePartOfEvent, isIdealizedDay } from "./helpers";
+import {
+  isDateBookable,
+  isDatePartOfEvent,
+  isDatePartOfYourEvent,
+  isIdealizedDay,
+} from "./helpers";
 import WaitlistModal from "./components/waitlist-modal";
 import { Button } from "@nextui-org/react";
 import clsx from "clsx";
@@ -102,12 +107,15 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
       alert("Error submitting booking. Please try again.");
     }
   };
-  const handleSelectSlot = (slotInfo: SlotInfo) => {
+  const handleSelectSlot = (slotInfo: SlotInfo, userId: string) => {
     // Only allow for the creation of one event
     if (!!newEvent) {
       return;
     }
-    if (isIdealizedDay(slotInfo.start, events)) {
+    if (
+      isIdealizedDay(slotInfo.start, events) ||
+      isDatePartOfYourEvent(slotInfo.start, events, userId)
+    ) {
       return;
     }
     if (
@@ -280,7 +288,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
           style={{ height: 500 }} // Fixed height for calendar (keep as inline style for Big React Calendar)
           date={currentDate}
           onNavigate={handleNavigate}
-          onSelectSlot={handleSelectSlot}
+          onSelectSlot={(slotInfo) => handleSelectSlot(slotInfo, userId)}
           selectable={true} // Enables clicking on empty slots
           dayPropGetter={dayPropGetter}
           components={{
