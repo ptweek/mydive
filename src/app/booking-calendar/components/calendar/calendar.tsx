@@ -22,11 +22,12 @@ import { Button } from "@nextui-org/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { api } from "mydive/trpc/react";
+import type { User } from "@clerk/backend";
 
 // Setup the localizer for React Big Calendar
 const localizer = momentLocalizer(moment);
 
-export default function SchedulingCalendar() {
+export default function SchedulingCalendar({ userId }: { userId: string }) {
   const router = useRouter();
 
   const [showEventForm, setShowEventForm] = useState(false);
@@ -101,6 +102,7 @@ export default function SchedulingCalendar() {
         windowStartDay: windowStartDay,
         windowEndDate: windowEndDate,
         idealizedJumpDay: new Date(newEvent.idealizedDay),
+        createdById: userId,
       });
     } catch (error) {
       console.error("Error submitting booking:", error);

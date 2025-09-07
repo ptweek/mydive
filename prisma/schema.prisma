@@ -33,9 +33,9 @@ model Booking {
     confirmedJumpDay DateTime? 
 
     // createdBy   User   @relation(fields: [createdById], references: [id])
-    // createdById String
+    createdById String
 
-    // @@index([createdById])
+    @@index([createdById])
 }
 
 

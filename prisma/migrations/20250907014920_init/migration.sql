@@ -7,7 +7,8 @@ CREATE TABLE "Booking" (
     "windowStartDay" DATETIME NOT NULL,
     "windowEndDate" DATETIME NOT NULL,
     "idealizedJumpDay" DATETIME NOT NULL,
-    "confirmedJumpDay" DATETIME
+    "confirmedJumpDay" DATETIME,
+    "createdById" TEXT NOT NULL
 );
 
 -- CreateTable
@@ -62,6 +63,9 @@ CREATE TABLE "VerificationToken" (
     "token" TEXT NOT NULL,
     "expires" DATETIME NOT NULL
 );
+
+-- CreateIndex
+CREATE INDEX "Booking_createdById_idx" ON "Booking"("createdById");
 
 -- CreateIndex
 CREATE INDEX "Post_name_idx" ON "Post"("name");

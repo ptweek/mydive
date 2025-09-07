@@ -4,10 +4,9 @@ import z from "zod";
 
 export const bookingRouter = createTRPCRouter({
   getBookings: publicProcedure.query(async ({ ctx }) => {
-    const bookings = await ctx.db.booking.findMany();
+    const bookings = (await ctx.db.booking.findMany()) ?? [];
     return { bookings };
   }),
-
   createBooking: publicProcedure
     .input(
       z.object({
@@ -15,7 +14,7 @@ export const bookingRouter = createTRPCRouter({
         windowStartDay: z.date(),
         windowEndDate: z.date(),
         idealizedJumpDay: z.date(),
-        confirmedJumpDay: z.date().optional().nullable(),
+        createdById: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -39,8 +38,7 @@ export const bookingRouter = createTRPCRouter({
             windowStartDay: input.windowStartDay,
             windowEndDate: input.windowEndDate,
             idealizedJumpDay: input.idealizedJumpDay,
-            confirmedJumpDay: input.confirmedJumpDay,
-            // createdAt and updatedAt should be handled automatically by Prisma
+            createdById: input.createdById,
           },
         });
 

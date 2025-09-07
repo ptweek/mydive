@@ -28,7 +28,7 @@ export default async function CustomerDashboardEntry() {
         {/* Content */}
         <div className="z-10 flex w-full justify-center">
           <div className="w-3/4">
-            <CalendarClient />
+            <CalendarClient userId={user.id} />
           </div>
         </div>
       </main>
