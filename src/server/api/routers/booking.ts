@@ -1,4 +1,4 @@
-import { clerkClient, EmailAddress } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import {
   createTRPCRouter,
   publicProcedure,

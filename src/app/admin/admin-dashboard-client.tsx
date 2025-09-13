@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 export default function AdminDashboardClient({
   userFirstName,
 }: {
-  userFirstName?: string;
+  userFirstName?: string | null;
 }) {
   const welcomeStr = userFirstName
     ? `Welcome back, ${userFirstName}`

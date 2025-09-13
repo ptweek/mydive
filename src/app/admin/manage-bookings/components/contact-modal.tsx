@@ -8,7 +8,6 @@ import {
   Button,
   Card,
   CardBody,
-  Divider,
 } from "@nextui-org/react";
 import {
   UserIcon,
@@ -81,7 +80,7 @@ export function ContactModal({ isOpen, onClose, user }: ContactModalProps) {
                         </p>
                         <p className="text-lg font-semibold text-gray-900">
                           {user.firstName || user.lastName
-                            ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
+                            ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
                             : "No name provided"}
                         </p>
                       </div>

@@ -1,6 +1,5 @@
 import type { Booking } from "@prisma/client";
 import React, { useState, useRef, useEffect } from "react";
-import { getBookingStatus } from "./bookings-client";
 
 export const BookingActionsDropdown = ({
   booking,
