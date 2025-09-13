@@ -87,6 +87,7 @@ export default function BookingsClient({
   const [showCancelled, setShowCancelled] = useState(false);
   const itemsPerPage = 10;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [showPast, setShowPast] = useState(false);
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -119,6 +120,11 @@ export default function BookingsClient({
     if (!showCancelled) {
       filtered = filtered.filter((booking) => booking.status !== "CANCELED");
     }
+    if (!showPast) {
+      filtered = filtered.filter(
+        (booking) => new Date(booking.windowEndDate) >= new Date(),
+      );
+    }
     // sort filtered by startDate
     filtered.sort((a, b) => {
       const dateA = new Date(a.windowStartDay);
@@ -126,7 +132,7 @@ export default function BookingsClient({
       return dateA.getTime() - dateB.getTime();
     });
     return filtered;
-  }, [bookings, showCancelled]);
+  }, [bookings, showCancelled, showPast]);
 
   const utils = api.useUtils();
   const cancelBookingMutation = api.booking.cancelBooking.useMutation({
@@ -162,7 +168,7 @@ export default function BookingsClient({
         {/* Header */}
         <div className="mb-8">
           <h1 className="mb-2 text-4xl font-bold text-gray-900">
-            Booking Dashboard
+            Booking Manager
           </h1>
           <p className="text-gray-600">
             Manage and track all your jump bookings in one place
@@ -248,18 +254,33 @@ export default function BookingsClient({
                   {filteredBookings.length !== 1 ? "s" : ""}
                 </span>
               </div>
-              <div className="flex items-center gap-3">
-                <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={showCancelled}
-                    onChange={(e) => setShowCancelled(e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm font-medium text-gray-700">
-                    Show cancelled bookings
-                  </span>
-                </label>
+              <div>
+                <div className="flex items-center gap-3">
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={showCancelled}
+                      onChange={(e) => setShowCancelled(e.target.checked)}
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      Show cancelled bookings
+                    </span>
+                  </label>
+                </div>
+                <div className="flex items-center gap-3">
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={showPast}
+                      onChange={(e) => setShowPast(e.target.checked)}
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      Show past bookings
+                    </span>
+                  </label>
+                </div>
               </div>
             </div>
             {/* Fixed Height Table Container with Scroll */}
