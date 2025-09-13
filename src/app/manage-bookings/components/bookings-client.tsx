@@ -414,18 +414,20 @@ export default function BookingsClient({
                         </TableCell>
 
                         <TableCell>
-                          <div className="flex justify-center">
-                            <BookingActionsDropdown
-                              booking={booking}
-                              onCancel={() => handleCancelClick(booking)}
-                              onModify={() => console.log("Modify:", booking)}
-                              onRebook={() => console.log("Rebook:", booking)}
-                              onRemove={() => console.log("Remove:", booking)}
-                              onViewDetails={() =>
-                                console.log("View Details:", booking)
-                              }
-                            />
-                          </div>
+                          {!(booking.status === "CANCELED") && (
+                            <div className="flex justify-center">
+                              <BookingActionsDropdown
+                                booking={booking}
+                                onCancel={() => handleCancelClick(booking)}
+                                onModify={() => console.log("Modify:", booking)}
+                                onRebook={() => console.log("Rebook:", booking)}
+                                onRemove={() => console.log("Remove:", booking)}
+                                onViewDetails={() =>
+                                  console.log("View Details:", booking)
+                                }
+                              />
+                            </div>
+                          )}
                         </TableCell>
                       </TableRow>
                     );

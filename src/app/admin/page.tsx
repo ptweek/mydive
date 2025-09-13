@@ -1,15 +1,15 @@
 import { HydrateClient } from "mydive/trpc/server";
-import HomePageClient from "./homepage-client";
-import { checkRole } from "mydive/utils/roles";
 import { redirect } from "next/navigation";
+import { checkRole } from "../../utils/roles";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
+import AdminDashboardClient from "./admin-dashboard-client";
 
-export default async function Home() {
+export default async function AdminDashboard() {
   const isAdmin = await checkRole("admin");
-
-  if (isAdmin) {
-    redirect("/admin");
+  const user = await currentUser();
+  if (!isAdmin || !user) {
+    redirect("/");
   }
-
   return (
     <HydrateClient>
       <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-white">
@@ -25,12 +25,11 @@ export default async function Home() {
 
           {/* Fallback gradient background */}
         </video>
-
         {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 z-10 bg-black/40"></div>
+        <div className="absolute inset-0 bg-black/40"></div>
 
         {/* Content */}
-        <HomePageClient />
+        <AdminDashboardClient userFirstName={user?.firstName} />
       </main>
     </HydrateClient>
   );
