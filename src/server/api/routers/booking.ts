@@ -1,3 +1,4 @@
+import { clerkClient, EmailAddress } from "@clerk/nextjs/server";
 import {
   createTRPCRouter,
   publicProcedure,
@@ -28,6 +29,27 @@ export const bookingRouter = createTRPCRouter({
 
       return { bookings };
     }),
+  // Probably will want some query parameters in the future.
+  getBookingsWithUser: publicProcedure.query(async ({ ctx }) => {
+    const client = await clerkClient();
+    const bookings = await ctx.db.booking.findMany();
+    const userIds = [...new Set(bookings.map((b) => b.createdById))];
+    const users = (await client.users.getUserList({ userId: userIds })).data;
+    const userData = users.map((user) => {
+      return {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.emailAddresses.map((email) => {
+          return email.emailAddress;
+        }),
+        userId: user.id,
+        phoneNumbers: user.phoneNumbers.map((phoneNumber) => {
+          return phoneNumber.phoneNumber;
+        }),
+      };
+    });
+    return { bookings, users: userData };
+  }),
   getBookingsByUser: protectedProcedure
     .input(
       z.object({
@@ -116,5 +138,7 @@ export const bookingRouter = createTRPCRouter({
     }),
 });
 
-export type BookingData =
+export type BookingDto =
   RouterOutputs["booking"]["getBookings"]["bookings"][number];
+export type UserDto =
+  RouterOutputs["booking"]["getBookingsWithUser"]["users"][number];

@@ -12,33 +12,37 @@ import {
   Badge,
   useDisclosure,
   Tooltip,
+  Button,
 } from "@nextui-org/react";
 import {
   CalendarIcon,
   UsersIcon,
   ClockIcon,
   CheckCircleIcon,
+  UserIcon,
 } from "@heroicons/react/24/outline";
 import type { Booking } from "@prisma/client";
 import moment from "moment";
 import { BookingActionsDropdown } from "./booking-actions-dropdown";
 import { api } from "mydive/trpc/react";
+import type { BookingDto, UserDto } from "mydive/server/api/routers/booking";
 import { CancelConfirmationModal } from "./cancel-confirmation-modal";
+import { ContactModal } from "./contact-modal";
 
-export default function BookingsClient({
+export default function AdminBookingsClient({
   loadedBookings,
+  loadedUsers,
 }: {
-  loadedBookings: Booking[];
+  loadedBookings: BookingDto[];
+  loadedUsers: UserDto[];
 }) {
+  // Contact modal state
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
   const [bookings, setBookings] = useState<Booking[]>(loadedBookings ?? []);
-  const [selectedTab, setSelectedTab] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [currentPage, setCurrentPage] = useState(1);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [showCancelled, setShowCancelled] = useState(false);
-  const itemsPerPage = 10;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [showPast, setShowPast] = useState(false);
 
@@ -115,16 +119,21 @@ export default function BookingsClient({
     }
   };
 
+  const handleContactClick = (user: UserDto) => {
+    setSelectedUser(user);
+    setContactModalOpen(true);
+  };
+
   return (
     <div className="z-0 p-4 md:p-8">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8">
           <h1 className="mb-2 text-4xl font-bold text-gray-900">
-            Booking Manager
+            Administrator Booking Manager
           </h1>
           <p className="text-gray-600">
-            Manage and track all your jump bookings in one place
+            {`Manage your customer's bookings in one place`}
           </p>
         </div>
         {/* Stats Cards */}
@@ -256,6 +265,7 @@ export default function BookingsClient({
                   <TableColumn className="text-left">
                     BOOKING WINDOW
                   </TableColumn>
+                  <TableColumn className="text-left">BOOKED BY</TableColumn>
                   <TableColumn className="text-center">STATUS</TableColumn>
                   <TableColumn className="text-center">JUMPERS</TableColumn>
                   <TableColumn className="text-center">
@@ -269,6 +279,9 @@ export default function BookingsClient({
                 </TableHeader>
                 <TableBody emptyContent="No bookings found">
                   {filteredBookings.map((booking) => {
+                    const user = loadedUsers.find((user) => {
+                      return user.userId === booking.createdById;
+                    });
                     const status = booking.status;
                     return (
                       <TableRow key={booking.id} className="group">
@@ -286,7 +299,34 @@ export default function BookingsClient({
                             </div>
                           </div>
                         </TableCell>
-
+                        {/* Updated Booked By Cell - Now Clickable */}
+                        <TableCell>
+                          {user ? (
+                            <Button
+                              variant="ghost"
+                              className="h-auto justify-start p-2 text-left transition-colors duration-200 hover:bg-blue-50"
+                              onPress={() => handleContactClick(user)}
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className="rounded-full bg-blue-100 p-1">
+                                  <UserIcon className="h-3 w-3 text-blue-600" />
+                                </div>
+                                <div>
+                                  <div className="font-medium text-slate-700">
+                                    {user.firstName} {user.lastName}
+                                  </div>
+                                  <div className="text-xs text-slate-500">
+                                    Click for contact info
+                                  </div>
+                                </div>
+                              </div>
+                            </Button>
+                          ) : (
+                            <div className="text-slate-500 italic">
+                              User not found
+                            </div>
+                          )}
+                        </TableCell>
                         <TableCell>
                           <div className="flex justify-center text-black">
                             {status.toLowerCase()}
@@ -401,6 +441,16 @@ export default function BookingsClient({
             booking={selectedBooking}
           />
         )}
+        {/* New Contact Modal */}
+        <ContactModal
+          isOpen={contactModalOpen}
+          onClose={() => {
+            setContactModalOpen(false);
+            setSelectedUser(null);
+          }}
+          user={selectedUser}
+        />
+
         {cancelBookingMutation.isPending && (
           <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
             <div className="rounded-lg bg-white p-6">
