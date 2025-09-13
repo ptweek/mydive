@@ -38,8 +38,8 @@ export const BookingActionsDropdown = ({
   }, []);
 
   const getActions = () => {
-    switch (getBookingStatus(booking)) {
-      case "pending":
+    switch (booking.status) {
+      case "PENDING":
         return [
           {
             label: "Modify Booking",
@@ -62,7 +62,7 @@ export const BookingActionsDropdown = ({
           },
         ];
 
-      case "confirmed":
+      case "CONFIRMED":
         return [
           {
             label: "View Details",
@@ -83,29 +83,7 @@ export const BookingActionsDropdown = ({
           },
         ];
 
-      case "expired":
-        return [
-          {
-            label: "Rebook",
-            icon: "🔄",
-            onClick: () => {
-              onRebook();
-              setIsOpen(false);
-            },
-            className: "text-green-600 hover:bg-green-50",
-          },
-          {
-            label: "Remove",
-            icon: "🗑️",
-            onClick: () => {
-              onRemove();
-              setIsOpen(false);
-            },
-            className: "text-gray-600 hover:bg-gray-50",
-          },
-        ];
-
-      case "completed":
+      case "COMPLETED":
         return [
           {
             label: "View Details",
