@@ -1,4 +1,4 @@
-import { api, HydrateClient } from "mydive/trpc/server";
+import { HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import CalendarClient from "./components/calendar/calendar";

@@ -13,6 +13,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./calendar-overrides.css"; // Add this line
 import {
   isDateBookable,
+  isDateInPast,
   isDatePartOfEvent,
   isDatePartOfYourEvent,
   isIdealizedDay,
@@ -22,13 +23,13 @@ import { Button } from "@nextui-org/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { api } from "mydive/trpc/react";
+import { getConfirmedJumpDays } from "mydive/app/_utils/booking";
 
 // Setup the localizer for React Big Calendar
 const localizer = momentLocalizer(moment);
 
 export default function SchedulingCalendar({ userId }: { userId: string }) {
   const router = useRouter();
-
   const [showEventForm, setShowEventForm] = useState(false);
   const [showWaitlistForm, setShowWaitlistForm] = useState(false);
   const [newEvent, setNewEvent] = useState<CalendarEvent | null>(null);
@@ -67,15 +68,21 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
     if (data && !isLoading) {
       // Transform your API data into CalendarEvent format
       const transformedEvents: CalendarEvent[] = data.bookings.map(
-        (booking) => ({
-          start: new Date(booking.windowStartDay), // assuming your API returns startDate
-          end: new Date(booking.windowEndDate), // assuming your API returns endDate
-          idealizedDay: new Date(booking.idealizedJumpDay),
-          numJumpers: booking.numJumpers,
-          createdBy: booking.createdById,
-          resource: "custom-3day",
-          // Add any other properties you need from your booking data
-        }),
+        (booking) => {
+          const confirmedJumpDays = booking?.confirmedJumpDays
+            ? getConfirmedJumpDays(booking)
+            : undefined;
+          return {
+            start: new Date(booking.windowStartDay), // assuming your API returns startDate
+            end: new Date(booking.windowEndDate), // assuming your API returns endDate
+            idealizedDay: new Date(booking.idealizedJumpDay),
+            numJumpers: booking.numJumpers,
+            createdBy: booking.createdById,
+            resource: "custom-3day",
+            confirmedJumpDays: confirmedJumpDays,
+            // Add any other properties you need from your booking data
+          };
+        },
       );
 
       setEvents(transformedEvents);
@@ -145,17 +152,53 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
   }, []);
   const dayPropGetter = useCallback(
     (date: Date) => {
+      const unbookableStyling = {
+        style: {
+          background:
+            "repeating-linear-gradient(45deg, #ffffff, #ffffff 2px, #f1f5f9 2px, #f1f5f9 6px)",
+          opacity: 0.9,
+          pointerEvents: "none" as const, // Disable interactions
+        },
+      };
+
       if (isLoading) {
+        return unbookableStyling;
+      }
+      const isPastDate = isDateInPast(date);
+      if (isPastDate) {
+        return unbookableStyling;
+      }
+      const isConfirmedJumpDay = events.some((event) =>
+        event.confirmedJumpDays?.some((jumpDay) =>
+          moment(jumpDay).isSame(moment(date), "day"),
+        ),
+      );
+
+      // If it's a confirmed jump day, style as reserved (red)
+      if (isConfirmedJumpDay) {
+        // Find the event that has this confirmed jump day to check if it's a user booking
+        const confirmedJumpEvent = events.find((event) =>
+          event.confirmedJumpDays?.some((jumpDay) =>
+            moment(jumpDay).isSame(moment(date), "day"),
+          ),
+        );
+        const isUserConfirmedJump = confirmedJumpEvent?.createdBy === userId;
+
         return {
           style: {
-            background:
-              "repeating-linear-gradient(45deg, #ffffff, #ffffff 2px, #f1f5f9 2px, #f1f5f9 6px)",
-            opacity: 0.9,
-            pointerEvents: "none" as const, // Disable interactions
+            backgroundColor: "#fecaca", // Red background like idealized days
+            fontWeight: "700",
+            color: "#dc2626", // Darker red text
+            position: "relative" as const,
+            boxShadow: isUserConfirmedJump
+              ? "0 2px 4px rgba(0, 0, 0, 0.1)"
+              : "none",
           },
+          className: isUserConfirmedJump
+            ? "user-booking confirmed-jump-day"
+            : "confirmed-jump-day",
         };
       }
-
       if (newEvent) {
         const newEventStart = moment(newEvent.start);
         const newEventEnd = moment(newEvent.start).add(3, "days");
@@ -263,7 +306,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
 
       return {}; // No styling for days without events
     },
-    [events, isLoading, newEvent],
+    [events, isLoading, newEvent, userId],
   );
 
   return (

@@ -116,6 +116,8 @@ export default function BookingsClient({
     }
   };
 
+  console.log("bookings", bookings);
+
   return (
     <div className="z-0 p-4 md:p-8">
       <div className="mx-auto max-w-7xl">
@@ -321,31 +323,37 @@ export default function BookingsClient({
                         </TableCell>
 
                         <TableCell>
-                          {booking.confirmedJumpDays ? (
-                            <div>
-                              {getConfirmedJumpDays(booking).map(
-                                (jumpDay, idx) => {
-                                  return (
-                                    <Tooltip
-                                      content={formatDate(jumpDay)}
-                                      key={`${booking.createdById}-${booking.windowStartDay.toDateString()}-${idx}`}
-                                      placement="top"
-                                    ></Tooltip>
-                                  );
-                                },
-                              )}
-                            </div>
-                          ) : (
-                            <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">
-                              <div className="text-sm font-medium text-gray-500">
-                                Pending
+                          <div className="flex justify-center">
+                            {booking.confirmedJumpDays ? (
+                              <div className="space-y-1">
+                                {getConfirmedJumpDays(booking).map(
+                                  (jumpDay, idx) => (
+                                    <div
+                                      key={`${idx}-${jumpDay.toISOString()}`}
+                                      className="flex items-center gap-2 rounded-md bg-green-50 px-2 py-1 text-sm"
+                                    >
+                                      <CheckCircleIcon className="h-4 w-4 text-green-600" />
+                                      <span className="font-medium text-green-800">
+                                        {formatDateShort(jumpDay)}
+                                      </span>
+                                    </div>
+                                  ),
+                                )}
                               </div>
-                              <div className="flex items-center justify-center gap-1 text-xs text-gray-400">
-                                <ClockIcon className="h-3 w-3" />
-                                Not confirmed
+                            ) : (
+                              <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <ClockIcon className="h-4 w-4 text-gray-400" />
+                                  <span className="text-sm font-medium text-gray-500">
+                                    Pending
+                                  </span>
+                                </div>
+                                <div className="mt-1 text-xs text-gray-400">
+                                  Awaiting confirmation
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </TableCell>
 
                         <TableCell>

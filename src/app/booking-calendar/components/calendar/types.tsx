@@ -4,4 +4,5 @@ export type CalendarEvent = Event & {
   idealizedDay: Date;
   numJumpers: number;
   createdBy?: string;
+  confirmedJumpDays?: Date[];
 };
