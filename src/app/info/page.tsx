@@ -1,15 +1,7 @@
 import { HydrateClient } from "mydive/trpc/server";
-import { redirect } from "next/navigation";
-import { checkRole } from "../../utils/roles";
-import { currentUser } from "@clerk/nextjs/server";
 import InfoPageClient from "./info-page-client";
 
-export default async function AdminDashboard() {
-  const isAdmin = await checkRole("admin");
-  const user = await currentUser();
-  if (!isAdmin || !user) {
-    redirect("/");
-  }
+export default async function InfoPage() {
   return (
     <HydrateClient>
       <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-white">
