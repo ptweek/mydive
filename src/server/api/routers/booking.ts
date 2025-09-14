@@ -97,6 +97,7 @@ export const bookingRouter = createTRPCRouter({
       try {
         const newBooking = await ctx.db.booking.create({
           data: {
+            bookingZone: "DEFAULT", // need to add booking zones in the future
             numJumpers: input.numJumpers,
             windowStartDay: input.windowStartDay,
             windowEndDate: input.windowEndDate,

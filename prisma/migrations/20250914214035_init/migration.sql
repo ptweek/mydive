@@ -4,12 +4,31 @@ CREATE TABLE "Booking" (
     "status" TEXT NOT NULL DEFAULT 'PENDING',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
+    "bookingZone" TEXT NOT NULL,
     "numJumpers" INTEGER NOT NULL,
     "windowStartDay" DATETIME NOT NULL,
     "windowEndDate" DATETIME NOT NULL,
     "idealizedJumpDay" DATETIME NOT NULL,
     "confirmedJumpDays" JSONB,
     "createdById" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Waitlist" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "day" DATETIME NOT NULL,
+    "associatedBookingId" INTEGER NOT NULL,
+    CONSTRAINT "Waitlist_associatedBookingId_fkey" FOREIGN KEY ("associatedBookingId") REFERENCES "Booking" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "WaitlistEntry" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "waitlistId" INTEGER NOT NULL,
+    "userId" TEXT NOT NULL,
+    "position" INTEGER NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "WaitlistEntry_waitlistId_fkey" FOREIGN KEY ("waitlistId") REFERENCES "Waitlist" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -67,6 +86,18 @@ CREATE TABLE "VerificationToken" (
 
 -- CreateIndex
 CREATE INDEX "Booking_createdById_idx" ON "Booking"("createdById");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Waitlist_associatedBookingId_key" ON "Waitlist"("associatedBookingId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Waitlist_day_key" ON "Waitlist"("day");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WaitlistEntry_waitlistId_position_key" ON "WaitlistEntry"("waitlistId", "position");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WaitlistEntry_waitlistId_userId_key" ON "WaitlistEntry"("waitlistId", "userId");
 
 -- CreateIndex
 CREATE INDEX "Post_name_idx" ON "Post"("name");

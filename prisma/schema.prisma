@@ -28,12 +28,14 @@ enum BookingStatus {
   COMPLETED
 }
 
+
 model Booking {
     id Int @id @default(autoincrement())
     status BookingStatus @default(PENDING)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+    bookingZone String
     numJumpers Int
     windowStartDay DateTime // End date is always 3 days afterwards
     windowEndDate DateTime
@@ -43,9 +45,33 @@ model Booking {
     // createdBy   User   @relation(fields: [createdById], references: [id])
     createdById String
 
+    waitlists Waitlist[]
+    
     @@index([createdById])
 }
 
+model Waitlist {
+  id                  Int             @id @default(autoincrement())
+  day                 DateTime
+  associatedBookingId Int             @unique // Foreign key
+  associatedBooking   Booking         @relation(fields: [associatedBookingId], references: [id])
+  entries             WaitlistEntry[]
+  
+  @@unique([day]) // If you want one waitlist per day
+}
+
+model WaitlistEntry {
+  id         Int      @id @default(autoincrement())
+  waitlistId Int
+  userId     String   // clerkId
+  position   Int      // Order in the waitlist
+  createdAt  DateTime @default(now())
+  
+  waitlist   Waitlist @relation(fields: [waitlistId], references: [id], onDelete: Cascade)
+
+  @@unique([waitlistId, position]) // Ensure no duplicate positions
+  @@unique([waitlistId, userId])   // Ensure user can't be on same waitlist twice
+}
 
 
 model Post {
