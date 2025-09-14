@@ -44,6 +44,9 @@ export default function HomePageClient() {
           size="lg"
           variant="shadow"
           className="w-full border-2 border-white bg-white/10 py-6 text-lg font-semibold tracking-wider text-white uppercase backdrop-blur-sm hover:bg-white/20 hover:shadow-xl hover:shadow-white/20 sm:w-48"
+          onPress={() => {
+            window.location.href = "/info"; // for some reason need to force a full refresh on this
+          }}
         >
           Learn More
         </Button>
