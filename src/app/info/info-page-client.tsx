@@ -48,7 +48,7 @@ export default function InfoPage() {
                   pressure to make the next load or else having to wait for the
                   next one, repetitive jumps onto a suburban airport.
                 </p>
-                <p className="font-semibold text-red-400">
+                <p className="font-bold">
                   Somewhere along the way, the soul of the sport got lost and
                   skydiving grew soft.
                 </p>
@@ -133,7 +133,7 @@ export default function InfoPage() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20 px-6 py-16 text-center">
+      <section className="px-6 py-16 text-center">
         <div className="mx-auto max-w-4xl">
           <h2 className="mb-6 text-4xl font-bold text-white md:text-6xl">
             This is{" "}
