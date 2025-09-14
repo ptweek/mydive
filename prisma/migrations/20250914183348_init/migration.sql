@@ -1,13 +1,14 @@
 -- CreateTable
 CREATE TABLE "Booking" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "numJumpers" INTEGER NOT NULL,
     "windowStartDay" DATETIME NOT NULL,
     "windowEndDate" DATETIME NOT NULL,
     "idealizedJumpDay" DATETIME NOT NULL,
-    "confirmedJumpDay" DATETIME,
+    "confirmedJumpDays" JSONB,
     "createdById" TEXT NOT NULL
 );
 

@@ -12,6 +12,7 @@ import { Providers } from "./providers";
 import { checkRole } from "mydive/utils/roles";
 import { AdminNavigation } from "./_layouts/AdminNavigation";
 import { UserNavigation } from "./_layouts/UserNavigation";
+import { GuestNavigation } from "./_layouts/GuestNavigation";
 
 export const metadata: Metadata = {
   title: "MyDive Skydiving",
@@ -35,6 +36,9 @@ export default async function RootLayout({
               <SignedIn>
                 {isAdmin ? <AdminNavigation /> : <UserNavigation />}
               </SignedIn>
+              <SignedOut>
+                <GuestNavigation />
+              </SignedOut>
             </div>
             <div className="flex items-center justify-end gap-4">
               {/* Show admin badge if user is admin */}

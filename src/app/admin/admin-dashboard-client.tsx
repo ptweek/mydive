@@ -42,7 +42,7 @@ export default function AdminDashboardClient({
               variant="shadow"
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 py-6 text-lg font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30"
               onPress={() => {
-                router.push("/booking-calendar");
+                router.push("/admin/manage-bookings");
               }}
             >
               View Bookings Now
@@ -68,7 +68,7 @@ export default function AdminDashboardClient({
               variant="shadow"
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 py-6 text-lg font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30"
               onPress={() => {
-                router.push("/manage-bookings");
+                router.push("/admin");
               }}
             >
               Manage Users

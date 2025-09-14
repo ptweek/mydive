@@ -30,7 +30,7 @@ export const AdminNavigation = () => (
     </a>
     <a
       href="/admin"
-      className="group relative flex items-center gap-2 overflow-hidden rounded-lg border border-red-500/20 bg-gradient-to-r from-red-600/20 to-pink-600/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:border-red-400/40 hover:from-red-500/30 hover:to-pink-500/30 hover:shadow-xl hover:shadow-red-500/25"
+      className="group borderborder-white/20 relative flex items-center gap-2 overflow-hidden rounded-lg bg-gradient-to-r from-blue-600/20 to-indigo-600/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:border-red-400/40 hover:from-red-500/30 hover:to-pink-500/30 hover:shadow-xl hover:shadow-red-500/25"
     >
       <div className="absolute inset-0 translate-x-full bg-gradient-to-r from-white/0 to-white/10 transition-transform duration-500 group-hover:translate-x-0"></div>
       <svg

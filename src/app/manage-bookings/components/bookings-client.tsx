@@ -24,6 +24,7 @@ import moment from "moment";
 import { BookingActionsDropdown } from "./booking-actions-dropdown";
 import { api } from "mydive/trpc/react";
 import { CancelConfirmationModal } from "./cancel-confirmation-modal";
+import { getConfirmedJumpDays } from "mydive/app/_utils/booking";
 
 export default function BookingsClient({
   loadedBookings,
@@ -262,7 +263,7 @@ export default function BookingsClient({
                     IDEAL JUMP DATE
                   </TableColumn>
                   <TableColumn className="text-center">
-                    CONFIRMED JUMP DATE
+                    CONFIRMED JUMP DATES
                   </TableColumn>
                   <TableColumn className="text-center">DATE BOOKED</TableColumn>
                   <TableColumn className="text-center">ACTIONS</TableColumn>
@@ -320,34 +321,31 @@ export default function BookingsClient({
                         </TableCell>
 
                         <TableCell>
-                          <div className="flex justify-center">
-                            {booking.confirmedJumpDay ? (
-                              <Tooltip
-                                content={formatDate(booking.confirmedJumpDay)}
-                                placement="top"
-                              >
-                                <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-center">
-                                  <div className="text-sm font-semibold text-green-900">
-                                    {formatDateShort(booking.confirmedJumpDay)}
-                                  </div>
-                                  <div className="flex items-center justify-center gap-1 text-xs text-green-600">
-                                    <CheckCircleIcon className="h-3 w-3" />
-                                    Confirmed
-                                  </div>
-                                </div>
-                              </Tooltip>
-                            ) : (
-                              <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">
-                                <div className="text-sm font-medium text-gray-500">
-                                  Pending
-                                </div>
-                                <div className="flex items-center justify-center gap-1 text-xs text-gray-400">
-                                  <ClockIcon className="h-3 w-3" />
-                                  Not confirmed
-                                </div>
+                          {booking.confirmedJumpDays ? (
+                            <div>
+                              {getConfirmedJumpDays(booking).map(
+                                (jumpDay, idx) => {
+                                  return (
+                                    <Tooltip
+                                      content={formatDate(jumpDay)}
+                                      key={`${booking.createdById}-${booking.windowStartDay.toDateString()}-${idx}`}
+                                      placement="top"
+                                    ></Tooltip>
+                                  );
+                                },
+                              )}
+                            </div>
+                          ) : (
+                            <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">
+                              <div className="text-sm font-medium text-gray-500">
+                                Pending
                               </div>
-                            )}
-                          </div>
+                              <div className="flex items-center justify-center gap-1 text-xs text-gray-400">
+                                <ClockIcon className="h-3 w-3" />
+                                Not confirmed
+                              </div>
+                            </div>
+                          )}
                         </TableCell>
 
                         <TableCell>

@@ -136,6 +136,83 @@ export const bookingRouter = createTRPCRouter({
         throw new Error("Failed to fetch user bookings");
       }
     }),
+  confirmBookingDays: protectedProcedure
+    .input(
+      z.object({
+        bookingId: z.number(),
+        createdById: z.string(),
+        confirmedDates: z.array(z.string().datetime()), // ISO date strings
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // First, verify the booking exists and belongs to the user
+        const existingBooking = await ctx.db.booking.findFirst({
+          where: {
+            id: input.bookingId,
+            createdById: input.createdById,
+          },
+        });
+
+        if (!existingBooking) {
+          throw new Error(
+            "Booking not found or you don't have permission to modify it",
+          );
+        }
+
+        // Validate that the booking is in a state that can be confirmed
+        if (existingBooking.status === "CANCELED") {
+          throw new Error("Cannot confirm dates for a canceled booking");
+        }
+
+        // Convert date strings to Date objects for validation
+        const confirmedDates = input.confirmedDates.map(
+          (dateStr) => new Date(dateStr),
+        );
+
+        // Validate that all confirmed dates are within the booking window
+        const windowStart = new Date(existingBooking.windowStartDay);
+        const windowEnd = new Date(existingBooking.windowEndDate);
+
+        for (const date of confirmedDates) {
+          if (date < windowStart || date > windowEnd) {
+            throw new Error(
+              `All confirmed dates must be within the booking window (${windowStart.toDateString()} - ${windowEnd.toDateString()})`,
+            );
+          }
+        }
+
+        // Remove duplicate dates and sort them
+        const uniqueDates = [...new Set(input.confirmedDates)].sort();
+
+        // Update the booking with confirmed dates and change status to CONFIRMED
+        const updatedBooking = await ctx.db.booking.update({
+          where: {
+            id: input.bookingId,
+            createdById: input.createdById,
+          },
+          data: {
+            confirmedJumpDays: uniqueDates, // Store as JSON array of ISO date strings
+            status: "CONFIRMED",
+          },
+        });
+
+        return {
+          success: true,
+          booking: updatedBooking,
+          confirmedDatesCount: uniqueDates.length,
+        };
+      } catch (error) {
+        console.error("Error confirming booking days:", error);
+
+        // Re-throw known errors, wrap unknown ones
+        if (error instanceof Error) {
+          throw error;
+        }
+
+        throw new Error("Failed to confirm booking days");
+      }
+    }),
 });
 
 export type BookingDto =

@@ -28,6 +28,8 @@ import { api } from "mydive/trpc/react";
 import type { BookingDto, UserDto } from "mydive/server/api/routers/booking";
 import { CancelConfirmationModal } from "./cancel-confirmation-modal";
 import { ContactModal } from "./contact-modal";
+import { getConfirmedJumpDays } from "mydive/app/_utils/booking";
+import { ConfirmBookingDatesModal } from "./confirm-booking-date-modal";
 
 export default function AdminBookingsClient({
   loadedBookings,
@@ -41,6 +43,8 @@ export default function AdminBookingsClient({
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
   const [bookings, setBookings] = useState<Booking[]>(loadedBookings ?? []);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [confirmBookingDateModalOpen, setConfirmBookingDateModalOpen] =
+    useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [showCancelled, setShowCancelled] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -110,6 +114,11 @@ export default function AdminBookingsClient({
     setCancelModalOpen(true);
   };
 
+  const handleConfirmBookingClick = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setConfirmBookingDateModalOpen(true);
+  };
+
   const handleConfirmCancel = () => {
     if (selectedBooking) {
       cancelBookingMutation.mutate({
@@ -123,6 +132,8 @@ export default function AdminBookingsClient({
     setSelectedUser(user);
     setContactModalOpen(true);
   };
+
+  console.log("bookings", bookings);
 
   return (
     <div className="z-0 p-4 md:p-8">
@@ -272,7 +283,7 @@ export default function AdminBookingsClient({
                     IDEAL JUMP DATE
                   </TableColumn>
                   <TableColumn className="text-center">
-                    CONFIRMED JUMP DATE
+                    CONFIRMED JUMP DATES
                   </TableColumn>
                   <TableColumn className="text-center">DATE BOOKED</TableColumn>
                   <TableColumn className="text-center">ACTIONS</TableColumn>
@@ -361,29 +372,32 @@ export default function AdminBookingsClient({
 
                         <TableCell>
                           <div className="flex justify-center">
-                            {booking.confirmedJumpDay ? (
-                              <Tooltip
-                                content={formatDate(booking.confirmedJumpDay)}
-                                placement="top"
-                              >
-                                <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-center">
-                                  <div className="text-sm font-semibold text-green-900">
-                                    {formatDateShort(booking.confirmedJumpDay)}
-                                  </div>
-                                  <div className="flex items-center justify-center gap-1 text-xs text-green-600">
-                                    <CheckCircleIcon className="h-3 w-3" />
-                                    Confirmed
-                                  </div>
-                                </div>
-                              </Tooltip>
+                            {booking.confirmedJumpDays ? (
+                              <div className="space-y-1">
+                                {getConfirmedJumpDays(booking).map(
+                                  (jumpDay, idx) => (
+                                    <div
+                                      key={`${idx}-${jumpDay.toISOString()}`}
+                                      className="flex items-center gap-2 rounded-md bg-green-50 px-2 py-1 text-sm"
+                                    >
+                                      <CheckCircleIcon className="h-4 w-4 text-green-600" />
+                                      <span className="font-medium text-green-800">
+                                        {formatDateShort(jumpDay)}
+                                      </span>
+                                    </div>
+                                  ),
+                                )}
+                              </div>
                             ) : (
                               <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">
-                                <div className="text-sm font-medium text-gray-500">
-                                  Pending
+                                <div className="flex items-center justify-center gap-2">
+                                  <ClockIcon className="h-4 w-4 text-gray-400" />
+                                  <span className="text-sm font-medium text-gray-500">
+                                    Pending
+                                  </span>
                                 </div>
-                                <div className="flex items-center justify-center gap-1 text-xs text-gray-400">
-                                  <ClockIcon className="h-3 w-3" />
-                                  Not confirmed
+                                <div className="mt-1 text-xs text-gray-400">
+                                  Awaiting confirmation
                                 </div>
                               </div>
                             )}
@@ -412,7 +426,9 @@ export default function AdminBookingsClient({
                               <BookingActionsDropdown
                                 booking={booking}
                                 onCancel={() => handleCancelClick(booking)}
-                                onModify={() => console.log("Modify:", booking)}
+                                onConfirmBookingDates={() =>
+                                  handleConfirmBookingClick(booking)
+                                }
                                 onRebook={() => console.log("Rebook:", booking)}
                                 onRemove={() => console.log("Remove:", booking)}
                                 onViewDetails={() =>
@@ -438,6 +454,16 @@ export default function AdminBookingsClient({
               setSelectedBooking(null);
             }}
             onConfirm={handleConfirmCancel}
+            booking={selectedBooking}
+          />
+        )}
+        {selectedBooking && (
+          <ConfirmBookingDatesModal
+            isOpen={confirmBookingDateModalOpen}
+            onClose={() => {
+              setConfirmBookingDateModalOpen(false);
+              setSelectedBooking(null);
+            }}
             booking={selectedBooking}
           />
         )}

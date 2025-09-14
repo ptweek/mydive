@@ -38,13 +38,14 @@ model Booking {
     windowStartDay DateTime // End date is always 3 days afterwards
     windowEndDate DateTime
     idealizedJumpDay DateTime
-    confirmedJumpDay DateTime? 
+    confirmedJumpDays Json? // will store as JSON array, ex. [Datetime, Datetime]
 
     // createdBy   User   @relation(fields: [createdById], references: [id])
     createdById String
 
     @@index([createdById])
 }
+
 
 
 model Post {

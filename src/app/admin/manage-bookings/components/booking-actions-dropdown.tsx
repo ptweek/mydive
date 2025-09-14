@@ -3,14 +3,14 @@ import React, { useState, useRef, useEffect } from "react";
 
 export const BookingActionsDropdown = ({
   booking,
-  onModify,
+  onConfirmBookingDates,
   onCancel,
   onViewDetails,
   onRebook,
   onRemove,
 }: {
   booking: Booking;
-  onModify: () => void;
+  onConfirmBookingDates: (booking: Booking) => void;
   onCancel: (booking: Booking) => void;
   onViewDetails: () => void;
   onRebook: () => void;
@@ -41,15 +41,14 @@ export const BookingActionsDropdown = ({
       case "PENDING":
         return [
           {
-            label: "Modify Booking",
+            label: "Confirm Jump Dates",
             icon: "✏️",
             onClick: () => {
-              onModify();
+              onConfirmBookingDates(booking);
               setIsOpen(false);
             },
             className: "text-blue-600 hover:bg-blue-50",
           },
-
           {
             label: "Cancel Booking",
             icon: "❌",
@@ -64,13 +63,13 @@ export const BookingActionsDropdown = ({
       case "CONFIRMED":
         return [
           {
-            label: "View Details",
-            icon: "📄",
+            label: "Modify Confirmed Jump Dates",
+            icon: "✏️",
             onClick: () => {
-              onViewDetails();
+              onConfirmBookingDates(booking);
               setIsOpen(false);
             },
-            className: "text-gray-600 hover:bg-gray-50",
+            className: "text-blue-600 hover:bg-blue-50",
           },
           {
             label: "Cancel Booking",
