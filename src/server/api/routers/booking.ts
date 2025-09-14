@@ -73,7 +73,7 @@ export const bookingRouter = createTRPCRouter({
   createBooking: protectedProcedure
     .input(
       z.object({
-        numJumpers: z.number().min(1).max(5), // adjust max as needed
+        numJumpers: z.number().min(1).max(10), // adjust max as needed
         windowStartDay: z.date(),
         windowEndDate: z.date(),
         idealizedJumpDay: z.date(),
