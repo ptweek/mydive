@@ -88,58 +88,6 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Name Field */}
-          <div>
-            <label
-              htmlFor="waitlist-name"
-              className="mb-1.5 block text-sm font-medium text-black"
-            >
-              Full Name *
-            </label>
-            <input
-              id="waitlist-name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className={`w-full rounded-lg border-2 p-3 text-sm text-black transition-colors focus:outline-none ${
-                errors.name
-                  ? "border-red-300 focus:border-red-500"
-                  : "border-gray-300 focus:border-blue-500"
-              }`}
-              placeholder="Enter your full name"
-              disabled={isSubmitting}
-            />
-            {errors.name && (
-              <p className="mt-1 text-xs text-red-600">{errors.name}</p>
-            )}
-          </div>
-
-          {/* Email Field */}
-          <div>
-            <label
-              htmlFor="waitlist-email"
-              className="mb-1.5 block text-sm font-medium text-gray-700"
-            >
-              Email Address *
-            </label>
-            <input
-              id="waitlist-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={`text-blacktransition-colors w-full rounded-lg border-2 p-3 text-sm text-black focus:outline-none ${
-                errors.email
-                  ? "border-red-300 focus:border-red-500"
-                  : "border-gray-300 focus:border-blue-500"
-              }`}
-              placeholder="Enter your email address"
-              disabled={isSubmitting}
-            />
-            {errors.email && (
-              <p className="mt-1 text-xs text-red-600">{errors.email}</p>
-            )}
-          </div>
-
           {/* Info Box */}
           <div className="rounded-lg bg-blue-50 p-4">
             <div className="flex items-start">
