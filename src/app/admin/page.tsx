@@ -1,7 +1,7 @@
 import { HydrateClient } from "mydive/trpc/server";
 import { redirect } from "next/navigation";
 import { checkRole } from "../../utils/roles";
-import { clerkClient, currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import AdminDashboardClient from "./admin-dashboard-client";
 
 export default async function AdminDashboard() {

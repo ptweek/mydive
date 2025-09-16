@@ -12,6 +12,7 @@ import type { CalendarEvent } from "./types";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./calendar-overrides.css"; // Add this line
 import {
+  findBookingByDate,
   isDateBookable,
   isDateConfirmedJumpdate,
   isDateInPast,
@@ -24,8 +25,7 @@ import { Button } from "@nextui-org/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { api } from "mydive/trpc/react";
-import { getConfirmedJumpDays } from "mydive/app/_utils/booking";
-
+import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_utils/booking";
 // Setup the localizer for React Big Calendar
 const localizer = momentLocalizer(moment);
 
@@ -37,6 +37,12 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [selectedWaitlistDate, setSelectedWaitlistDate] = useState<Date | null>(
+    null,
+  );
+  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(
+    null,
+  );
 
   const { data, isLoading } = api.booking.getBookings.useQuery(
     {
@@ -70,17 +76,17 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
       // Transform your API data into CalendarEvent format
       const transformedEvents: CalendarEvent[] = data.bookings.map(
         (booking) => {
-          const confirmedJumpDays = booking?.confirmedJumpDays
-            ? getConfirmedJumpDays(booking)
+          const confirmedJumpDates = booking?.scheduledJumpDates
+            ? getActiveScheduledJumpDatesFromBookingWindow(booking)
             : undefined;
           return {
-            start: new Date(booking.windowStartDay), // assuming your API returns startDate
+            start: new Date(booking.windowStartDate), // assuming your API returns startDate
             end: new Date(booking.windowEndDate), // assuming your API returns endDate
-            idealizedDay: new Date(booking.idealizedJumpDay),
+            idealizedDay: new Date(booking.idealizedJumpDate),
             numJumpers: booking.numJumpers,
-            createdBy: booking.createdById,
+            bookedBy: booking.bookedBy,
             resource: "custom-3day",
-            confirmedJumpDays: confirmedJumpDays,
+            confirmedJumpDays: confirmedJumpDates,
             // Add any other properties you need from your booking data
           };
         },
@@ -105,7 +111,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
       // Create the booking using the tRPC mutation
       createBookingMutation.mutate({
         numJumpers: newEvent.numJumpers,
-        windowStartDay: windowStartDay,
+        windowStartDate: windowStartDay,
         windowEndDate: windowEndDate,
         idealizedJumpDay: new Date(newEvent.idealizedDay),
         createdById: userId,
@@ -122,7 +128,8 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
     }
     if (
       isIdealizedDay(slotInfo.start, events) ||
-      isDatePartOfYourEvent(slotInfo.start, events, userId)
+      isDatePartOfYourEvent(slotInfo.start, events, userId) ||
+      isDateInPast(slotInfo.start)
     ) {
       return;
     }
@@ -131,7 +138,17 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
       isDatePartOfEvent(slotInfo.start, events) &&
       !isDateConfirmedJumpdate(slotInfo.start, events)
     ) {
-      setShowWaitlistForm(true);
+      const associatedBookingId = findBookingByDate(
+        slotInfo.start,
+        data?.bookings ?? [],
+      )?.id;
+      if (associatedBookingId && associatedBookingId !== null) {
+        setSelectedWaitlistDate(slotInfo.start);
+        setSelectedBookingId(associatedBookingId);
+        setShowWaitlistForm(true);
+      } else {
+        throw Error(`Could not find associated booking for that waitlist date`);
+      }
     }
     if (isDateBookable(slotInfo.start, events)) {
       setNewEvent({
@@ -180,7 +197,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
             moment(jumpDay).isSame(moment(date), "day"),
           ),
         );
-        const isUserConfirmedJump = confirmedJumpEvent?.createdBy === userId;
+        const isUserConfirmedJump = confirmedJumpEvent?.bookedBy === userId;
 
         return {
           style: {
@@ -248,7 +265,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
         );
 
         // Check if this booking belongs to the current user
-        const isUserBooking = maybeEvent.createdBy === userId;
+        const isUserBooking = maybeEvent.bookedBy === userId;
 
         const baseStyle = {
           fontWeight: isIdealizedDay ? "700" : "600",
@@ -379,10 +396,16 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
           createEvent={createEvent}
         />
       )}
-      {showWaitlistForm && (
+      {showWaitlistForm && selectedWaitlistDate && selectedBookingId && (
         <WaitlistModal
+          day={selectedWaitlistDate}
+          associatedBookingId={selectedBookingId}
           isOpen={showWaitlistForm}
-          onClose={() => setShowWaitlistForm(false)}
+          onClose={() => {
+            setSelectedWaitlistDate(null);
+            setSelectedBookingId(null);
+            setShowWaitlistForm(false);
+          }}
         />
       )}
 

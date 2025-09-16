@@ -24,7 +24,11 @@ export default async function MyBookingsPage() {
         </video>
 
         {/* Content */}
-        <AdminBookingsClient loadedBookings={bookings} loadedUsers={users} />
+        <AdminBookingsClient
+          loadedBookings={bookings}
+          loadedUsers={users}
+          adminUserId={user.id}
+        />
       </main>
     </HydrateClient>
   );

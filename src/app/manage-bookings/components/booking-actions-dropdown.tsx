@@ -1,4 +1,4 @@
-import type { Booking } from "@prisma/client";
+import type { BookingWindow } from "@prisma/client";
 import React, { useState, useRef, useEffect } from "react";
 
 export const BookingActionsDropdown = ({
@@ -9,9 +9,9 @@ export const BookingActionsDropdown = ({
   onRebook,
   onRemove,
 }: {
-  booking: Booking;
+  booking: BookingWindow;
   onModify: () => void;
-  onCancel: (booking: Booking) => void;
+  onCancel: (booking: BookingWindow) => void;
   onViewDetails: () => void;
   onRebook: () => void;
   onRemove: () => void;

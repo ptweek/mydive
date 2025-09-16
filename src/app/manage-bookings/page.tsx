@@ -9,7 +9,7 @@ export default async function MyBookingsPage() {
     redirect("/");
   }
   const { bookings } = await api.booking.getBookingsByUser({
-    createdById: user.id,
+    bookedBy: user.id,
   });
   return (
     <HydrateClient>

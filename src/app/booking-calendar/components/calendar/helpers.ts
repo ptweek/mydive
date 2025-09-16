@@ -1,5 +1,6 @@
 import moment from "moment";
 import type { CalendarEvent } from "./types";
+import type { BookingWindow } from "@prisma/client";
 
 export const isDateBookable = (date: Date, events: CalendarEvent[]) => {
   const checkDate = moment(date);
@@ -17,6 +18,17 @@ export const isDateBookable = (date: Date, events: CalendarEvent[]) => {
 
 export const isDateInPast = (date: Date) => {
   return moment(date).isBefore(moment(), "day");
+};
+
+export const findBookingByDate = (date: Date, bookings: BookingWindow[]) => {
+  return bookings.find((booking) => {
+    const bookingStart = moment(booking.windowStartDate);
+    const bookingEnd = moment(booking.windowEndDate);
+    const target = moment(date);
+
+    // Check if target date is between start and end (inclusive)
+    return target.isBetween(bookingStart, bookingEnd, "day", "[]");
+  });
 };
 
 // Helper function to check if a date is part of an existing event
@@ -47,7 +59,7 @@ export const isDatePartOfYourEvent = (
     // Check if the date falls within the event's range
     return (
       checkDate.isBetween(eventStart, eventEnd, "day", "[]") &&
-      event.createdBy === userId
+      event.bookedBy === userId
     );
   });
 };

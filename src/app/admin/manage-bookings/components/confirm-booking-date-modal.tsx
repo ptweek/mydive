@@ -1,22 +1,24 @@
 "use client";
-import type { Booking } from "@prisma/client";
-import { getConfirmedJumpDays } from "mydive/app/_utils/booking";
+import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_utils/booking";
 import { api } from "mydive/trpc/react";
 import { useState, useEffect } from "react";
+import type { BookingsWithUserDto } from "mydive/server/api/routers/booking";
 
 export const ConfirmBookingDatesModal = ({
   isOpen,
   onClose,
   booking,
+  adminUserId,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  booking: Booking;
+  booking: BookingsWithUserDto;
+  adminUserId: string;
 }) => {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const confirmBookingMutation = api.booking.confirmBookingDays.useMutation({
+  const modifyBookingMutation = api.booking.modifyBookingDates.useMutation({
     onSuccess: async () => {
       // Invalidate and refetch the bookings data
       onClose();
@@ -29,8 +31,9 @@ export const ConfirmBookingDatesModal = ({
 
   // Helper function to parse confirmed jump days from the booking
   const getExistingConfirmedDates = (): Date[] => {
-    if (!booking.confirmedJumpDays) return [];
-    const parsedJumpDays = getConfirmedJumpDays(booking);
+    if (!booking.scheduledJumpDates) return [];
+    const parsedJumpDays =
+      getActiveScheduledJumpDatesFromBookingWindow(booking);
     try {
       // Handle both array of strings and array of objects
       return parsedJumpDays.map((dateStr) => new Date(dateStr));
@@ -49,14 +52,14 @@ export const ConfirmBookingDatesModal = ({
       // Reset selection when modal closes
       setSelectedDates([]);
     }
-  }, [isOpen, booking.confirmedJumpDays]);
+  }, [isOpen, booking.scheduledJumpDates]);
 
   if (!isOpen) return null;
 
   // Generate array of dates within the booking window
   const getDateRange = () => {
     const dates: Date[] = [];
-    const start = new Date(booking.windowStartDay);
+    const start = new Date(booking.windowStartDate);
     const end = new Date(booking.windowEndDate);
 
     const current = new Date(start);
@@ -104,9 +107,10 @@ export const ConfirmBookingDatesModal = ({
 
     setIsSubmitting(true);
     try {
-      await confirmBookingMutation.mutateAsync({
+      await modifyBookingMutation.mutateAsync({
         bookingId: booking.id,
-        createdById: booking.createdById,
+        bookedBy: booking.bookedBy,
+        confirmedBy: adminUserId,
         confirmedDates: selectedDates.map((date) => date.toISOString()),
       });
       onClose();
@@ -124,9 +128,9 @@ export const ConfirmBookingDatesModal = ({
   };
 
   const availableDates = getDateRange();
-  const idealizedDate = new Date(booking.idealizedJumpDay);
+  const idealizedDate = new Date(booking.idealizedJumpDate);
   const hasExistingConfirmedDates =
-    booking.confirmedJumpDays && getExistingConfirmedDates().length > 0;
+    booking.scheduledJumpDates && getExistingConfirmedDates().length > 0;
 
   return (
     <div

@@ -10,8 +10,6 @@ import {
   TableRow,
   TableCell,
   Badge,
-  useDisclosure,
-  Tooltip,
 } from "@nextui-org/react";
 import {
   CalendarIcon,
@@ -19,28 +17,25 @@ import {
   ClockIcon,
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
-import type { Booking } from "@prisma/client";
 import moment from "moment";
 import { BookingActionsDropdown } from "./booking-actions-dropdown";
 import { api } from "mydive/trpc/react";
 import { CancelConfirmationModal } from "./cancel-confirmation-modal";
-import { getConfirmedJumpDays } from "mydive/app/_utils/booking";
+import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_utils/booking";
+import type { BookingsByUserDto } from "mydive/server/api/routers/booking";
 
 export default function BookingsClient({
   loadedBookings,
 }: {
-  loadedBookings: Booking[];
+  loadedBookings: BookingsByUserDto[];
 }) {
-  const [bookings, setBookings] = useState<Booking[]>(loadedBookings ?? []);
-  const [selectedTab, setSelectedTab] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [bookings, setBookings] = useState<BookingsByUserDto[]>(
+    loadedBookings ?? [],
+  );
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedBooking, setSelectedBooking] =
+    useState<BookingsByUserDto | null>(null);
   const [showCancelled, setShowCancelled] = useState(false);
-  const itemsPerPage = 10;
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [showPast, setShowPast] = useState(false);
 
   const formatDate = (date: Date) => {
@@ -81,8 +76,8 @@ export default function BookingsClient({
     }
     // sort filtered by startDate
     filtered.sort((a, b) => {
-      const dateA = new Date(a.windowStartDay);
-      const dateB = new Date(b.windowStartDay);
+      const dateA = new Date(a.windowStartDate);
+      const dateB = new Date(b.windowStartDate);
       return dateA.getTime() - dateB.getTime();
     });
     return filtered;
@@ -102,7 +97,7 @@ export default function BookingsClient({
     },
   });
 
-  const handleCancelClick = (booking: Booking) => {
+  const handleCancelClick = (booking: BookingsByUserDto) => {
     setSelectedBooking(booking);
     setCancelModalOpen(true);
   };
@@ -111,13 +106,10 @@ export default function BookingsClient({
     if (selectedBooking) {
       cancelBookingMutation.mutate({
         id: selectedBooking.id,
-        createdById: selectedBooking.createdById,
+        bookedBy: selectedBooking.bookedBy,
       });
     }
   };
-
-  console.log("bookings", bookings);
-
   return (
     <div className="z-0 p-4 md:p-8">
       <div className="mx-auto max-w-7xl">
@@ -257,7 +249,7 @@ export default function BookingsClient({
               >
                 <TableHeader>
                   <TableColumn className="text-left">
-                    BOOKING WINDOW
+                    BOOKING REQUEST
                   </TableColumn>
                   <TableColumn className="text-center">STATUS</TableColumn>
                   <TableColumn className="text-center">JUMPERS</TableColumn>
@@ -279,7 +271,7 @@ export default function BookingsClient({
                           <div className="flex flex-col space-y-1">
                             <div className="mt-2 ml-5">
                               <div className="text-sm font-semibold text-slate-700">
-                                {formatDateShort(booking.windowStartDay)} -{" "}
+                                {formatDateShort(booking.windowStartDate)} -{" "}
                                 {formatDateShort(booking.windowEndDate)}
                               </div>
                               <div className="mt-1 flex items-center gap-1 text-xs text-slate-500">
@@ -313,7 +305,7 @@ export default function BookingsClient({
                           <div className="flex justify-center">
                             <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-center">
                               <div className="text-sm font-semibold text-blue-900">
-                                {formatDateShort(booking.idealizedJumpDay)}
+                                {formatDateShort(booking.idealizedJumpDate)}
                               </div>
                               <div className="text-xs text-blue-600">
                                 Preferred
@@ -324,21 +316,21 @@ export default function BookingsClient({
 
                         <TableCell>
                           <div className="flex justify-center">
-                            {booking.confirmedJumpDays ? (
+                            {booking.scheduledJumpDates.length > 0 ? (
                               <div className="space-y-1">
-                                {getConfirmedJumpDays(booking).map(
-                                  (jumpDay, idx) => (
-                                    <div
-                                      key={`${idx}-${jumpDay.toISOString()}`}
-                                      className="flex items-center gap-2 rounded-md bg-green-50 px-2 py-1 text-sm"
-                                    >
-                                      <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                                      <span className="font-medium text-green-800">
-                                        {formatDateShort(jumpDay)}
-                                      </span>
-                                    </div>
-                                  ),
-                                )}
+                                {getActiveScheduledJumpDatesFromBookingWindow(
+                                  booking,
+                                ).map((jumpDay, idx) => (
+                                  <div
+                                    key={`${idx}-${jumpDay.toISOString()}`}
+                                    className="flex items-center gap-2 rounded-md bg-green-50 px-2 py-1 text-sm"
+                                  >
+                                    <CheckCircleIcon className="h-4 w-4 text-green-600" />
+                                    <span className="font-medium text-green-800">
+                                      {formatDateShort(jumpDay)}
+                                    </span>
+                                  </div>
+                                ))}
                               </div>
                             ) : (
                               <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">

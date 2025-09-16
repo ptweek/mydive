@@ -10,8 +10,6 @@ import {
   TableRow,
   TableCell,
   Badge,
-  useDisclosure,
-  Tooltip,
   Button,
 } from "@nextui-org/react";
 import {
@@ -21,49 +19,44 @@ import {
   CheckCircleIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
-import type { Booking } from "@prisma/client";
 import moment from "moment";
 import { BookingActionsDropdown } from "./booking-actions-dropdown";
 import { api } from "mydive/trpc/react";
-import type { BookingDto, UserDto } from "mydive/server/api/routers/booking";
+import type {
+  UserDto,
+  BookingsWithUserDto,
+} from "mydive/server/api/routers/booking";
 import { CancelConfirmationModal } from "./cancel-confirmation-modal";
 import { ContactModal } from "./contact-modal";
-import { getConfirmedJumpDays } from "mydive/app/_utils/booking";
+import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_utils/booking";
 import { ConfirmBookingDatesModal } from "./confirm-booking-date-modal";
 
 export default function AdminBookingsClient({
   loadedBookings,
   loadedUsers,
+  adminUserId,
 }: {
-  loadedBookings: BookingDto[];
+  loadedBookings: BookingsWithUserDto[];
   loadedUsers: UserDto[];
+  adminUserId: string;
 }) {
   // Contact modal state
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
-  const [bookings, setBookings] = useState<Booking[]>(loadedBookings ?? []);
+  const [bookings, setBookings] = useState<BookingsWithUserDto[]>(
+    loadedBookings ?? [],
+  );
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [confirmBookingDateModalOpen, setConfirmBookingDateModalOpen] =
     useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedBooking, setSelectedBooking] =
+    useState<BookingsWithUserDto | null>(null);
   const [showCancelled, setShowCancelled] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [showPast, setShowPast] = useState(false);
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
   const formatDateShort = (date: Date) => {
     return moment(date).format("MMM DD YYYY");
   };
 
-  // Statistics calculation
   const stats = useMemo(() => {
     const total = bookings.length;
     const confirmed = bookings.filter((b) => b.status === "CONFIRMED").length;
@@ -88,8 +81,8 @@ export default function AdminBookingsClient({
     }
     // sort filtered by startDate
     filtered.sort((a, b) => {
-      const dateA = new Date(a.windowStartDay);
-      const dateB = new Date(b.windowStartDay);
+      const dateA = new Date(a.windowStartDate);
+      const dateB = new Date(b.windowStartDate);
       return dateA.getTime() - dateB.getTime();
     });
     return filtered;
@@ -109,12 +102,12 @@ export default function AdminBookingsClient({
     },
   });
 
-  const handleCancelClick = (booking: Booking) => {
+  const handleCancelClick = (booking: BookingsWithUserDto) => {
     setSelectedBooking(booking);
     setCancelModalOpen(true);
   };
 
-  const handleConfirmBookingClick = (booking: Booking) => {
+  const handleConfirmBookingClick = (booking: BookingsWithUserDto) => {
     setSelectedBooking(booking);
     setConfirmBookingDateModalOpen(true);
   };
@@ -123,7 +116,7 @@ export default function AdminBookingsClient({
     if (selectedBooking) {
       cancelBookingMutation.mutate({
         id: selectedBooking.id,
-        createdById: selectedBooking.createdById,
+        bookedBy: selectedBooking.bookedBy,
       });
     }
   };
@@ -132,8 +125,6 @@ export default function AdminBookingsClient({
     setSelectedUser(user);
     setContactModalOpen(true);
   };
-
-  console.log("bookings", bookings);
 
   return (
     <div className="z-0 p-4 md:p-8">
@@ -291,7 +282,7 @@ export default function AdminBookingsClient({
                 <TableBody emptyContent="No bookings found">
                   {filteredBookings.map((booking) => {
                     const user = loadedUsers.find((user) => {
-                      return user.userId === booking.createdById;
+                      return user.userId === booking.bookedBy;
                     });
                     const status = booking.status;
                     return (
@@ -300,7 +291,7 @@ export default function AdminBookingsClient({
                           <div className="flex flex-col space-y-1">
                             <div className="mt-2 ml-5">
                               <div className="text-sm font-semibold text-slate-700">
-                                {formatDateShort(booking.windowStartDay)} -{" "}
+                                {formatDateShort(booking.windowStartDate)} -{" "}
                                 {formatDateShort(booking.windowEndDate)}
                               </div>
                               <div className="mt-1 flex items-center gap-1 text-xs text-slate-500">
@@ -361,7 +352,7 @@ export default function AdminBookingsClient({
                           <div className="flex justify-center">
                             <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-center">
                               <div className="text-sm font-semibold text-blue-900">
-                                {formatDateShort(booking.idealizedJumpDay)}
+                                {formatDateShort(booking.idealizedJumpDate)}
                               </div>
                               <div className="text-xs text-blue-600">
                                 Preferred
@@ -372,21 +363,21 @@ export default function AdminBookingsClient({
 
                         <TableCell>
                           <div className="flex justify-center">
-                            {booking.confirmedJumpDays ? (
+                            {booking.scheduledJumpDates.length > 0 ? (
                               <div className="space-y-1">
-                                {getConfirmedJumpDays(booking).map(
-                                  (jumpDay, idx) => (
-                                    <div
-                                      key={`${idx}-${jumpDay.toISOString()}`}
-                                      className="flex items-center gap-2 rounded-md bg-green-50 px-2 py-1 text-sm"
-                                    >
-                                      <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                                      <span className="font-medium text-green-800">
-                                        {formatDateShort(jumpDay)}
-                                      </span>
-                                    </div>
-                                  ),
-                                )}
+                                {getActiveScheduledJumpDatesFromBookingWindow(
+                                  booking,
+                                ).map((jumpDay, idx) => (
+                                  <div
+                                    key={`${idx}-${jumpDay.toISOString()}`}
+                                    className="flex items-center gap-2 rounded-md bg-green-50 px-2 py-1 text-sm"
+                                  >
+                                    <CheckCircleIcon className="h-4 w-4 text-green-600" />
+                                    <span className="font-medium text-green-800">
+                                      {formatDateShort(jumpDay)}
+                                    </span>
+                                  </div>
+                                ))}
                               </div>
                             ) : (
                               <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">
@@ -459,6 +450,7 @@ export default function AdminBookingsClient({
         )}
         {selectedBooking && (
           <ConfirmBookingDatesModal
+            adminUserId={adminUserId}
             isOpen={confirmBookingDateModalOpen}
             onClose={() => {
               setConfirmBookingDateModalOpen(false);

@@ -1,5 +1,4 @@
-import type { Booking } from "@prisma/client";
-
+import type { BookingsWithUserDto } from "mydive/server/api/routers/booking";
 export const CancelConfirmationModal = ({
   isOpen,
   onClose,
@@ -9,7 +8,7 @@ export const CancelConfirmationModal = ({
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  booking: Booking;
+  booking: BookingsWithUserDto;
 }) => {
   if (!isOpen) return null;
 
@@ -22,8 +21,8 @@ export const CancelConfirmationModal = ({
         <p className="mb-6 text-gray-600">
           Are you sure you want to cancel your booking for {booking?.numJumpers}{" "}
           jumper(s) on{" "}
-          {booking?.idealizedJumpDay
-            ? new Date(booking.idealizedJumpDay).toLocaleDateString()
+          {booking?.idealizedJumpDate
+            ? new Date(booking.idealizedJumpDate).toLocaleDateString()
             : "N/A"}
           ?
         </p>

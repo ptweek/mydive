@@ -10,7 +10,7 @@ const CalendarLegend = () => {
         "Days that are open and can be booked as start dates for booking window",
     },
     {
-      label: "Out of start window",
+      label: "Non-bookable days",
       backgroundColor: "#fecaca",
       borderColor: "#e5e7eb",
       background:
@@ -19,14 +19,14 @@ const CalendarLegend = () => {
       opacity: 0.9,
       textDecoration: "line-through", // Add strikethrough for extra visual indication
       description:
-        "Days are open as part of a booking window, but not as the start date",
+        "Days are in the past the present booking availability, or are open as part of a booking window, but not as the start date",
     },
     {
       label: "Reserved",
       backgroundColor: "#fecaca",
       borderColor: "#dc2626",
       description:
-        "Days that have been reserved as a jump day in the window, and therefore do not have waitlist avaibility ",
+        "Days that have been reserved and do not have waitlist avaibility ",
     },
     {
       label: "Waitlist",
@@ -37,7 +37,8 @@ const CalendarLegend = () => {
     },
     {
       label: "Your Bookings",
-      backgroundColor: "#fecaca", // Using reserved color as example
+      backgroundColor: "transparent",
+      borderColor: "#e5e7eb",
       showUserIcon: true,
       description: "Days that belong to your bookings",
     },

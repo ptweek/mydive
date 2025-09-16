@@ -1,12 +1,17 @@
-export function getConfirmedJumpDays(booking: {
-  confirmedJumpDays: unknown;
+import type { ScheduledJump } from "@prisma/client";
+
+export function getActiveScheduledJumpDatesFromBookingWindow(bookingWindow: {
+  scheduledJumpDates: ScheduledJump[];
 }): Date[] {
-  if (!booking.confirmedJumpDays || !Array.isArray(booking.confirmedJumpDays)) {
+  if (
+    !bookingWindow.scheduledJumpDates ||
+    !Array.isArray(bookingWindow.scheduledJumpDates)
+  ) {
     return [];
   }
-  return booking.confirmedJumpDays.map(
-    (dateStr) => new Date(dateStr as string), // ugly, sad, and the result of prisma not allowing me to create an array of native datetimes.
-  );
+  return bookingWindow.scheduledJumpDates
+    .filter((scheduledJumpDate) => scheduledJumpDate.status !== "CANCELED")
+    .map((scheduledJumpDate) => scheduledJumpDate.jumpDate);
 }
 
 export function setConfirmedJumpDays(dates: Date[]): string[] {
