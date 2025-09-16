@@ -52,6 +52,17 @@ export const isDatePartOfYourEvent = (
   });
 };
 
+export const isDateConfirmedJumpdate = (
+  date: Date,
+  events: CalendarEvent[],
+): boolean => {
+  return events.some((event) =>
+    event.confirmedJumpDays?.some((jumpDay) =>
+      moment(jumpDay).isSame(moment(date), "day"),
+    ),
+  );
+};
+
 // Helper function to check if a date is an idealized day
 export const isIdealizedDay = (
   date: Date,

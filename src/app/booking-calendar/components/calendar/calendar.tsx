@@ -13,6 +13,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./calendar-overrides.css"; // Add this line
 import {
   isDateBookable,
+  isDateConfirmedJumpdate,
   isDateInPast,
   isDatePartOfEvent,
   isDatePartOfYourEvent,
@@ -127,7 +128,8 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
     }
     if (
       !isIdealizedDay(slotInfo.start, events) &&
-      isDatePartOfEvent(slotInfo.start, events)
+      isDatePartOfEvent(slotInfo.start, events) &&
+      !isDateConfirmedJumpdate(slotInfo.start, events)
     ) {
       setShowWaitlistForm(true);
     }
@@ -168,14 +170,10 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
       if (isPastDate) {
         return unbookableStyling;
       }
-      const isConfirmedJumpDay = events.some((event) =>
-        event.confirmedJumpDays?.some((jumpDay) =>
-          moment(jumpDay).isSame(moment(date), "day"),
-        ),
-      );
+      const isConfirmedJumpDate = isDateConfirmedJumpdate(date, events);
 
       // If it's a confirmed jump day, style as reserved (red)
-      if (isConfirmedJumpDay) {
+      if (isConfirmedJumpDate) {
         // Find the event that has this confirmed jump day to check if it's a user booking
         const confirmedJumpEvent = events.find((event) =>
           event.confirmedJumpDays?.some((jumpDay) =>

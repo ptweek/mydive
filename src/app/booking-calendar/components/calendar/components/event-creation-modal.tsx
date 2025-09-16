@@ -107,7 +107,10 @@ export default function EventCreationModal({
         <div className="flex justify-end gap-2.5">
           <button
             className="cursor-pointer rounded-lg bg-gray-600 px-5 py-2.5 text-sm font-bold text-white hover:opacity-90"
-            onClick={() => setShowEventForm(false)}
+            onClick={() => {
+              setNewEvent(null);
+              setShowEventForm(false);
+            }}
           >
             Cancel
           </button>
