@@ -24,7 +24,7 @@ export default function WaitlistModal({
   const [showSuccess, setShowSuccess] = useState(false);
 
   const { user } = useUser();
-  const joinWaitlistMutation = api.booking.joinWaitlist.useMutation();
+  const joinWaitlistMutation = api.bookingWindow.joinWaitlist.useMutation();
 
   // Get waitlist info for this day
   const {
@@ -32,7 +32,7 @@ export default function WaitlistModal({
     refetch: refetchWaitlistInfo,
     isLoading: isLoadingWaitlistInfo,
     error: waitlistInfoError,
-  } = api.booking.getWaitlistInfo.useQuery(
+  } = api.bookingWindow.getWaitlistInfo.useQuery(
     {
       day: day,
       userId: user?.id ?? "",

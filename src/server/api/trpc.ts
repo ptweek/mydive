@@ -14,6 +14,7 @@ import { ZodError } from "zod";
 import { auth } from "mydive/server/auth";
 import { db } from "mydive/server/db";
 import { auth as clerkAuth } from "@clerk/nextjs/server";
+import { createServices } from "../services";
 
 /**
  * 1. CONTEXT
@@ -35,6 +36,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     db,
     userId,
     session,
+    services: createServices(db), // Your index.ts service container
     ...opts,
   };
 };

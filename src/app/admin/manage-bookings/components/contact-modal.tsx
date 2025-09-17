@@ -15,7 +15,7 @@ import {
   PhoneIcon,
   IdentificationIcon,
 } from "@heroicons/react/24/outline";
-import type { UserDto } from "mydive/server/api/routers/booking";
+import type { UserDto } from "mydive/server/api/routers/types";
 
 interface ContactModalProps {
   isOpen: boolean;

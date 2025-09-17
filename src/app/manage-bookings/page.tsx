@@ -8,7 +8,7 @@ export default async function MyBookingsPage() {
   if (!user) {
     redirect("/");
   }
-  const { bookings } = await api.booking.getBookingsByUser({
+  const { bookingWindows } = await api.bookingWindow.getBookingRequestsByUser({
     bookedBy: user.id,
   });
   return (
@@ -26,7 +26,7 @@ export default async function MyBookingsPage() {
         </video>
 
         {/* Content */}
-        <BookingsClient loadedBookings={bookings} />
+        <BookingsClient loadedBookingWindows={bookingWindows} />
       </main>
     </HydrateClient>
   );

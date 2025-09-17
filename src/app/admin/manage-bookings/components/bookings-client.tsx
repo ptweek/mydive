@@ -23,9 +23,9 @@ import moment from "moment";
 import { BookingActionsDropdown } from "./booking-actions-dropdown";
 import { api } from "mydive/trpc/react";
 import type {
+  BookingWindowPopulatedDto,
   UserDto,
-  BookingsWithUserDto,
-} from "mydive/server/api/routers/booking";
+} from "mydive/server/api/routers/types";
 import { CancelConfirmationModal } from "./cancel-confirmation-modal";
 import { ContactModal } from "./contact-modal";
 import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_utils/booking";
@@ -36,21 +36,21 @@ export default function AdminBookingsClient({
   loadedUsers,
   adminUserId,
 }: {
-  loadedBookings: BookingsWithUserDto[];
+  loadedBookings: BookingWindowPopulatedDto[];
   loadedUsers: UserDto[];
   adminUserId: string;
 }) {
   // Contact modal state
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
-  const [bookings, setBookings] = useState<BookingsWithUserDto[]>(
-    loadedBookings ?? [],
-  );
+  const [bookingWindows, setBookingWindows] = useState<
+    BookingWindowPopulatedDto[]
+  >(loadedBookings ?? []);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [confirmBookingDateModalOpen, setConfirmBookingDateModalOpen] =
     useState(false);
   const [selectedBooking, setSelectedBooking] =
-    useState<BookingsWithUserDto | null>(null);
+    useState<BookingWindowPopulatedDto | null>(null);
   const [showCancelled, setShowCancelled] = useState(false);
   const [showPast, setShowPast] = useState(false);
   const formatDateShort = (date: Date) => {
@@ -58,19 +58,28 @@ export default function AdminBookingsClient({
   };
 
   const stats = useMemo(() => {
-    const total = bookings.length;
-    const confirmed = bookings.filter((b) => b.status === "CONFIRMED").length;
-    const cancelled = bookings.filter((b) => b.status === "CANCELED").length;
-    const completed = bookings.filter((b) => b.status === "COMPLETED").length;
-    const pending = bookings.filter((b) => b.status === "PENDING").length;
-    const totalJumpers = bookings.reduce((sum, b) => sum + b.numJumpers, 0);
+    const total = bookingWindows.length;
+    const confirmed = bookingWindows.filter(
+      (b) => b.status === "CONFIRMED",
+    ).length;
+    const cancelled = bookingWindows.filter(
+      (b) => b.status === "CANCELED",
+    ).length;
+    const completed = bookingWindows.filter(
+      (b) => b.status === "COMPLETED",
+    ).length;
+    const pending = bookingWindows.filter((b) => b.status === "PENDING").length;
+    const totalJumpers = bookingWindows.reduce(
+      (sum, b) => sum + b.numJumpers,
+      0,
+    );
 
     return { total, confirmed, completed, pending, cancelled, totalJumpers };
-  }, [bookings]);
+  }, [bookingWindows]);
 
   // Filtered bookings - Remove pagination since we're now using scrolling
   const filteredBookings = useMemo(() => {
-    let filtered = bookings;
+    let filtered = bookingWindows;
     if (!showCancelled) {
       filtered = filtered.filter((booking) => booking.status !== "CANCELED");
     }
@@ -86,13 +95,13 @@ export default function AdminBookingsClient({
       return dateA.getTime() - dateB.getTime();
     });
     return filtered;
-  }, [bookings, showCancelled, showPast]);
+  }, [bookingWindows, showCancelled, showPast]);
 
   const utils = api.useUtils();
-  const cancelBookingMutation = api.booking.cancelBooking.useMutation({
+  const cancelBookingMutation = api.bookingWindow.cancelBooking.useMutation({
     onSuccess: async () => {
       // Invalidate and refetch the bookings data
-      await utils.booking.getBookingsByUser.invalidate();
+      await utils.bookingWindow.getBookingRequestsByUser.invalidate();
       setCancelModalOpen(false);
       setSelectedBooking(null);
     },
@@ -102,13 +111,15 @@ export default function AdminBookingsClient({
     },
   });
 
-  const handleCancelClick = (booking: BookingsWithUserDto) => {
-    setSelectedBooking(booking);
+  const handleCancelClick = (bookingWindow: BookingWindowPopulatedDto) => {
+    setSelectedBooking(bookingWindow);
     setCancelModalOpen(true);
   };
 
-  const handleConfirmBookingClick = (booking: BookingsWithUserDto) => {
-    setSelectedBooking(booking);
+  const handleConfirmBookingClick = (
+    bookingWindow: BookingWindowPopulatedDto,
+  ) => {
+    setSelectedBooking(bookingWindow);
     setConfirmBookingDateModalOpen(true);
   };
 

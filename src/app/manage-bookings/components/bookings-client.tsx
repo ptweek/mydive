@@ -22,50 +22,49 @@ import { BookingActionsDropdown } from "./booking-actions-dropdown";
 import { api } from "mydive/trpc/react";
 import { CancelConfirmationModal } from "./cancel-confirmation-modal";
 import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_utils/booking";
-import type { BookingsByUserDto } from "mydive/server/api/routers/booking";
-
+import type { BookingWindowPopulatedDto } from "mydive/server/api/routers/types";
 export default function BookingsClient({
-  loadedBookings,
+  loadedBookingWindows,
 }: {
-  loadedBookings: BookingsByUserDto[];
+  loadedBookingWindows: BookingWindowPopulatedDto[];
 }) {
-  const [bookings, setBookings] = useState<BookingsByUserDto[]>(
-    loadedBookings ?? [],
-  );
+  const [bookingWindows, setBookingWindows] = useState<
+    BookingWindowPopulatedDto[]
+  >(loadedBookingWindows ?? []);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] =
-    useState<BookingsByUserDto | null>(null);
+  const [selectedBookingWindow, setSelectedBookingWindow] =
+    useState<BookingWindowPopulatedDto | null>(null);
   const [showCancelled, setShowCancelled] = useState(false);
   const [showPast, setShowPast] = useState(false);
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
   const formatDateShort = (date: Date) => {
     return moment(date).format("MMM DD YYYY");
   };
 
   // Statistics calculation
   const stats = useMemo(() => {
-    const total = bookings.length;
-    const confirmed = bookings.filter((b) => b.status === "CONFIRMED").length;
-    const cancelled = bookings.filter((b) => b.status === "CANCELED").length;
-    const completed = bookings.filter((b) => b.status === "COMPLETED").length;
-    const pending = bookings.filter((b) => b.status === "PENDING").length;
-    const totalJumpers = bookings.reduce((sum, b) => sum + b.numJumpers, 0);
+    const total = bookingWindows.length;
+    const confirmed = bookingWindows.filter(
+      (b) => b.status === "CONFIRMED",
+    ).length;
+    const cancelled = bookingWindows.filter(
+      (b) => b.status === "CANCELED",
+    ).length;
+    const completed = bookingWindows.filter(
+      (b) => b.status === "COMPLETED",
+    ).length;
+    const pending = bookingWindows.filter((b) => b.status === "PENDING").length;
+    const totalJumpers = bookingWindows.reduce(
+      (sum, b) => sum + b.numJumpers,
+      0,
+    );
 
     return { total, confirmed, completed, pending, cancelled, totalJumpers };
-  }, [bookings]);
+  }, []);
 
   // Filtered bookings - Remove pagination since we're now using scrolling
   const filteredBookings = useMemo(() => {
-    let filtered = bookings;
+    let filtered = bookingWindows;
     if (!showCancelled) {
       filtered = filtered.filter((booking) => booking.status !== "CANCELED");
     }
@@ -81,15 +80,15 @@ export default function BookingsClient({
       return dateA.getTime() - dateB.getTime();
     });
     return filtered;
-  }, [bookings, showCancelled, showPast]);
+  }, [bookingWindows, showCancelled, showPast]);
 
   const utils = api.useUtils();
-  const cancelBookingMutation = api.booking.cancelBooking.useMutation({
+  const cancelBookingMutation = api.bookingWindow.cancelBooking.useMutation({
     onSuccess: async () => {
       // Invalidate and refetch the bookings data
-      await utils.booking.getBookingsByUser.invalidate();
+      await utils.bookingWindow.getBookingRequestsByUser.invalidate();
       setCancelModalOpen(false);
-      setSelectedBooking(null);
+      setSelectedBookingWindow(null);
     },
     onError: (error) => {
       console.error("Failed to cancel booking:", error.message);
@@ -97,16 +96,16 @@ export default function BookingsClient({
     },
   });
 
-  const handleCancelClick = (booking: BookingsByUserDto) => {
-    setSelectedBooking(booking);
+  const handleCancelClick = (booking: BookingWindowPopulatedDto) => {
+    setSelectedBookingWindow(booking);
     setCancelModalOpen(true);
   };
 
   const handleConfirmCancel = () => {
-    if (selectedBooking) {
+    if (selectedBookingWindow) {
       cancelBookingMutation.mutate({
-        id: selectedBooking.id,
-        bookedBy: selectedBooking.bookedBy,
+        id: selectedBookingWindow.id,
+        bookedBy: selectedBookingWindow.bookedBy,
       });
     }
   };
@@ -388,15 +387,15 @@ export default function BookingsClient({
             </div>
           </CardBody>
         </Card>
-        {selectedBooking && (
+        {selectedBookingWindow && (
           <CancelConfirmationModal
             isOpen={cancelModalOpen}
             onClose={() => {
               setCancelModalOpen(false);
-              setSelectedBooking(null);
+              setSelectedBookingWindow(null);
             }}
             onConfirm={handleConfirmCancel}
-            booking={selectedBooking}
+            booking={selectedBookingWindow}
           />
         )}
         {cancelBookingMutation.isPending && (

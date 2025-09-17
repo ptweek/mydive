@@ -90,12 +90,12 @@ model Waitlist {
 model WaitlistEntry {
   id         Int      @id @default(autoincrement())
   waitlistId Int
-  userId     String   // clerkId
+  waitlistedUserId     String   // clerkId of waitlisted user
   position   Int      // Order in the waitlist
   createdAt  DateTime @default(now())
   
   waitlist   Waitlist @relation(fields: [waitlistId], references: [id], onDelete: Cascade)
 
   @@unique([waitlistId, position]) // Ensure no duplicate positions
-  @@unique([waitlistId, userId])   // Ensure user can't be on same waitlist twice
+  @@unique([waitlistId, waitlistedUserId])   // Ensure user can't be on same waitlist twice
 }

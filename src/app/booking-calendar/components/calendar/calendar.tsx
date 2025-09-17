@@ -26,9 +26,7 @@ import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { api } from "mydive/trpc/react";
 import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_utils/booking";
-// Setup the localizer for React Big Calendar
 const localizer = momentLocalizer(moment);
-
 export default function SchedulingCalendar({ userId }: { userId: string }) {
   const router = useRouter();
   const [showEventForm, setShowEventForm] = useState(false);
@@ -44,7 +42,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
     null,
   );
 
-  const { data, isLoading } = api.booking.getBookings.useQuery(
+  const { data, isLoading } = api.bookingWindow.getBookings.useQuery(
     {
       status: { not: "CANCELED" },
     },
@@ -55,7 +53,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
       gcTime: 0, // Don't cache the data
     },
   );
-  const createBookingMutation = api.booking.createBooking.useMutation({
+  const createBookingMutation = api.bookingWindow.createBooking.useMutation({
     onSuccess: () => {
       // Invalidate and refetch bookings after successful creation
       // Show nice success alert

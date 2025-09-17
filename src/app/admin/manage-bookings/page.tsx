@@ -8,7 +8,8 @@ export default async function MyBookingsPage() {
   if (!user) {
     redirect("/");
   }
-  const { bookings, users } = await api.booking.getBookingsWithUser();
+  const { bookingWindows, users } =
+    await api.adminBookingManager.getBookingRequestsWithUsers();
   return (
     <HydrateClient>
       <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-white">
@@ -25,7 +26,7 @@ export default async function MyBookingsPage() {
 
         {/* Content */}
         <AdminBookingsClient
-          loadedBookings={bookings}
+          loadedBookings={bookingWindows}
           loadedUsers={users}
           adminUserId={user.id}
         />

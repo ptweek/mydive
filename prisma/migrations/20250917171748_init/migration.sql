@@ -42,7 +42,7 @@ CREATE TABLE "Waitlist" (
 CREATE TABLE "WaitlistEntry" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "waitlistId" INTEGER NOT NULL,
-    "userId" TEXT NOT NULL,
+    "waitlistedUserId" TEXT NOT NULL,
     "position" INTEGER NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "WaitlistEntry_waitlistId_fkey" FOREIGN KEY ("waitlistId") REFERENCES "Waitlist" ("id") ON DELETE CASCADE ON UPDATE CASCADE
@@ -64,4 +64,4 @@ CREATE UNIQUE INDEX "Waitlist_day_key" ON "Waitlist"("day");
 CREATE UNIQUE INDEX "WaitlistEntry_waitlistId_position_key" ON "WaitlistEntry"("waitlistId", "position");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "WaitlistEntry_waitlistId_userId_key" ON "WaitlistEntry"("waitlistId", "userId");
+CREATE UNIQUE INDEX "WaitlistEntry_waitlistId_waitlistedUserId_key" ON "WaitlistEntry"("waitlistId", "waitlistedUserId");

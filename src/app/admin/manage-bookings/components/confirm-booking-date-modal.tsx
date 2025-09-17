@@ -1,8 +1,8 @@
 "use client";
 import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_utils/booking";
+import type { BookingWindowPopulatedDto } from "mydive/server/api/routers/types";
 import { api } from "mydive/trpc/react";
 import { useState, useEffect } from "react";
-import type { BookingsWithUserDto } from "mydive/server/api/routers/booking";
 
 export const ConfirmBookingDatesModal = ({
   isOpen,
@@ -12,22 +12,23 @@ export const ConfirmBookingDatesModal = ({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  booking: BookingsWithUserDto;
+  booking: BookingWindowPopulatedDto;
   adminUserId: string;
 }) => {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const modifyBookingMutation = api.booking.modifyBookingDates.useMutation({
-    onSuccess: async () => {
-      // Invalidate and refetch the bookings data
-      onClose();
-    },
-    onError: (error) => {
-      console.error("Failed to cancel booking:", error.message);
-      // You could add a toast notification here
-    },
-  });
+  const modifyBookingMutation =
+    api.bookingWindow.modifyBookingDates.useMutation({
+      onSuccess: async () => {
+        // Invalidate and refetch the bookings data
+        onClose();
+      },
+      onError: (error) => {
+        console.error("Failed to cancel booking:", error.message);
+        // You could add a toast notification here
+      },
+    });
 
   // Helper function to parse confirmed jump days from the booking
   const getExistingConfirmedDates = (): Date[] => {

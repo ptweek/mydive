@@ -1,4 +1,3 @@
-import { clerkClient } from "@clerk/nextjs/server";
 import {
   createTRPCRouter,
   publicProcedure,
@@ -7,7 +6,25 @@ import {
 import type { RouterOutputs } from "mydive/trpc/react";
 import z from "zod";
 
-export const bookingRouter = createTRPCRouter({
+export const bookingWindowRouter = createTRPCRouter({
+  getBookingRequestsByUser: protectedProcedure
+    .input(
+      z.object({
+        bookedBy: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const bookingWindows =
+          await ctx.services.bookingWindow.findAllByUserPopulated(
+            input.bookedBy,
+          );
+        return { bookingWindows };
+      } catch (error) {
+        console.error("Error fetching bookings by user:", error);
+        throw new Error("Failed to fetch user bookings");
+      }
+    }),
   getBookings: publicProcedure
     .input(
       z
@@ -41,79 +58,6 @@ export const bookingRouter = createTRPCRouter({
       });
 
       return { bookings };
-    }),
-  // Probably will want some query parameters in the future.
-  getBookingsWithUser: publicProcedure.query(async ({ ctx }) => {
-    const client = await clerkClient();
-    const includeConfig = {
-      scheduledJumpDates: {
-        orderBy: {
-          jumpDate: "asc" as const,
-        },
-      },
-      waitlists: {
-        include: {
-          entries: true,
-        },
-      },
-    } as const;
-    const bookings = await ctx.db.bookingWindow.findMany({
-      include: includeConfig,
-    });
-    const userIds = [...new Set(bookings.map((b) => b.bookedBy))];
-    const users = (await client.users.getUserList({ userId: userIds })).data;
-    const userData = users.map((user) => {
-      return {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.emailAddresses.map((email) => {
-          return email.emailAddress;
-        }),
-        userId: user.id,
-        phoneNumbers: user.phoneNumbers.map((phoneNumber) => {
-          return phoneNumber.phoneNumber;
-        }),
-      };
-    });
-    return { bookings, users: userData };
-  }),
-  getBookingsByUser: protectedProcedure
-    .input(
-      z.object({
-        bookedBy: z.string(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      try {
-        // Define the include object as a const to ensure type inference
-        const includeConfig = {
-          scheduledJumpDates: {
-            orderBy: {
-              jumpDate: "asc" as const,
-            },
-          },
-          waitlists: {
-            include: {
-              entries: true,
-            },
-          },
-        } as const;
-
-        const bookings = await ctx.db.bookingWindow.findMany({
-          where: {
-            bookedBy: input.bookedBy,
-          },
-          include: includeConfig,
-          orderBy: {
-            createdAt: "desc",
-          },
-        });
-
-        return { bookings };
-      } catch (error) {
-        console.error("Error fetching bookings by user:", error);
-        throw new Error("Failed to fetch user bookings");
-      }
     }),
   createBooking: protectedProcedure
     .input(
@@ -396,7 +340,7 @@ export const bookingRouter = createTRPCRouter({
         const existingEntry = await ctx.db.waitlistEntry.findFirst({
           where: {
             waitlistId: waitlist.id,
-            userId: input.userId,
+            waitlistedUserId: input.userId,
           },
         });
 
@@ -415,7 +359,7 @@ export const bookingRouter = createTRPCRouter({
         await ctx.db.waitlistEntry.create({
           data: {
             waitlistId: waitlist.id,
-            userId: input.userId,
+            waitlistedUserId: input.userId,
             position: nextPosition,
           },
         });
@@ -501,7 +445,7 @@ export const bookingRouter = createTRPCRouter({
 
         // Find the user's position on the waitlist
         const userEntry = waitlist.entries.find(
-          (entry) => entry.userId === input.userId,
+          (entry) => entry.waitlistedUserId === input.userId,
         );
         const userPosition = userEntry ? userEntry.position : null;
         const isUserOnWaitlist = userEntry !== undefined;
@@ -511,7 +455,7 @@ export const bookingRouter = createTRPCRouter({
           id: entry.id,
           position: entry.position,
           createdAt: entry.createdAt,
-          isCurrentUser: entry.userId === input.userId,
+          isCurrentUser: entry.waitlistedUserId === input.userId,
           // Note: We don't expose other users' userIds for privacy
         }));
 
@@ -531,12 +475,3 @@ export const bookingRouter = createTRPCRouter({
       }
     }),
 });
-
-export type BookingDto =
-  RouterOutputs["booking"]["getBookings"]["bookings"][number];
-export type BookingsByUserDto =
-  RouterOutputs["booking"]["getBookingsByUser"]["bookings"][number];
-export type BookingsWithUserDto =
-  RouterOutputs["booking"]["getBookingsByUser"]["bookings"][number];
-export type UserDto =
-  RouterOutputs["booking"]["getBookingsWithUser"]["users"][number];
