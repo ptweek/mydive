@@ -20,7 +20,7 @@ export default function HomePageClient() {
           <Button
             size="lg"
             variant="shadow"
-            className="w-full cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-700 py-6 text-lg font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30 sm:w-48"
+            className="w-full cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-700 text-lg font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30 sm:w-48"
             onPress={() => {
               window.location.href = "/booking-calendar"; // for some reason need to force a full refresh on this
             }}
@@ -32,7 +32,7 @@ export default function HomePageClient() {
             <Button
               size="lg"
               variant="shadow"
-              className="w-full cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-700 py-6 text-lg font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30 sm:w-48"
+              className="w-full cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-700 text-lg font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30 sm:w-48"
             >
               Book Now
             </Button>
@@ -43,7 +43,7 @@ export default function HomePageClient() {
         <Button
           size="lg"
           variant="shadow"
-          className="w-full border-2 border-white bg-white/10 py-6 text-lg font-semibold tracking-wider text-white uppercase backdrop-blur-sm hover:bg-white/20 hover:shadow-xl hover:shadow-white/20 sm:w-48"
+          className="bg-white/ w-full border-2 border-white text-lg font-semibold tracking-wider text-white uppercase backdrop-blur-sm hover:bg-white/20 hover:shadow-xl hover:shadow-white/20 sm:w-48"
           onPress={() => {
             window.location.href = "/info"; // for some reason need to force a full refresh on this
           }}
