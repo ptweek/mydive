@@ -24,14 +24,12 @@ const CalendarLegend = () => {
     {
       label: "Reserved",
       backgroundColor: "#fecaca",
-      borderColor: "#dc2626",
       description:
         "Days that have been reserved and do not have waitlist avaibility ",
     },
     {
       label: "Waitlist",
       backgroundColor: "#fef3c7",
-      borderColor: "#f59e0b",
       description:
         "Days that have been booked as part of window but have waitlist availability",
     },

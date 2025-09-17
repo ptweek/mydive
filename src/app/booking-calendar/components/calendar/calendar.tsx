@@ -199,7 +199,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
 
         return {
           style: {
-            backgroundColor: "#fecaca", // Red background like idealized days
+            backgroundColor: "#fecaca",
             fontWeight: "700",
             color: "#dc2626", // Darker red text
             position: "relative" as const,
@@ -228,11 +228,10 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
             // GREEN for new event's idealized day with diagonal stripes and strikethrough
             return {
               style: {
-                background:
-                  "repeating-linear-gradient(45deg, #dcfce7, #dcfce7 2px, #bbf7d0 2px, #bbf7d0 6px)",
+                background: "#86efac",
                 fontWeight: "700",
-                textDecoration: "line-through", // Strikethrough to show it's the idealized day
-                opacity: 0.8, // Slightly transparent
+                // textDecoration: "line-through", // Strikethrough to show it's the idealized day
+                opacity: 1, // Slightly transparent
               },
             };
           } else {
