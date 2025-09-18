@@ -5,6 +5,7 @@ import type {
   ScheduledJumpDto,
   UserDto,
 } from "mydive/server/api/routers/types";
+import { api } from "mydive/trpc/react";
 import React, { useState } from "react";
 
 const AdminScheduledJumpModal = ({
@@ -20,10 +21,22 @@ const AdminScheduledJumpModal = ({
   bookingUser: UserDto;
   adminUser: UserDto;
 }) => {
-  const [confirmationModal, setConfirmationModal] = useState<{
-    isOpen: boolean;
-    action: "cancel" | "confirm" | null;
-  }>({ isOpen: false, action: null });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const cancelJumpDate =
+    api.adminBookingManager.cancelJumpFromScheduledJumpModal.useMutation({
+      onSuccess: async () => {
+        // Invalidate and refetch the bookings data
+        onClose();
+      },
+      onError: (error) => {
+        console.error("Failed to cancel booking:", error.message);
+        // You could add a toast notification here
+      },
+    });
+
+  const [cancelConfirmationModalOpen, setCancelConfirmationModal] =
+    useState(false);
 
   if (!isOpen) return null;
 
@@ -96,29 +109,20 @@ const AdminScheduledJumpModal = ({
     }
   };
 
-  const handleStatusChange = (action: "cancel" | "confirm") => {
-    setConfirmationModal({ isOpen: true, action });
-  };
-
-  const handleConfirmAction = () => {
-    // TODO: Add your mutation logic here
-    console.log("Action:", confirmationModal.action);
-    console.log("Scheduled Jump ID:", scheduledJump.id);
-
-    // Your mutation call will go here based on the action
-    // Example:
-    // if (confirmationModal.action === "cancel") {
-    //   cancelScheduledJumpMutation({ id: scheduledJump.id })
-    // } else if (confirmationModal.action === "confirm") {
-    //   confirmScheduledJumpMutation({ id: scheduledJump.id })
-    // }
-
-    // Close the confirmation modal
-    setConfirmationModal({ isOpen: false, action: null });
+  const handleCancelJumpDay = async () => {
+    setIsSubmitting(true);
+    try {
+      await cancelJumpDate.mutateAsync({ scheduledJumpId: scheduledJump.id });
+      onClose();
+    } catch (error) {
+      console.error("Failed to confirm booking dates:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const closeConfirmationModal = () => {
-    setConfirmationModal({ isOpen: false, action: null });
+    setCancelConfirmationModal(false);
   };
 
   const schedulingInfo = getSchedulingMethodInfo(
@@ -255,16 +259,7 @@ const AdminScheduledJumpModal = ({
           {/* Action Buttons */}
           {scheduledJump.status === "PENDING" && (
             <div className="mb-6 flex justify-center gap-3">
-              <button
-                onClick={() => handleStatusChange("confirm")}
-                className="rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-              >
-                Confirm Jump
-              </button>
-              <button
-                onClick={() => handleStatusChange("cancel")}
-                className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-              >
+              <button className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700">
                 Cancel Jump
               </button>
             </div>
@@ -273,8 +268,10 @@ const AdminScheduledJumpModal = ({
           {scheduledJump.status === "CONFIRMED" && (
             <div className="mb-6 flex justify-center">
               <button
-                onClick={() => handleStatusChange("cancel")}
                 className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+                onClick={() => {
+                  setCancelConfirmationModal(true);
+                }}
               >
                 Cancel Jump
               </button>
@@ -294,21 +291,18 @@ const AdminScheduledJumpModal = ({
       </div>
 
       {/* Confirmation Sub-Modal */}
-      {confirmationModal.isOpen && (
+      {cancelConfirmationModalOpen && (
         <div className="bg-opacity-75 fixed inset-0 z-60 flex items-center justify-center bg-black">
           <div className="mx-4 max-w-md rounded-lg bg-white p-6 shadow-xl">
             <div className="mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                {confirmationModal.action === "cancel"
-                  ? "Cancel Jump"
-                  : "Confirm Jump"}
+                Cancel Jump
               </h3>
             </div>
 
             <div className="mb-6">
               <p className="text-gray-600">
-                Are you sure you want to{" "}
-                {confirmationModal.action === "cancel" ? "cancel" : "confirm"}{" "}
+                Are you sure you want to cancel{" "}
                 <span className="font-medium text-gray-900">
                   Jump #{scheduledJump.id}
                 </span>{" "}
@@ -328,16 +322,18 @@ const AdminScheduledJumpModal = ({
                 Cancel
               </button>
               <button
-                onClick={handleConfirmAction}
-                className={`rounded-md px-4 py-2 text-white ${
-                  confirmationModal.action === "cancel"
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-green-600 hover:bg-green-700"
-                }`}
+                onClick={handleCancelJumpDay}
+                disabled={isSubmitting}
+                className={`rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700`}
               >
-                {confirmationModal.action === "cancel"
-                  ? "Cancel Jump"
-                  : "Confirm Jump"}
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
+                    <span>Canceling...</span>
+                  </div>
+                ) : (
+                  `Cancel`
+                )}
               </button>
             </div>
           </div>
