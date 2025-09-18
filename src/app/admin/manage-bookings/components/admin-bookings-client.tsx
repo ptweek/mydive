@@ -31,7 +31,7 @@ import type {
 import { CancelConfirmationModal } from "./cancel-confirmation-modal";
 import { ContactModal } from "./contact-modal";
 import { ConfirmBookingDatesModal } from "./confirm-booking-date-modal";
-import type { Waitlist, WaitlistEntry } from "@prisma/client";
+import type { Waitlist, WaitlistEntry, WaitlistStatus } from "@prisma/client";
 import AdminWaitlistModal from "./admin-waitlist-modal";
 import { getActiveScheduledJumpDates } from "mydive/app/_utils/booking";
 
@@ -342,12 +342,10 @@ export default function AdminBookingsClient({
                     IDEAL JUMP DATE
                   </TableColumn>
                   <TableColumn className="text-center">
-                    CONFIRMED JUMP DATES
+                    SCHEDULED JUMP DATES
                   </TableColumn>
                   <TableColumn className="text-center">DATE BOOKED</TableColumn>
-                  <TableColumn className="text-center">
-                    ACTIVE WAITLISTS
-                  </TableColumn>
+                  <TableColumn className="text-center">WAITLISTS</TableColumn>
                   <TableColumn className="text-center">ACTIONS</TableColumn>
                 </TableHeader>
                 <TableBody emptyContent="No bookings found">
@@ -485,23 +483,66 @@ export default function AdminBookingsClient({
                           <div className="flex justify-center">
                             {booking.waitlists.length > 0 ? (
                               <div className="space-y-1">
-                                {booking.waitlists.map((waitlist, idx) => (
-                                  <div
-                                    key={`${idx}-${waitlist.day.toISOString()}`}
-                                    className="flex items-center gap-2 rounded-md bg-yellow-50 px-2 py-1 text-sm"
-                                  >
-                                    <CheckCircleIcon className="h-4 w-4 text-yellow-600" />
-                                    <span
-                                      className="font-medium text-yellow-800"
-                                      onClick={() => {
-                                        setSelectedWaitlist(waitlist);
-                                        setWaitlistModalOpen(true);
-                                      }}
+                                {booking.waitlists.map((waitlist, idx) => {
+                                  // Determine colors based on waitlist status
+                                  const getStatusColors = (
+                                    status: WaitlistStatus,
+                                  ) => {
+                                    switch (status) {
+                                      case "OPENED":
+                                        return {
+                                          bg: "bg-yellow-50",
+                                          icon: "text-yellow-600",
+                                          text: "text-yellow-800",
+                                        };
+                                      case "CONFIRMED":
+                                        return {
+                                          bg: "bg-green-50",
+                                          icon: "text-green-600",
+                                          text: "text-green-800",
+                                        };
+                                      case "CLOSED":
+                                        return {
+                                          bg: "bg-red-50",
+                                          icon: "text-red-600",
+                                          text: "text-red-800",
+                                        };
+                                      default:
+                                        return {
+                                          bg: "bg-gray-50",
+                                          icon: "text-gray-600",
+                                          text: "text-gray-800",
+                                        };
+                                    }
+                                  };
+
+                                  const colors = getStatusColors(
+                                    waitlist.status,
+                                  );
+
+                                  return (
+                                    <div
+                                      key={`${idx}-${waitlist.day.toISOString()}`}
+                                      className={`flex items-center gap-2 rounded-md ${colors.bg} px-2 py-1 text-sm`}
                                     >
-                                      {formatDateShort(waitlist.day)}
-                                    </span>
-                                  </div>
-                                ))}
+                                      <CheckCircleIcon
+                                        className={`h-4 w-4 ${colors.icon}`}
+                                      />
+                                      <span
+                                        className={`font-medium ${colors.text} cursor-pointer`}
+                                        onClick={() => {
+                                          if (waitlist.status === "CLOSED") {
+                                            return;
+                                          }
+                                          setSelectedWaitlist(waitlist);
+                                          setWaitlistModalOpen(true);
+                                        }}
+                                      >
+                                        {formatDateShort(waitlist.day)}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             ) : (
                               <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">

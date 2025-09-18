@@ -17,6 +17,17 @@ export class WaitlistService {
       include: waitlistIncludeConfig,
     });
   }
+
+  async findByIdPopulated(
+    id: number,
+  ): Promise<WaitlistWithPopulatedFields | null> {
+    return await this.db.waitlist.findFirst({
+      where: {
+        id,
+      },
+      include: waitlistIncludeConfig,
+    });
+  }
 }
 export type Waitlist = Prisma.WaitlistGetPayload<object>;
 export type WaitlistWithPopulatedFields = Prisma.WaitlistGetPayload<{

@@ -35,6 +35,7 @@ CREATE TABLE "Waitlist" (
     "status" TEXT NOT NULL DEFAULT 'OPENED',
     "day" DATETIME NOT NULL,
     "associatedBookingId" INTEGER NOT NULL,
+    "scheduledJumperId" INTEGER,
     CONSTRAINT "Waitlist_associatedBookingId_fkey" FOREIGN KEY ("associatedBookingId") REFERENCES "BookingWindow" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 

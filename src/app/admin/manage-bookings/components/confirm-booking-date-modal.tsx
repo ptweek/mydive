@@ -21,7 +21,7 @@ export const ConfirmBookingDatesModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const modifyBookingMutation =
-    api.bookingWindow.modifyBookingDates.useMutation({
+    api.adminBookingManager.modifyBookingDates.useMutation({
       onSuccess: async () => {
         // Invalidate and refetch the bookings data
         onClose();

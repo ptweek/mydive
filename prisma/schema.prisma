@@ -21,6 +21,7 @@ enum ScheduledJumpStatus {
 enum WaitlistStatus {
   OPENED
   CLOSED
+  CONFIRMED // this means that the booking is confirmed by the Admin
 }
 
 enum BookingStatus {
@@ -82,6 +83,7 @@ model Waitlist {
   associatedBooking   BookingWindow         @relation(fields: [associatedBookingId], references: [id])
   associatedBookingId Int     
 
+  scheduledJumperId Int?
   associatedScheduledJump ScheduledJump?
   
   @@unique([day]) // Keep this - one waitlist per day globally
