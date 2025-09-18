@@ -33,13 +33,15 @@ import { ContactModal } from "./contact-modal";
 import { ConfirmBookingDatesModal } from "./confirm-booking-date-modal";
 import type { Waitlist, WaitlistEntry, WaitlistStatus } from "@prisma/client";
 import AdminWaitlistModal from "./admin-waitlist-modal";
-import { getActiveScheduledJumpDates } from "mydive/app/_utils/booking";
+import { getActiveScheduledJumps } from "mydive/app/_utils/booking";
+import AdminScheduledJumpModal from "./admin-scheduled-jump-modal";
 
 export interface WaitlistEntryWithUser extends WaitlistEntry {
   user?: UserDto; // Optional in case user lookup fails
 }
 
-export interface WaitlistWithUsers extends Omit<Waitlist, "entries"> {
+export interface WaitlistWithUsers
+  extends Omit<WaitlistPopulatedDto, "entries"> {
   entries: WaitlistEntryWithUser[];
 }
 
@@ -53,6 +55,17 @@ export interface BookingTableRow extends BookingWindowWithUser {
   scheduledJumps: ScheduledJumpDto[];
 }
 
+const getActiveScheduledJumpFromPopulatedWaitlist = (
+  waitlist: WaitlistPopulatedDto | WaitlistWithUsers,
+) => {
+  const scheduledJump = waitlist.associatedScheduledJumps.find(
+    (scheduledJump) => {
+      return scheduledJump.status === "CONFIRMED";
+    },
+  );
+  return scheduledJump;
+};
+
 export type BookingTableData = BookingTableRow[];
 
 export default function AdminBookingsClient({
@@ -60,31 +73,38 @@ export default function AdminBookingsClient({
   loadedUsers,
   loadedWaitlists,
   loadedScheduledJumps,
-  adminUserId,
+  adminUser,
 }: {
   loadedBookingWindows: BookingWindowDto[];
   loadedUsers: UserDto[];
   loadedWaitlists: WaitlistPopulatedDto[];
   loadedScheduledJumps: ScheduledJumpDto[];
-  adminUserId: string;
+  adminUser: UserDto;
 }) {
-  // Contact modal state
-  const [contactModalOpen, setContactModalOpen] = useState(false);
+  // Selections
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
   const [bookingWindows, setBookingWindows] = useState<BookingWindowDto[]>(
     loadedBookingWindows ?? [],
   );
+  const [selectedWaitlist, setSelectedWaitlist] =
+    useState<WaitlistWithUsers | null>(null);
+  const [selectedBookingTableRow, setSelectedBookingTableRow] =
+    useState<BookingTableRow | null>(null);
+  const [selectedJumpDate, setSelectedJumpDate] =
+    useState<ScheduledJumpDto | null>(null);
+
+  // Modals
+  const [contactModalOpen, setContactModalOpen] = useState(false);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [confirmBookingDateModalOpen, setConfirmBookingDateModalOpen] =
     useState(false);
   const [waitlistModalOpen, setWaitlistModalOpen] = useState(false);
-  const [selectedWaitlist, setSelectedWaitlist] =
-    useState<WaitlistWithUsers | null>(null);
+  const [scheduledJumpModalOpen, setScheduledJumpModalOpen] = useState(false);
 
-  const [selectedBookingTableRow, setSelectedBookingTableRow] =
-    useState<BookingTableRow | null>(null);
+  // Table Filters
   const [showCancelled, setShowCancelled] = useState(false);
   const [showPast, setShowPast] = useState(false);
+
   const formatDateShort = (date: Date) => {
     return moment(date).format("MMM DD YYYY");
   };
@@ -192,7 +212,18 @@ export default function AdminBookingsClient({
     return filtered;
   }, [showCancelled, showPast, tableData]);
 
-  console.log("tableData", tableData);
+  const selectedJumpDateUser = useMemo(() => {
+    if (!selectedJumpDate) {
+      return;
+    }
+    const user = loadedUsers.find((user) => {
+      return user.userId === selectedJumpDate.bookedBy;
+    });
+    if (!user) {
+      throw new Error("User not part of loaded user list!");
+    }
+    return user;
+  }, [loadedUsers, selectedJumpDate]);
 
   return (
     <div className="z-0 p-4 md:p-8">
@@ -429,24 +460,34 @@ export default function AdminBookingsClient({
                         </TableCell>
                         <TableCell>
                           <div className="flex justify-center">
-                            {getActiveScheduledJumpDates(
+                            {getActiveScheduledJumps(
                               booking.scheduledJumps,
                               "BOOKING_WINDOW",
                             ).length > 0 ? (
                               <div className="space-y-1">
-                                {getActiveScheduledJumpDates(
+                                {getActiveScheduledJumps(
                                   booking.scheduledJumps,
                                   "BOOKING_WINDOW",
                                 )
-                                  .sort((a, b) => a.getTime() - b.getTime())
-                                  .map((scheduledJumpDate, idx) => (
+                                  .sort(
+                                    (a, b) =>
+                                      a.jumpDate.getTime() -
+                                      b.jumpDate.getTime(),
+                                  )
+                                  .map((scheduledJump, idx) => (
                                     <div
-                                      key={`${idx}-${scheduledJumpDate.toISOString()}`}
+                                      key={`${idx}-${scheduledJump.jumpDate.toISOString()}`}
                                       className="flex items-center gap-2 rounded-md bg-green-50 px-2 py-1 text-sm"
+                                      onClick={() => {
+                                        setSelectedJumpDate(scheduledJump);
+                                        setScheduledJumpModalOpen(true);
+                                      }}
                                     >
                                       <CheckCircleIcon className="h-4 w-4 text-green-600" />
                                       <span className="font-medium text-green-800">
-                                        {formatDateShort(scheduledJumpDate)}
+                                        {formatDateShort(
+                                          scheduledJump.jumpDate,
+                                        )}
                                       </span>
                                     </div>
                                   ))}
@@ -522,6 +563,10 @@ export default function AdminBookingsClient({
                                   const colors = getStatusColors(
                                     waitlist.status,
                                   );
+                                  const activeScheduledJump =
+                                    getActiveScheduledJumpFromPopulatedWaitlist(
+                                      waitlist,
+                                    );
 
                                   return (
                                     <div
@@ -537,8 +582,20 @@ export default function AdminBookingsClient({
                                           if (waitlist.status === "CLOSED") {
                                             return;
                                           }
-                                          setSelectedWaitlist(waitlist);
-                                          setWaitlistModalOpen(true);
+                                          if (waitlist.status !== "CONFIRMED") {
+                                            setSelectedWaitlist(waitlist);
+                                            setWaitlistModalOpen(true);
+                                          } else {
+                                            if (!activeScheduledJump) {
+                                              throw Error(
+                                                "No active scheduled jump found for confirmed waitlist!",
+                                              );
+                                            }
+                                            setScheduledJumpModalOpen(true);
+                                            setSelectedJumpDate(
+                                              activeScheduledJump,
+                                            );
+                                          }
                                         }}
                                       >
                                         {formatDateShort(waitlist.day)}
@@ -599,7 +656,7 @@ export default function AdminBookingsClient({
         )}
         {selectedBookingTableRow && (
           <ConfirmBookingDatesModal
-            adminUserId={adminUserId}
+            adminUserId={adminUser.userId}
             isOpen={confirmBookingDateModalOpen}
             onClose={() => {
               setConfirmBookingDateModalOpen(false);
@@ -625,21 +682,32 @@ export default function AdminBookingsClient({
               setSelectedWaitlist(null);
             }}
             waitlist={selectedWaitlist}
-            adminUserId={adminUserId}
+            adminUserId={adminUser.userId}
           />
         )}
-
-        {cancelBookingMutation.isPending && (
-          <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
-            <div className="rounded-lg bg-white p-6">
-              <div className="flex items-center gap-3">
-                <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
-                <span>Canceling booking...</span>
-              </div>
-            </div>
-          </div>
+        {selectedJumpDate && selectedJumpDateUser && (
+          <AdminScheduledJumpModal
+            isOpen={scheduledJumpModalOpen}
+            onClose={() => {
+              setScheduledJumpModalOpen(false);
+              setSelectedJumpDate(null);
+            }}
+            adminUser={adminUser}
+            bookingUser={selectedJumpDateUser}
+            scheduledJump={selectedJumpDate}
+          />
         )}
       </div>
+      {cancelBookingMutation.isPending && (
+        <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
+          <div className="rounded-lg bg-white p-6">
+            <div className="flex items-center gap-3">
+              <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
+              <span>Canceling booking...</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

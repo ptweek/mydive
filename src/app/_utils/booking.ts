@@ -14,6 +14,21 @@ export function getActiveScheduledJumpDatesFromBookingWindow(bookingWindow: {
     .map((scheduledJumpDate) => scheduledJumpDate.jumpDate);
 }
 
+export function getActiveScheduledJumps(
+  scheduledJumps: ScheduledJump[],
+  schedulingMethod: SchedulingMethod,
+): ScheduledJump[] {
+  if (!scheduledJumps || !Array.isArray(scheduledJumps)) {
+    return [];
+  }
+  return scheduledJumps.filter((scheduledJumpDate) => {
+    return (
+      scheduledJumpDate.status !== "CANCELED" &&
+      scheduledJumpDate.schedulingMethod === schedulingMethod
+    );
+  });
+}
+
 export function getActiveScheduledJumpDates(
   scheduledJumps: ScheduledJump[],
   schedulingMethod: SchedulingMethod,

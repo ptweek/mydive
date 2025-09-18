@@ -10,7 +10,7 @@ type UserDto = {
   phoneNumbers: string[];
 };
 
-const clerkUserToDto = (user: User): UserDto => {
+export const clerkUserToDto = (user: User): UserDto => {
   return {
     firstName: user.firstName,
     lastName: user.lastName,

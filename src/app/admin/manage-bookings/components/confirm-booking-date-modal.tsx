@@ -15,7 +15,7 @@ export const ConfirmBookingDatesModal = ({
   onClose: () => void;
   booking: BookingTableRow;
   adminUserId: string;
-}) => {
+}): React.ReactNode => {
   const { scheduledJumps } = booking;
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,7 +59,6 @@ export const ConfirmBookingDatesModal = ({
       setSelectedDates([]);
     }
   }, [getExistingConfirmedDates, isOpen, scheduledJumps]);
-  if (!isOpen) return null;
 
   const getDateRange = () => {
     const dates: Date[] = [];
@@ -135,6 +134,7 @@ export const ConfirmBookingDatesModal = ({
   const idealizedDate = new Date(booking.idealizedJumpDate);
   const hasExistingConfirmedDates =
     scheduledJumps && getExistingConfirmedDates(scheduledJumps).length > 0;
+  if (!isOpen) return null;
 
   return (
     <div

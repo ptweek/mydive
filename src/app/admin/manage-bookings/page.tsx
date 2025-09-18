@@ -2,12 +2,14 @@ import { api, HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import AdminBookingsClient from "./components/admin-bookings-client";
+import { clerkUserToDto } from "mydive/server/api/routers/adminBookingManager";
 
 export default async function MyBookingsPage() {
   const user = await currentUser();
   if (!user) {
     redirect("/");
   }
+  const adminUserDto = clerkUserToDto(user);
   const { bookingWindows, waitlists, scheduledJumps, users } =
     await api.adminBookingManager.getBookingReservationData();
   return (
@@ -30,7 +32,7 @@ export default async function MyBookingsPage() {
           loadedWaitlists={waitlists}
           loadedScheduledJumps={scheduledJumps}
           loadedUsers={users}
-          adminUserId={user.id}
+          adminUser={adminUserDto}
         />
       </main>
     </HydrateClient>
