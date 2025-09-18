@@ -2,7 +2,7 @@ import type { Prisma, PrismaClient } from "@prisma/client";
 
 const waitlistIncludeConfig = {
   associatedBooking: true,
-  associatedScheduledJump: true,
+  associatedScheduledJumps: true,
   entries: {},
 } as const;
 

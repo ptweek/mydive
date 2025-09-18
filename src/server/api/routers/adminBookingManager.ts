@@ -102,9 +102,6 @@ export const adminBookingManagerRouter = createTRPCRouter({
 
         // Remove duplicate dates and sort them
         const uniqueDateStrings = [...new Set(input.confirmedDates)].sort();
-        const uniqueDates = uniqueDateStrings.map(
-          (dateStr) => new Date(dateStr),
-        );
 
         // Get existing scheduled jumps for this booking
         const existingScheduledJumps =
@@ -117,21 +114,38 @@ export const adminBookingManagerRouter = createTRPCRouter({
           new Date(dateStr).toISOString(),
         );
 
-        // Find existing jumps that should be canceled (not in the new confirmed dates)
-        const jumpsToCancel = existingScheduledJumps.filter(
+        // Two types of jumps to cancel, one is a jump that is now being removed by the admin, or another is a booking window jump
+        // Overwriting a waitlist jump
+        const bwJumpsRemovedByAdmin = existingScheduledJumps.filter(
           (jump) =>
             !confirmedDateISOStrings.includes(jump.jumpDate.toISOString()),
         );
+        const wlJumpsOverwrittenByAdmin = existingScheduledJumps.filter(
+          (jump) =>
+            confirmedDateISOStrings.includes(jump.jumpDate.toISOString()) &&
+            jump.schedulingMethod === "WAITLIST",
+        );
+        const jumpsToCancel = [
+          ...bwJumpsRemovedByAdmin,
+          ...wlJumpsOverwrittenByAdmin,
+        ];
 
         // Find dates that need new scheduled jumps (not already existing)
         const existingJumpDateStrings = existingScheduledJumps.map((jump) =>
           jump.jumpDate.toISOString(),
         );
 
-        const newDates = uniqueDateStrings.filter(
-          (dateStr) =>
-            !existingJumpDateStrings.includes(new Date(dateStr).toISOString()),
-        );
+        const datesForNewScheduledJumps = [
+          ...uniqueDateStrings.filter(
+            (dateStr) =>
+              !existingJumpDateStrings.includes(
+                new Date(dateStr).toISOString(),
+              ),
+          ), // Adding in any new ones that haven't existed yet.
+          ...wlJumpsOverwrittenByAdmin.map((jump) => {
+            return jump.jumpDate.toISOString();
+          }),
+        ];
 
         // Use a transaction to ensure all operations succeed or fail together
         const result = await ctx.db.$transaction(async (tx) => {
@@ -157,7 +171,11 @@ export const adminBookingManagerRouter = createTRPCRouter({
                 where: { day: jumpDateStart },
               });
 
-              if (waitlist && waitlist.status === "CLOSED") {
+              if (
+                waitlist &&
+                (waitlist.status === "CLOSED" ||
+                  waitlist.status === "CONFIRMED")
+              ) {
                 // Reopen the waitlist when we cancel a jump
                 return tx.waitlist.update({
                   where: { id: waitlist.id },
@@ -170,7 +188,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
 
           // 3. Create new ScheduledJump records for dates that don't already exist
           const newScheduledJumps = await Promise.all(
-            newDates.map(async (dateStr) => {
+            datesForNewScheduledJumps.map(async (dateStr) => {
               return tx.scheduledJump.create({
                 data: {
                   jumpDate: new Date(dateStr),
@@ -188,7 +206,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
 
           // 4. Handle waitlist status for new jump dates
           const waitlistUpdatesForNew = await Promise.all(
-            newDates.map(async (dateStr) => {
+            datesForNewScheduledJumps.map(async (dateStr) => {
               // Normalize the date to start of day for comparison
               const jumpDateStart = new Date(dateStr);
               jumpDateStart.setHours(0, 0, 0, 0);
@@ -244,7 +262,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
           booking: result.updatedBooking,
           newScheduledJumps: result.newScheduledJumps,
           canceledJumps: result.canceledJumps,
-          newDatesCount: newDates.length,
+          newDatesCount: datesForNewScheduledJumps.length,
           canceledDatesCount: result.canceledJumps.length,
           totalConfirmedJumps: confirmedScheduledJumps.length,
           waitlistUpdates: {
@@ -270,7 +288,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
         throw new Error("Failed to modify booking dates");
       }
     }),
-  confirmWaitlistJumpDate: protectedProcedure
+  scheduleJumpDateFromWaitlistEntry: protectedProcedure
     .input(
       z.object({
         waitlistId: z.number(),
@@ -286,12 +304,13 @@ export const adminBookingManagerRouter = createTRPCRouter({
         const waitlist = await ctx.services.waitlist.findByIdPopulated(
           input.waitlistId,
         );
+        console.log("waitlist", waitlist);
         const existingBooking = waitlist?.associatedBooking;
         if (!existingBooking) {
           throw new Error("Existing booking not found for waitlist!");
         }
         const waitlistDate = waitlist?.day;
-        const newScheduledJump = await ctx.db.scheduledJump.create({
+        await ctx.db.scheduledJump.create({
           data: {
             jumpDate: waitlistDate,
             bookingZone: existingBooking.bookingZone,
@@ -307,10 +326,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
         return ctx.db.waitlist.update({
           where: { id: waitlist.id },
           data: {
-            status: "CLOSED",
-            associatedScheduledJump: {
-              connect: { id: newScheduledJump.id },
-            },
+            status: "CONFIRMED",
           },
         });
       } catch (error) {

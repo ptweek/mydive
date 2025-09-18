@@ -429,11 +429,14 @@ export default function AdminBookingsClient({
                         </TableCell>
                         <TableCell>
                           <div className="flex justify-center">
-                            {getActiveScheduledJumpDates(booking.scheduledJumps)
-                              .length > 0 ? (
+                            {getActiveScheduledJumpDates(
+                              booking.scheduledJumps,
+                              "BOOKING_WINDOW",
+                            ).length > 0 ? (
                               <div className="space-y-1">
                                 {getActiveScheduledJumpDates(
                                   booking.scheduledJumps,
+                                  "BOOKING_WINDOW",
                                 )
                                   .sort((a, b) => a.getTime() - b.getTime())
                                   .map((scheduledJumpDate, idx) => (
@@ -622,6 +625,7 @@ export default function AdminBookingsClient({
               setSelectedWaitlist(null);
             }}
             waitlist={selectedWaitlist}
+            adminUserId={adminUserId}
           />
         )}
 

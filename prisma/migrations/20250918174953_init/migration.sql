@@ -53,9 +53,6 @@ CREATE TABLE "WaitlistEntry" (
 CREATE INDEX "BookingWindow_bookedBy_idx" ON "BookingWindow"("bookedBy");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ScheduledJump_associatedWaitlistId_key" ON "ScheduledJump"("associatedWaitlistId");
-
--- CreateIndex
 CREATE INDEX "ScheduledJump_jumpDate_idx" ON "ScheduledJump"("jumpDate");
 
 -- CreateIndex

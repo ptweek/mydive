@@ -41,16 +41,6 @@ export const BookingActionsDropdown = ({
       case "PENDING":
         return [
           {
-            label: "Modify Booking",
-            icon: "✏️",
-            onClick: () => {
-              onModify();
-              setIsOpen(false);
-            },
-            className: "text-blue-600 hover:bg-blue-50",
-          },
-
-          {
             label: "Cancel Booking",
             icon: "❌",
             onClick: () => {
@@ -64,15 +54,6 @@ export const BookingActionsDropdown = ({
       case "CONFIRMED":
         return [
           {
-            label: "View Details",
-            icon: "📄",
-            onClick: () => {
-              onViewDetails();
-              setIsOpen(false);
-            },
-            className: "text-gray-600 hover:bg-gray-50",
-          },
-          {
             label: "Cancel Booking",
             icon: "❌",
             onClick: () => {
@@ -83,17 +64,7 @@ export const BookingActionsDropdown = ({
         ];
 
       case "COMPLETED":
-        return [
-          {
-            label: "View Details",
-            icon: "📄",
-            onClick: () => {
-              onViewDetails();
-              setIsOpen(false);
-            },
-            className: "text-gray-600 hover:bg-gray-50",
-          },
-        ];
+        return [];
 
       default:
         return [];

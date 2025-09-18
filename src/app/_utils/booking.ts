@@ -1,4 +1,4 @@
-import type { ScheduledJump } from "@prisma/client";
+import type { ScheduledJump, SchedulingMethod } from "@prisma/client";
 
 export function getActiveScheduledJumpDatesFromBookingWindow(bookingWindow: {
   scheduledJumpDates: ScheduledJump[];
@@ -16,19 +16,18 @@ export function getActiveScheduledJumpDatesFromBookingWindow(bookingWindow: {
 
 export function getActiveScheduledJumpDates(
   scheduledJumps: ScheduledJump[],
+  schedulingMethod: SchedulingMethod,
 ): Date[] {
   if (!scheduledJumps || !Array.isArray(scheduledJumps)) {
     return [];
   }
-  console.log("scheduledJumps", scheduledJumps);
-  console.log(
-    "returning",
-    scheduledJumps
-      .filter((scheduledJumpDate) => scheduledJumpDate.status !== "CANCELED")
-      .map((scheduledJumpDate) => scheduledJumpDate.jumpDate),
-  );
   return scheduledJumps
-    .filter((scheduledJumpDate) => scheduledJumpDate.status !== "CANCELED")
+    .filter((scheduledJumpDate) => {
+      return (
+        scheduledJumpDate.status !== "CANCELED" &&
+        scheduledJumpDate.schedulingMethod === schedulingMethod
+      );
+    })
     .map((scheduledJumpDate) => scheduledJumpDate.jumpDate);
 }
 

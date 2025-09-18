@@ -35,7 +35,10 @@ export const ConfirmBookingDatesModal = ({
   const getExistingConfirmedDates = useCallback(
     (scheduledJumps: ScheduledJump[]): Date[] => {
       if (!scheduledJumps) return [];
-      const parsedJumpDays = getActiveScheduledJumpDates(scheduledJumps);
+      const parsedJumpDays = getActiveScheduledJumpDates(
+        scheduledJumps,
+        "BOOKING_WINDOW",
+      );
       try {
         // Handle both array of strings and array of objects
         return parsedJumpDays.map((dateStr) => new Date(dateStr));
