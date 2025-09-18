@@ -1,8 +1,9 @@
 "use client";
-import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_utils/booking";
-import type { BookingWindowPopulatedDto } from "mydive/server/api/routers/types";
+import { getActiveScheduledJumpDates } from "mydive/app/_utils/booking";
 import { api } from "mydive/trpc/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import type { BookingTableRow } from "./admin-bookings-client";
+import type { ScheduledJump } from "@prisma/client";
 
 export const ConfirmBookingDatesModal = ({
   isOpen,
@@ -12,9 +13,10 @@ export const ConfirmBookingDatesModal = ({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  booking: BookingWindowPopulatedDto;
+  booking: BookingTableRow;
   adminUserId: string;
 }) => {
+  const { scheduledJumps } = booking;
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -30,34 +32,32 @@ export const ConfirmBookingDatesModal = ({
       },
     });
 
-  // Helper function to parse confirmed jump days from the booking
-  const getExistingConfirmedDates = (): Date[] => {
-    if (!booking.scheduledJumpDates) return [];
-    const parsedJumpDays =
-      getActiveScheduledJumpDatesFromBookingWindow(booking);
-    try {
-      // Handle both array of strings and array of objects
-      return parsedJumpDays.map((dateStr) => new Date(dateStr));
-    } catch (error) {
-      console.error("Error parsing confirmed jump days:", error);
-      return [];
-    }
-  };
+  const getExistingConfirmedDates = useCallback(
+    (scheduledJumps: ScheduledJump[]): Date[] => {
+      if (!scheduledJumps) return [];
+      const parsedJumpDays = getActiveScheduledJumpDates(scheduledJumps);
+      try {
+        // Handle both array of strings and array of objects
+        return parsedJumpDays.map((dateStr) => new Date(dateStr));
+      } catch (error) {
+        console.error("Error parsing confirmed jump days:", error);
+        return [];
+      }
+    },
+    [],
+  );
 
-  // Pre-load existing confirmed dates when modal opens
   useEffect(() => {
     if (isOpen) {
-      const existingDates = getExistingConfirmedDates();
+      const existingDates = getExistingConfirmedDates(scheduledJumps);
       setSelectedDates(existingDates);
     } else {
       // Reset selection when modal closes
       setSelectedDates([]);
     }
-  }, [isOpen, booking.scheduledJumpDates]);
-
+  }, [getExistingConfirmedDates, isOpen, scheduledJumps]);
   if (!isOpen) return null;
 
-  // Generate array of dates within the booking window
   const getDateRange = () => {
     const dates: Date[] = [];
     const start = new Date(booking.windowStartDate);
@@ -131,7 +131,7 @@ export const ConfirmBookingDatesModal = ({
   const availableDates = getDateRange();
   const idealizedDate = new Date(booking.idealizedJumpDate);
   const hasExistingConfirmedDates =
-    booking.scheduledJumpDates && getExistingConfirmedDates().length > 0;
+    scheduledJumps && getExistingConfirmedDates(scheduledJumps).length > 0;
 
   return (
     <div

@@ -1,4 +1,4 @@
-import type { BookingWindowPopulatedDto } from "mydive/server/api/routers/types";
+import type { BookingWindowDto } from "mydive/server/api/routers/types";
 export const CancelConfirmationModal = ({
   isOpen,
   onClose,
@@ -8,7 +8,7 @@ export const CancelConfirmationModal = ({
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  booking: BookingWindowPopulatedDto;
+  booking: BookingWindowDto;
 }) => {
   if (!isOpen) return null;
 

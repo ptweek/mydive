@@ -24,7 +24,6 @@ export default function AdminDashboardClient({
         </CardBody>
       </Card>
       <div className="mx-auto flex max-w-4xl gap-6 p-6">
-        {/* Book Now Card */}
         <Card className="flex-1 border-2 border-blue-400/30 bg-gradient-to-br from-blue-500/15 to-indigo-600/15 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-blue-300/50 hover:shadow-2xl hover:shadow-blue-500/20">
           <CardBody className="p-8 text-center">
             <div className="mb-6">
@@ -50,7 +49,6 @@ export default function AdminDashboardClient({
           </CardBody>
         </Card>
 
-        {/* My Bookings Card */}
         <Card className="flex-1 border-2 border-blue-400/30 bg-gradient-to-br from-blue-500/15 to-indigo-600/15 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-blue-300/50 hover:shadow-2xl hover:shadow-blue-500/20">
           <CardBody className="p-8 text-center">
             <div className="mb-6">

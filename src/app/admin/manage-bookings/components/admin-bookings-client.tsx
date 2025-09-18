@@ -23,34 +23,66 @@ import moment from "moment";
 import { BookingActionsDropdown } from "./booking-actions-dropdown";
 import { api } from "mydive/trpc/react";
 import type {
-  BookingWindowPopulatedDto,
+  BookingWindowDto,
+  ScheduledJumpDto,
   UserDto,
+  WaitlistPopulatedDto,
 } from "mydive/server/api/routers/types";
 import { CancelConfirmationModal } from "./cancel-confirmation-modal";
 import { ContactModal } from "./contact-modal";
-import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_utils/booking";
 import { ConfirmBookingDatesModal } from "./confirm-booking-date-modal";
+import type { Waitlist, WaitlistEntry } from "@prisma/client";
+import AdminWaitlistModal from "./admin-waitlist-modal";
+import { getActiveScheduledJumpDates } from "mydive/app/_utils/booking";
+
+export interface WaitlistEntryWithUser extends WaitlistEntry {
+  user?: UserDto; // Optional in case user lookup fails
+}
+
+export interface WaitlistWithUsers extends Omit<Waitlist, "entries"> {
+  entries: WaitlistEntryWithUser[];
+}
+
+export interface BookingWindowWithUser extends BookingWindowDto {
+  bookedByUser?: UserDto; // Optional in case user lookup fails
+}
+
+// Formatted table data structure
+export interface BookingTableRow extends BookingWindowWithUser {
+  waitlists: WaitlistWithUsers[];
+  scheduledJumps: ScheduledJumpDto[];
+}
+
+export type BookingTableData = BookingTableRow[];
 
 export default function AdminBookingsClient({
-  loadedBookings,
+  loadedBookingWindows,
   loadedUsers,
+  loadedWaitlists,
+  loadedScheduledJumps,
   adminUserId,
 }: {
-  loadedBookings: BookingWindowPopulatedDto[];
+  loadedBookingWindows: BookingWindowDto[];
   loadedUsers: UserDto[];
+  loadedWaitlists: WaitlistPopulatedDto[];
+  loadedScheduledJumps: ScheduledJumpDto[];
   adminUserId: string;
 }) {
   // Contact modal state
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
-  const [bookingWindows, setBookingWindows] = useState<
-    BookingWindowPopulatedDto[]
-  >(loadedBookings ?? []);
+  const [bookingWindows, setBookingWindows] = useState<BookingWindowDto[]>(
+    loadedBookingWindows ?? [],
+  );
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [confirmBookingDateModalOpen, setConfirmBookingDateModalOpen] =
     useState(false);
-  const [selectedBooking, setSelectedBooking] =
-    useState<BookingWindowPopulatedDto | null>(null);
+  const [waitlistModalOpen, setWaitlistModalOpen] = useState(false);
+  const [selectedWaitlist, setSelectedWaitlist] =
+    useState<WaitlistWithUsers | null>(null);
+
+  const [selectedBookingTableRow, setSelectedBookingTableRow] =
+    useState<BookingTableRow | null>(null);
   const [showCancelled, setShowCancelled] = useState(false);
   const [showPast, setShowPast] = useState(false);
   const formatDateShort = (date: Date) => {
@@ -78,8 +110,71 @@ export default function AdminBookingsClient({
   }, [bookingWindows]);
 
   // Filtered bookings - Remove pagination since we're now using scrolling
+
+  const utils = api.useUtils();
+  const cancelBookingMutation = api.bookingWindow.cancelBooking.useMutation({
+    onSuccess: async () => {
+      // Invalidate and refetch the bookings data
+      await utils.bookingWindow.getBookingRequestsByUser.invalidate();
+      setCancelModalOpen(false);
+      setSelectedBookingTableRow(null);
+    },
+    onError: (error) => {
+      console.error("Failed to cancel booking:", error.message);
+      // You could add a toast notification here
+    },
+  });
+
+  const handleCancelClick = (booking: BookingTableRow) => {
+    setSelectedBookingTableRow(booking);
+    setCancelModalOpen(true);
+  };
+
+  const handleConfirmBookingClick = (booking: BookingTableRow) => {
+    setSelectedBookingTableRow(booking);
+    setConfirmBookingDateModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    if (selectedBookingTableRow) {
+      cancelBookingMutation.mutate({
+        id: selectedBookingTableRow.id,
+        bookedBy: selectedBookingTableRow.bookedBy,
+      });
+    }
+  };
+  const handleContactClick = (user: UserDto) => {
+    setSelectedUser(user);
+    setContactModalOpen(true);
+  };
+
+  const tableData: BookingTableData = useMemo(() => {
+    const userMap = new Map(loadedUsers.map((user) => [user.userId, user]));
+    return loadedBookingWindows.map((bookingWindow) => ({
+      ...bookingWindow,
+      bookedByUser: userMap.get(bookingWindow.bookedBy),
+      waitlists: loadedWaitlists
+        .filter((waitlist) => waitlist.associatedBookingId === bookingWindow.id)
+        .map((waitlist) => ({
+          ...waitlist,
+          entries: waitlist.entries.map((entry) => ({
+            ...entry,
+            user: userMap.get(entry.waitlistedUserId),
+          })),
+        })),
+      scheduledJumps: loadedScheduledJumps.filter(
+        (jump) => jump.associatedBookingId === bookingWindow.id,
+      ),
+    }));
+  }, [
+    loadedBookingWindows,
+    loadedScheduledJumps,
+    loadedUsers,
+    loadedWaitlists,
+  ]);
+
   const filteredBookings = useMemo(() => {
-    let filtered = bookingWindows;
+    let filtered = tableData;
     if (!showCancelled) {
       filtered = filtered.filter((booking) => booking.status !== "CANCELED");
     }
@@ -95,47 +190,9 @@ export default function AdminBookingsClient({
       return dateA.getTime() - dateB.getTime();
     });
     return filtered;
-  }, [bookingWindows, showCancelled, showPast]);
+  }, [showCancelled, showPast, tableData]);
 
-  const utils = api.useUtils();
-  const cancelBookingMutation = api.bookingWindow.cancelBooking.useMutation({
-    onSuccess: async () => {
-      // Invalidate and refetch the bookings data
-      await utils.bookingWindow.getBookingRequestsByUser.invalidate();
-      setCancelModalOpen(false);
-      setSelectedBooking(null);
-    },
-    onError: (error) => {
-      console.error("Failed to cancel booking:", error.message);
-      // You could add a toast notification here
-    },
-  });
-
-  const handleCancelClick = (bookingWindow: BookingWindowPopulatedDto) => {
-    setSelectedBooking(bookingWindow);
-    setCancelModalOpen(true);
-  };
-
-  const handleConfirmBookingClick = (
-    bookingWindow: BookingWindowPopulatedDto,
-  ) => {
-    setSelectedBooking(bookingWindow);
-    setConfirmBookingDateModalOpen(true);
-  };
-
-  const handleConfirmCancel = () => {
-    if (selectedBooking) {
-      cancelBookingMutation.mutate({
-        id: selectedBooking.id,
-        bookedBy: selectedBooking.bookedBy,
-      });
-    }
-  };
-
-  const handleContactClick = (user: UserDto) => {
-    setSelectedUser(user);
-    setContactModalOpen(true);
-  };
+  console.log("tableData", tableData);
 
   return (
     <div className="z-0 p-4 md:p-8">
@@ -143,10 +200,10 @@ export default function AdminBookingsClient({
         {/* Header */}
         <div className="mb-8">
           <h1 className="mb-2 text-4xl font-bold text-gray-900">
-            Administrator Booking Manager
+            Booking Requests Manager
           </h1>
           <p className="text-gray-600">
-            {`Manage your customer's bookings in one place`}
+            {`Manage your customer's booking requests in one place`}
           </p>
         </div>
         {/* Stats Cards */}
@@ -288,6 +345,9 @@ export default function AdminBookingsClient({
                     CONFIRMED JUMP DATES
                   </TableColumn>
                   <TableColumn className="text-center">DATE BOOKED</TableColumn>
+                  <TableColumn className="text-center">
+                    ACTIVE WAITLISTS
+                  </TableColumn>
                   <TableColumn className="text-center">ACTIONS</TableColumn>
                 </TableHeader>
                 <TableBody emptyContent="No bookings found">
@@ -345,7 +405,6 @@ export default function AdminBookingsClient({
                             {status.toLowerCase()}
                           </div>
                         </TableCell>
-
                         <TableCell>
                           <div className="flex items-center justify-center">
                             <div className="rounded-full border border-purple-200 bg-gradient-to-r from-purple-100 to-pink-100 p-3">
@@ -358,7 +417,6 @@ export default function AdminBookingsClient({
                             </div>
                           </div>
                         </TableCell>
-
                         <TableCell>
                           <div className="flex justify-center">
                             <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-center">
@@ -371,24 +429,26 @@ export default function AdminBookingsClient({
                             </div>
                           </div>
                         </TableCell>
-
                         <TableCell>
                           <div className="flex justify-center">
-                            {booking.scheduledJumpDates.length > 0 ? (
+                            {getActiveScheduledJumpDates(booking.scheduledJumps)
+                              .length > 0 ? (
                               <div className="space-y-1">
-                                {getActiveScheduledJumpDatesFromBookingWindow(
-                                  booking,
-                                ).map((jumpDay, idx) => (
-                                  <div
-                                    key={`${idx}-${jumpDay.toISOString()}`}
-                                    className="flex items-center gap-2 rounded-md bg-green-50 px-2 py-1 text-sm"
-                                  >
-                                    <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                                    <span className="font-medium text-green-800">
-                                      {formatDateShort(jumpDay)}
-                                    </span>
-                                  </div>
-                                ))}
+                                {getActiveScheduledJumpDates(
+                                  booking.scheduledJumps,
+                                )
+                                  .sort((a, b) => a.getTime() - b.getTime())
+                                  .map((scheduledJumpDate, idx) => (
+                                    <div
+                                      key={`${idx}-${scheduledJumpDate.toISOString()}`}
+                                      className="flex items-center gap-2 rounded-md bg-green-50 px-2 py-1 text-sm"
+                                    >
+                                      <CheckCircleIcon className="h-4 w-4 text-green-600" />
+                                      <span className="font-medium text-green-800">
+                                        {formatDateShort(scheduledJumpDate)}
+                                      </span>
+                                    </div>
+                                  ))}
                               </div>
                             ) : (
                               <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">
@@ -405,7 +465,6 @@ export default function AdminBookingsClient({
                             )}
                           </div>
                         </TableCell>
-
                         <TableCell>
                           <div className="flex justify-center">
                             <div className="text-center">
@@ -419,6 +478,41 @@ export default function AdminBookingsClient({
                                 )}
                               </div>
                             </div>
+                          </div>
+                        </TableCell>
+
+                        <TableCell>
+                          <div className="flex justify-center">
+                            {booking.waitlists.length > 0 ? (
+                              <div className="space-y-1">
+                                {booking.waitlists.map((waitlist, idx) => (
+                                  <div
+                                    key={`${idx}-${waitlist.day.toISOString()}`}
+                                    className="flex items-center gap-2 rounded-md bg-yellow-50 px-2 py-1 text-sm"
+                                  >
+                                    <CheckCircleIcon className="h-4 w-4 text-yellow-600" />
+                                    <span
+                                      className="font-medium text-yellow-800"
+                                      onClick={() => {
+                                        setSelectedWaitlist(waitlist);
+                                        setWaitlistModalOpen(true);
+                                      }}
+                                    >
+                                      {formatDateShort(waitlist.day)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <ClockIcon className="h-4 w-4 text-gray-400" />
+                                  <span className="text-sm font-medium text-gray-500">
+                                    No waitlist signups
+                                  </span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </TableCell>
 
@@ -448,26 +542,26 @@ export default function AdminBookingsClient({
             </div>
           </CardBody>
         </Card>
-        {selectedBooking && (
+        {selectedBookingTableRow && (
           <CancelConfirmationModal
             isOpen={cancelModalOpen}
             onClose={() => {
               setCancelModalOpen(false);
-              setSelectedBooking(null);
+              setSelectedBookingTableRow(null);
             }}
             onConfirm={handleConfirmCancel}
-            booking={selectedBooking}
+            booking={selectedBookingTableRow}
           />
         )}
-        {selectedBooking && (
+        {selectedBookingTableRow && (
           <ConfirmBookingDatesModal
             adminUserId={adminUserId}
             isOpen={confirmBookingDateModalOpen}
             onClose={() => {
               setConfirmBookingDateModalOpen(false);
-              setSelectedBooking(null);
+              setSelectedBookingTableRow(null);
             }}
-            booking={selectedBooking}
+            booking={selectedBookingTableRow}
           />
         )}
         {/* New Contact Modal */}
@@ -479,6 +573,16 @@ export default function AdminBookingsClient({
           }}
           user={selectedUser}
         />
+        {selectedWaitlist && (
+          <AdminWaitlistModal
+            isOpen={waitlistModalOpen}
+            onClose={() => {
+              setWaitlistModalOpen(false);
+              setSelectedWaitlist(null);
+            }}
+            waitlist={selectedWaitlist}
+          />
+        )}
 
         {cancelBookingMutation.isPending && (
           <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
