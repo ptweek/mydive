@@ -180,6 +180,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
                   bookedBy: input.bookedBy,
                   confirmedBy: input.confirmedBy,
                   status: "CONFIRMED",
+                  schedulingMethod: "BOOKING_WINDOW",
                 },
               });
             }),
@@ -278,8 +279,49 @@ export const adminBookingManagerRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const waitlist = await ctx.services.waitlist.findByIdPopulated(
-        input.waitlistId,
-      );
+      // find the waistlist that is associated with the day
+      // create a scheduled jump for that day, associated with booking id and waitlist
+      // close the waitlist and associate with new scheduled jump
+      try {
+        const waitlist = await ctx.services.waitlist.findByIdPopulated(
+          input.waitlistId,
+        );
+        const existingBooking = waitlist?.associatedBooking;
+        if (!existingBooking) {
+          throw new Error("Existing booking not found for waitlist!");
+        }
+        const waitlistDate = waitlist?.day;
+        const newScheduledJump = await ctx.db.scheduledJump.create({
+          data: {
+            jumpDate: waitlistDate,
+            bookingZone: existingBooking.bookingZone,
+            numJumpers: existingBooking.numJumpers,
+            associatedBookingId: existingBooking.id,
+            associatedWaitlistId: waitlist.id,
+            bookedBy: input.bookerId,
+            confirmedBy: input.confirmedBy,
+            status: "CONFIRMED",
+            schedulingMethod: "WAITLIST",
+          },
+        });
+        return ctx.db.waitlist.update({
+          where: { id: waitlist.id },
+          data: {
+            status: "CLOSED",
+            associatedScheduledJump: {
+              connect: { id: newScheduledJump.id },
+            },
+          },
+        });
+      } catch (error) {
+        console.error("Error confirming waitlist as a scheduled jummp:", error);
+
+        // Re-throw known errors, wrap unknown ones
+        if (error instanceof Error) {
+          throw error;
+        }
+
+        throw new Error("Failed to confirm waitlist as a scheduled jump date");
+      }
     }),
 });

@@ -51,6 +51,11 @@ model BookingWindow {
     @@index([bookedBy])
 }
 
+enum SchedulingMethod {
+  BOOKING_WINDOW
+  WAITLIST
+}
+
 model ScheduledJump {
     id Int @id @default(autoincrement())
     createdAt DateTime @default(now())
@@ -61,6 +66,7 @@ model ScheduledJump {
     jumpDate DateTime // End date is always 3 days afterwards
     bookingZone String
     numJumpers Int
+    schedulingMethod SchedulingMethod // how the jump day got booked, if waitlist should have waitlist id
 
     associatedBooking BookingWindow @relation(fields: [associatedBookingId], references: [id])
     associatedBookingId Int
@@ -83,7 +89,6 @@ model Waitlist {
   associatedBooking   BookingWindow         @relation(fields: [associatedBookingId], references: [id])
   associatedBookingId Int     
 
-  scheduledJumperId Int?
   associatedScheduledJump ScheduledJump?
   
   @@unique([day]) // Keep this - one waitlist per day globally

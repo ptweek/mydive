@@ -21,6 +21,7 @@ CREATE TABLE "ScheduledJump" (
     "jumpDate" DATETIME NOT NULL,
     "bookingZone" TEXT NOT NULL,
     "numJumpers" INTEGER NOT NULL,
+    "schedulingMethod" TEXT NOT NULL,
     "associatedBookingId" INTEGER NOT NULL,
     "associatedWaitlistId" INTEGER,
     "bookedBy" TEXT NOT NULL,
@@ -35,7 +36,6 @@ CREATE TABLE "Waitlist" (
     "status" TEXT NOT NULL DEFAULT 'OPENED',
     "day" DATETIME NOT NULL,
     "associatedBookingId" INTEGER NOT NULL,
-    "scheduledJumperId" INTEGER,
     CONSTRAINT "Waitlist_associatedBookingId_fkey" FOREIGN KEY ("associatedBookingId") REFERENCES "BookingWindow" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
