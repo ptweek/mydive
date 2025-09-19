@@ -185,8 +185,11 @@ export default function WaitlistModal({
                 {`We'll notify you if a spot opens up on`}{" "}
                 <strong>{formatDate(day)}</strong>. You can monitor your
                 waitlist in the{" "}
-                <Link className="text-blue-400" href={"/manage-bookings"}>
-                  Manage Bookings
+                <Link
+                  className="text-blue-400"
+                  href={"/manage-booking-requests"}
+                >
+                  Manage Booking Requests
                 </Link>{" "}
                 page
               </p>

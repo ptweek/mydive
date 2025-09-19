@@ -116,17 +116,24 @@ export default function ManageBookingRequestsClient({
     }
     if (!showPast) {
       filtered = filtered.filter((tableRow) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to start of today
+
         if (tableRow.type === "BOOKING_WINDOW") {
           if (isBookingWindowPopulatedDto(tableRow.data)) {
             const bookingWindow = tableRow.data;
-            return new Date(bookingWindow.windowEndDate) >= new Date();
+            const windowEndDate = new Date(bookingWindow.windowEndDate);
+            windowEndDate.setHours(0, 0, 0, 0); // Set to start of that day
+            return windowEndDate >= today;
           } else {
             throw new Error("Issue with booking window");
           }
         } else {
           if (isWaitlistEntryPopulatedDto(tableRow.data)) {
             const waitlistEntryWaitlist = tableRow.data.waitlist;
-            return new Date(waitlistEntryWaitlist.day) >= new Date();
+            const day = new Date(waitlistEntryWaitlist.day);
+            day.setHours(0, 0, 0, 0); // Set to start of that day
+            return day >= today;
           } else {
             throw new Error("Issue with waitlist entry");
           }

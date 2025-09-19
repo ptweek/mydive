@@ -17,7 +17,6 @@ export class WaitlistService {
       include: waitlistIncludeConfig,
     });
   }
-
   async findByIdPopulated(
     id: number,
   ): Promise<WaitlistWithPopulatedFields | null> {

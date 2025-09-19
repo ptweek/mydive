@@ -47,7 +47,7 @@ export const UserNavigation = () => (
     </a>
 
     <a
-      href="/manage-bookings"
+      href="/manage-booking-requests"
       className="group relative flex items-center gap-2 overflow-hidden rounded-lg border border-white/20 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:from-blue-500/30 hover:to-indigo-500/30 hover:shadow-xl hover:shadow-blue-500/25"
     >
       <div className="absolute inset-0 translate-x-full bg-gradient-to-r from-white/0 to-white/10 transition-transform duration-500 group-hover:translate-x-0"></div>
@@ -58,7 +58,7 @@ export const UserNavigation = () => (
       >
         <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
       </svg>
-      <span className="relative z-10">Manage Bookings</span>
+      <span className="relative z-10">Manage Booking Requests</span>
     </a>
     <a
       href="/info"

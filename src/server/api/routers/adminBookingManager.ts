@@ -88,6 +88,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
         const confirmedDates = input.confirmedDates.map(
           (dateStr) => new Date(dateStr),
         );
+        console.log("confirmedDates", confirmedDates);
 
         // Validate that all confirmed dates are within the booking window
         const windowStart = new Date(existingBooking.windowStartDate);
@@ -109,6 +110,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
           existingBooking.scheduledJumpDates.filter((scheduledJumpDate) => {
             return scheduledJumpDate.status !== "CANCELED";
           });
+        console.log("existingScheduledJumps", existingScheduledJumps);
 
         // Convert confirmed dates to ISO strings for comparison
         const confirmedDateISOStrings = uniqueDateStrings.map((dateStr) =>
@@ -119,7 +121,8 @@ export const adminBookingManagerRouter = createTRPCRouter({
         // Overwriting a waitlist jump
         const bwJumpsRemovedByAdmin = existingScheduledJumps.filter(
           (jump) =>
-            !confirmedDateISOStrings.includes(jump.jumpDate.toISOString()),
+            !confirmedDateISOStrings.includes(jump.jumpDate.toISOString()) &&
+            jump.schedulingMethod === "BOOKING_WINDOW",
         );
         const wlJumpsOverwrittenByAdmin = existingScheduledJumps.filter(
           (jump) =>
@@ -159,6 +162,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
               });
             }),
           );
+          console.log("jumpsToCancel", jumpsToCancel);
 
           // 2. Handle waitlist status for canceled jump dates
           const waitlistUpdatesForCanceled = await Promise.all(
