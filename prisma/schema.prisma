@@ -96,6 +96,8 @@ model Waitlist {
 
 model WaitlistEntry {
   id         Int      @id @default(autoincrement())
+  
+  status BookingStatus @default(PENDING) // when we confirm a waitlist booking, we should confirm this and cancel all the others. 
   waitlistId Int
   waitlistedUserId     String   // clerkId of waitlisted user
   position   Int      // Order in the waitlist

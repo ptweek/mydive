@@ -1,16 +1,17 @@
 import { api, HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import BookingsClient from "./components/bookings-client";
+import ManageBookingRequestsClient from "./manage-booking-requests-client-page";
 
-export default async function MyBookingsPage() {
+export default async function ManageBookingsRequestsPage() {
   const user = await currentUser();
   if (!user) {
     redirect("/");
   }
-  const { bookingWindows } = await api.bookingWindow.getBookingRequestsByUser({
-    bookedBy: user.id,
-  });
+  const { bookingWindows, waitlistEntries } =
+    await api.customerBookingManager.getBookingRequestsByUser({
+      bookedBy: user.id,
+    });
   return (
     <HydrateClient>
       <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-white">
@@ -26,7 +27,10 @@ export default async function MyBookingsPage() {
         </video>
 
         {/* Content */}
-        <BookingsClient loadedBookingWindows={bookingWindows} />
+        <ManageBookingRequestsClient
+          loadedBookingWindows={bookingWindows}
+          loadedWaitlistEntries={waitlistEntries}
+        />
       </main>
     </HydrateClient>
   );

@@ -19,7 +19,6 @@ import {
   CheckCircleIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
-import moment from "moment";
 import { BookingActionsDropdown } from "./booking-actions-dropdown";
 import { api } from "mydive/trpc/react";
 import type {
@@ -33,7 +32,10 @@ import { ContactModal } from "./contact-modal";
 import { ConfirmBookingDatesModal } from "./confirm-booking-date-modal";
 import type { Waitlist, WaitlistEntry, WaitlistStatus } from "@prisma/client";
 import AdminWaitlistModal from "./admin-waitlist-modal";
-import { getActiveScheduledJumps } from "mydive/app/_utils/booking";
+import {
+  formatDateShort,
+  getActiveScheduledJumps,
+} from "mydive/app/_utils/booking";
 import AdminScheduledJumpModal from "./admin-scheduled-jump-modal";
 
 export interface WaitlistEntryWithUser extends WaitlistEntry {
@@ -105,10 +107,6 @@ export default function AdminBookingsClient({
   const [showCancelled, setShowCancelled] = useState(false);
   const [showPast, setShowPast] = useState(false);
 
-  const formatDateShort = (date: Date) => {
-    return moment(date).format("MMM DD YYYY");
-  };
-
   const stats = useMemo(() => {
     const total = bookingWindows.length;
     const confirmed = bookingWindows.filter(
@@ -135,7 +133,7 @@ export default function AdminBookingsClient({
   const cancelBookingMutation = api.bookingWindow.cancelBooking.useMutation({
     onSuccess: async () => {
       // Invalidate and refetch the bookings data
-      await utils.bookingWindow.getBookingRequestsByUser.invalidate();
+      await utils.customerBookingManager.getBookingRequestsByUser.invalidate();
       setCancelModalOpen(false);
       setSelectedBookingTableRow(null);
     },

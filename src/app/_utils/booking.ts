@@ -1,4 +1,5 @@
 import type { ScheduledJump, SchedulingMethod } from "@prisma/client";
+import moment from "moment";
 
 export function getActiveScheduledJumpDatesFromBookingWindow(bookingWindow: {
   scheduledJumpDates: ScheduledJump[];
@@ -49,3 +50,7 @@ export function getActiveScheduledJumpDates(
 export function setConfirmedJumpDays(dates: Date[]): string[] {
   return dates.map((date) => date.toISOString());
 }
+
+export const formatDateShort = (date: Date) => {
+  return moment(date).format("MMM DD YYYY");
+};
