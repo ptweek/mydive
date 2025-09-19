@@ -164,8 +164,6 @@ export default function ManageBookingRequestsClient({
     return filtered;
   }, [formattedTableData, showCancelled, showPast]);
 
-  console.log("filteredBookings", filteredBookings);
-
   // Mutations
   const utils = api.useUtils();
   const cancelBookingMutation = api.bookingWindow.cancelBooking.useMutation({
@@ -186,6 +184,12 @@ export default function ManageBookingRequestsClient({
   const handleCancelClick = (booking: BookingWindowPopulatedDto) => {
     setSelectedBookingWindow(booking);
     setCancelModalOpen(true);
+  };
+
+  const handleWaitlistEntryCancellationClick = (
+    waitlistEntry: WaitlistEntryPopulatedDto,
+  ) => {
+    console.log("waitlist");
   };
 
   const handleConfirmCancel = () => {
@@ -222,6 +226,9 @@ export default function ManageBookingRequestsClient({
               <BookingRequestsTable
                 tableData={filteredBookings}
                 handleBookingWindowCancellationClick={handleCancelClick}
+                handleWaitlistEntryCancellationClick={
+                  handleWaitlistEntryCancellationClick
+                }
               />
             </div>
           </CardBody>
