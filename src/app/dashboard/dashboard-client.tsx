@@ -46,7 +46,7 @@ export default function DashboardClient() {
           <Button
             size="lg"
             variant="shadow"
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-lg font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30"
+            className="from-booking-requests-table/table.tsxblue-600 w-full bg-gradient-to-r to-indigo-700 text-lg font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30"
             onPress={() => {
               router.push("/manage-booking-requests");
             }}

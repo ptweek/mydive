@@ -3,18 +3,10 @@ import React, { useState, useRef, useEffect } from "react";
 
 export const BookingWindowActionsDropdown = ({
   booking,
-  onModify,
   onCancel,
-  onViewDetails,
-  onRebook,
-  onRemove,
 }: {
   booking: BookingWindow;
-  onModify: () => void;
   onCancel: (booking: BookingWindow) => void;
-  onViewDetails: () => void;
-  onRebook: () => void;
-  onRemove: () => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

@@ -17,6 +17,31 @@ export class WaitlistEntryService {
       include: waitlistEntryIncludeConfig,
     });
   }
+
+  async cancelEntryAndReorder(id: number) {
+    return await this.db.$transaction(async (tx) => {
+      const entryToRemove = await tx.waitlistEntry.findUniqueOrThrow({
+        where: { id },
+      });
+      await tx.waitlistEntry.update({
+        where: { id },
+        data: {
+          status: "CANCELED",
+        },
+      });
+      await tx.waitlistEntry.updateMany({
+        where: {
+          waitlistId: entryToRemove.waitlistId,
+          position: { gt: entryToRemove.position },
+        },
+        data: {
+          position: { decrement: 1 },
+        },
+      });
+
+      return { removedPosition: entryToRemove.position };
+    });
+  }
 }
 export type Waitlist = Prisma.WaitlistGetPayload<object>;
 export type WaitlistEntryWithPopulatedFields = Prisma.WaitlistEntryGetPayload<{
