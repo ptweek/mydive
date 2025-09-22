@@ -43,20 +43,27 @@ export class WaitlistEntryService {
       await tx.waitlistEntry.update({
         where: { id },
         data: {
+          activePosition: null,
           status: "CANCELED",
         },
       });
-      await tx.waitlistEntry.updateMany({
-        where: {
-          waitlistId: entryToRemove.waitlistId,
-          position: { gt: entryToRemove.position },
-        },
-        data: {
-          position: { decrement: 1 },
-        },
-      });
+      // Only decrement entries that were positioned AFTER the removed entry
+      // Skip reordering if the entry was already canceled (activePosition is null)
+      if (entryToRemove.activePosition !== null) {
+        await tx.waitlistEntry.updateMany({
+          where: {
+            waitlistId: entryToRemove.waitlistId,
+            activePosition: { gt: entryToRemove.activePosition },
+            status: { not: "CANCELED" },
+          },
+          data: {
+            activePosition: { decrement: 1 },
+            latestPosition: { decrement: 1 },
+          },
+        });
+      }
 
-      return { removedPosition: entryToRemove.position };
+      return { removedPosition: entryToRemove.latestPosition };
     });
   }
 }

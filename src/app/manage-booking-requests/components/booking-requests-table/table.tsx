@@ -139,8 +139,9 @@ export default function BookingRequestsTable({
 
               <TableCell>
                 <div className="flex justify-center text-black">
-                  {isWaitlistEntryPopulatedDto(tableRow.data)
-                    ? `${tableRow.data.position}`
+                  {isWaitlistEntryPopulatedDto(tableRow.data) &&
+                  tableRow.data.activePosition
+                    ? `${tableRow.data.activePosition}`
                     : `--`}
                 </div>
               </TableCell>
@@ -242,7 +243,9 @@ export default function BookingRequestsTable({
                       <div className="flex justify-center">
                         <WaitlistEntryActionsDropdown
                           waitlistEntry={waitlistEntry}
-                          onCancel={handleWaitlistEntryCancellationClick}
+                          onCancel={() =>
+                            handleWaitlistEntryCancellationClick(waitlistEntry)
+                          }
                         />
                       </div>
                     );

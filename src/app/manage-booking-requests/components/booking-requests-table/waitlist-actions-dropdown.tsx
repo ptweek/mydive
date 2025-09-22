@@ -2,11 +2,11 @@ import type { WaitlistEntryPopulatedDto } from "mydive/server/api/routers/types"
 import React, { useState, useRef, useEffect } from "react";
 
 export const WaitlistEntryActionsDropdown = ({
-  waitlistEntry,
   onCancel,
+  waitlistEntry,
 }: {
+  onCancel: () => void;
   waitlistEntry: WaitlistEntryPopulatedDto;
-  onCancel: (booking: WaitlistEntryPopulatedDto) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -31,24 +31,13 @@ export const WaitlistEntryActionsDropdown = ({
   const getActions = () => {
     switch (waitlistEntry.status) {
       case "PENDING":
-        return [
-          {
-            label: "Cancel Waitlist Entry",
-            icon: "❌",
-            onClick: () => {
-              onCancel(waitlistEntry);
-              setIsOpen(false);
-            },
-            className: "text-red-600 hover:bg-red-50",
-          },
-        ];
-
       case "CONFIRMED":
         return [
           {
             label: "Cancel Waitlist Entry",
             icon: "❌",
             onClick: () => {
+              onCancel();
               setIsOpen(false);
             },
             className: "text-red-600 hover:bg-red-50",

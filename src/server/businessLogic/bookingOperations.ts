@@ -41,3 +41,21 @@ export const cancelBookingWindow = protectedProcedure
       throw new Error("Failed to canceling booking window");
     }
   });
+
+export const removeWaitlistEntry = protectedProcedure
+  .input(
+    z.object({
+      waitlistEntryId: z.number(),
+    }),
+  )
+  .mutation(async ({ ctx, input }) => {
+    try {
+      console.log(`Trying to remove waitlist entry ${input.waitlistEntryId}`);
+      await ctx.services.waitlistEntry.cancelEntryAndReorder(
+        input.waitlistEntryId,
+      );
+    } catch (error) {
+      console.error("Error cancelling waitlist entry and reordering:", error);
+      throw new Error("Failed to cancel waitlist entry");
+    }
+  });

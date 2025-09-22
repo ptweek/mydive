@@ -16,6 +16,7 @@ import {
   isWaitlistEntryPopulatedDto,
 } from "./_utils/table";
 import { getActiveScheduledJumpDatesFromBookingWindow } from "../_utils/booking";
+import { CancelWaitlistEntryConfirmationModal } from "./components/cancel-waitlist-confirmation-modal";
 
 export default function ManageBookingRequestsClient({
   loadedBookingWindows,
@@ -31,6 +32,10 @@ export default function ManageBookingRequestsClient({
 
   // Modal States
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [
+    cancelWaitlistEntryCancellationModalOpen,
+    setWaitlistEntryCancellationModalOpen,
+  ] = useState(false);
 
   // Filter States
   const [showCancelled, setShowCancelled] = useState(false);
@@ -39,6 +44,8 @@ export default function ManageBookingRequestsClient({
   // Selection States
   const [selectedBookingWindow, setSelectedBookingWindow] =
     useState<BookingWindowPopulatedDto | null>(null);
+  const [selectedWaitlistEntry, setSelectedWaitlistEntry] =
+    useState<WaitlistEntryPopulatedDto | null>(null);
 
   // Statistics calculation
   const stats = useMemo(() => {
@@ -82,23 +89,28 @@ export default function ManageBookingRequestsClient({
       });
 
     const formattedWaitlistEntries: BookingRequestTableRow[] =
-      loadedWaitlistEntries.map((waitlistEntry) => {
-        const { id, status, createdAt, position } = waitlistEntry;
-        return {
-          type: "WAITLIST_ENTRY",
-          id,
-          status,
-          numJumpers: 1,
-          position,
-          createdAt,
-          requestedJumpDate: waitlistEntry.waitlist.day,
-          scheduledJumpDates:
-            waitlistEntry.status === "CONFIRMED"
-              ? [waitlistEntry.waitlist.day]
-              : [],
-          data: waitlistEntry,
-        };
-      });
+      //For now only display active ones
+      loadedWaitlistEntries
+        .filter((waitlistEntry) => {
+          return waitlistEntry.status;
+        })
+        .map((waitlistEntry) => {
+          const { id, status, createdAt, activePosition } = waitlistEntry;
+          return {
+            type: "WAITLIST_ENTRY",
+            id,
+            status,
+            numJumpers: 1,
+            activePosition,
+            createdAt,
+            requestedJumpDate: waitlistEntry.waitlist.day,
+            scheduledJumpDates:
+              waitlistEntry.status === "CONFIRMED"
+                ? [waitlistEntry.waitlist.day]
+                : [],
+            data: waitlistEntry,
+          };
+        });
 
     const tableData: BookingRequestTableRow[] = [
       ...formattedBookingWindowsData,
@@ -177,17 +189,37 @@ export default function ManageBookingRequestsClient({
       },
     });
 
-  // Handlers
+  const cancelWaitlistEntry =
+    api.customerBookingManager.removeWaitlistEntry.useMutation({
+      onSuccess: async () => {
+        setWaitlistEntryCancellationModalOpen(false);
+        setSelectedWaitlistEntry(null);
+      },
+      onError: (error) => {
+        console.error("Failed to cancel booking:", error.message);
+        // You could add a toast notification here
+      },
+    });
 
+  // Handlers
   const handleCancelClick = (booking: BookingWindowPopulatedDto) => {
     setSelectedBookingWindow(booking);
     setCancelModalOpen(true);
   };
 
-  const handleWaitlistEntryCancellationClick = (
+  const handleWaitlistEntryCancelClick = (
     waitlistEntry: WaitlistEntryPopulatedDto,
   ) => {
-    console.log("waitlist");
+    setSelectedWaitlistEntry(waitlistEntry);
+    setWaitlistEntryCancellationModalOpen(true);
+  };
+
+  const handleConfirmWaitlistEntryCancellation = () => {
+    if (selectedWaitlistEntry) {
+      cancelWaitlistEntry.mutate({
+        waitlistEntryId: selectedWaitlistEntry.id,
+      });
+    }
   };
 
   const handleConfirmCancel = () => {
@@ -224,7 +256,7 @@ export default function ManageBookingRequestsClient({
                 tableData={filteredBookings}
                 handleBookingWindowCancellationClick={handleCancelClick}
                 handleWaitlistEntryCancellationClick={
-                  handleWaitlistEntryCancellationClick
+                  handleWaitlistEntryCancelClick
                 }
               />
             </div>
@@ -239,6 +271,17 @@ export default function ManageBookingRequestsClient({
             }}
             onConfirm={handleConfirmCancel}
             booking={selectedBookingWindow}
+          />
+        )}
+        {selectedWaitlistEntry && (
+          <CancelWaitlistEntryConfirmationModal
+            isOpen={cancelWaitlistEntryCancellationModalOpen}
+            onClose={() => {
+              setWaitlistEntryCancellationModalOpen(false);
+              setSelectedWaitlistEntry(null);
+            }}
+            onConfirm={handleConfirmWaitlistEntryCancellation}
+            waitlistEntry={selectedWaitlistEntry}
           />
         )}
         {cancelBookingMutation.isPending && (

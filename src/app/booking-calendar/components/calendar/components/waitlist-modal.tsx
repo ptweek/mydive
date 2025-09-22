@@ -24,7 +24,8 @@ export default function WaitlistModal({
   const [showSuccess, setShowSuccess] = useState(false);
 
   const { user } = useUser();
-  const joinWaitlistMutation = api.bookingWindow.joinWaitlist.useMutation();
+  const joinWaitlistMutation =
+    api.customerBookingManager.joinWaitlist.useMutation();
 
   // Get waitlist info for this day
   const {
@@ -32,7 +33,7 @@ export default function WaitlistModal({
     refetch: refetchWaitlistInfo,
     isLoading: isLoadingWaitlistInfo,
     error: waitlistInfoError,
-  } = api.bookingWindow.getWaitlistInfo.useQuery(
+  } = api.customerBookingManager.getWaitlistInfo.useQuery(
     {
       day: day,
       userId: user?.id ?? "",
@@ -121,7 +122,7 @@ export default function WaitlistModal({
     }
 
     if (!waitlistInfo?.exists) {
-      return "No waitlist exists for this day yet. You'll be the first!";
+      return "No one is currently wailisted. You'll be the first!";
     }
 
     if (waitlistInfo.isUserOnWaitlist) {

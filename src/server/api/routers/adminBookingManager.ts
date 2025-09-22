@@ -1,7 +1,10 @@
 import { clerkClient, type User } from "@clerk/nextjs/server";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "mydive/server/api/trpc";
-import { cancelBookingWindow } from "mydive/server/businessLogic/bookingOperations";
+import {
+  cancelBookingWindow,
+  removeWaitlistEntry,
+} from "mydive/server/businessLogic/bookingOperations";
 import z from "zod";
 
 type UserDto = {
@@ -443,4 +446,5 @@ export const adminBookingManagerRouter = createTRPCRouter({
       });
     }),
   cancelBookingWindow,
+  removeWaitlistEntry,
 });

@@ -101,12 +101,12 @@ model WaitlistEntry {
   
   status BookingStatus @default(PENDING) // when we confirm a waitlist booking, we should confirm this and cancel all the others. 
   waitlistId Int
-  waitlistedUserId     String   // clerkId of waitlisted user
-  position   Int      // Order in the waitlist
+  waitlistedUserId     String   // clerkId of waitlisted user 
+  latestPosition Int
+  activePosition   Int? // For any active waitlist entry, we need this. Cancelled with have this set as undefined. See src/server/services/waitlistEntry.ts.
   createdAt  DateTime @default(now())
   
   waitlist   Waitlist @relation(fields: [waitlistId], references: [id], onDelete: Cascade)
 
-  @@unique([waitlistId, position]) // Ensure no duplicate positions
-  @@unique([waitlistId, waitlistedUserId])   // Ensure user can't be on same waitlist twice
+  @@unique([waitlistId, activePosition]) // Ensure no duplicate positions
 }

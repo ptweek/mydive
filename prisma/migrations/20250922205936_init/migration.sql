@@ -45,7 +45,8 @@ CREATE TABLE "WaitlistEntry" (
     "status" TEXT NOT NULL DEFAULT 'PENDING',
     "waitlistId" INTEGER NOT NULL,
     "waitlistedUserId" TEXT NOT NULL,
-    "position" INTEGER NOT NULL,
+    "latestPosition" INTEGER NOT NULL,
+    "activePosition" INTEGER,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "WaitlistEntry_waitlistId_fkey" FOREIGN KEY ("waitlistId") REFERENCES "Waitlist" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -60,7 +61,4 @@ CREATE INDEX "ScheduledJump_jumpDate_idx" ON "ScheduledJump"("jumpDate");
 CREATE UNIQUE INDEX "Waitlist_day_key" ON "Waitlist"("day");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "WaitlistEntry_waitlistId_position_key" ON "WaitlistEntry"("waitlistId", "position");
-
--- CreateIndex
-CREATE UNIQUE INDEX "WaitlistEntry_waitlistId_waitlistedUserId_key" ON "WaitlistEntry"("waitlistId", "waitlistedUserId");
+CREATE UNIQUE INDEX "WaitlistEntry_waitlistId_activePosition_key" ON "WaitlistEntry"("waitlistId", "activePosition");

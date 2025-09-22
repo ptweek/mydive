@@ -19,5 +19,5 @@ export function isWaitlistEntryPopulatedDto(
 ): data is WaitlistEntryPopulatedDto {
   // Add your specific validation logic here based on WaitlistEntryPopulatedDto structure
   // This is a placeholder - replace with actual property checks
-  return data && typeof data === "object" && "position" in data;
+  return data && typeof data === "object" && "latestPosition" in data;
 }

@@ -5,6 +5,7 @@ import type {
   WaitlistWithUsers,
 } from "./admin-bookings-client";
 import { api } from "mydive/trpc/react";
+import { select } from "@nextui-org/react";
 
 const AdminWaitlistModal = ({
   waitlist,
@@ -17,11 +18,17 @@ const AdminWaitlistModal = ({
   onClose: () => void;
   adminUserId: string;
 }) => {
-  const [confirmationModalOpen, setConfirmationModalOpen] = useState<
-    boolean | null
-  >(null);
+  // Modal Open States
+  const [cancellationModalOpen, setCancellationModalOpen] =
+    useState<boolean>(false);
+  const [confirmationModalOpen, setConfirmationModalOpen] =
+    useState<boolean>(false);
+
+  // Selection
   const [selectedEntry, setSelectedEntry] =
     useState<WaitlistEntryWithUser | null>(null);
+
+  // Loading States
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   if (!isOpen) return null;
@@ -36,6 +43,15 @@ const AdminWaitlistModal = ({
           "Failed to schedule jump date from wailist:",
           error.message,
         );
+      },
+    });
+  const removeWaitlistEntry =
+    api.adminBookingManager.removeWaitlistEntry.useMutation({
+      onSuccess: async () => {
+        onClose();
+      },
+      onError: (error) => {
+        console.error("Failed to remove entry from wailist:", error.message);
       },
     });
   const formatDate = (dateString: Date) => {
@@ -69,7 +85,7 @@ const AdminWaitlistModal = ({
     }
   };
 
-  const handleMoveToBooking = (entry: WaitlistEntryWithUser) => {
+  const handleMoveToBookingClick = (entry: WaitlistEntryWithUser) => {
     setSelectedEntry(entry);
     setConfirmationModalOpen(true);
   };
@@ -93,6 +109,31 @@ const AdminWaitlistModal = ({
     setConfirmationModalOpen(false);
   };
 
+  const handleRemoveClick = (entry: WaitlistEntryWithUser) => {
+    setSelectedEntry(entry);
+    setCancellationModalOpen(true);
+  };
+  const handleRemoveFromWaitlist = async () => {
+    if (!selectedEntry) return;
+    setIsSubmitting(true);
+    try {
+      await removeWaitlistEntry.mutateAsync({
+        waitlistEntryId: selectedEntry.id,
+      });
+      onClose();
+    } catch (error) {
+      console.error("Failed to confirm booking dates:", error);
+      onClose();
+    } finally {
+      setIsSubmitting(false);
+    }
+    setConfirmationModalOpen(false);
+  };
+
+  const closeCancellationModal = () => {
+    setCancellationModalOpen(false);
+  };
+
   const closeConfirmationModal = () => {
     setConfirmationModalOpen(false);
   };
@@ -113,7 +154,10 @@ const AdminWaitlistModal = ({
               </span>
             </div>
             <p className="text-gray-600">
-              {formatDate(waitlist.day)} • {waitlist.entries?.length || 0}{" "}
+              {formatDate(waitlist.day)} •{" "}
+              {waitlist.entries?.filter((entry) => {
+                return entry.status !== "CANCELED";
+              }).length || 0}{" "}
               entries
             </p>
           </div>
@@ -133,10 +177,23 @@ const AdminWaitlistModal = ({
           {/* Waitlist Entries */}
           <div className="mb-6">
             <h4 className="mb-3 font-medium text-gray-900">Waitlist Entries</h4>
-            {waitlist.entries && waitlist.entries.length > 0 ? (
+            {waitlist.entries &&
+            waitlist.entries.filter((entry) => {
+              return entry.status !== "CANCELED";
+            }).length > 0 ? (
               <div className="max-h-64 space-y-3 overflow-y-auto">
                 {waitlist.entries
-                  .sort((a, b) => a.position - b.position)
+                  .filter((entry) => {
+                    return entry.status !== "CANCELED";
+                  })
+                  .sort((a, b) => {
+                    if (!a.activePosition || !b.activePosition) {
+                      throw Error(
+                        "Active waitlist entries do not have active position",
+                      );
+                    }
+                    return a.activePosition - b.activePosition;
+                  })
                   .map((entry, idx) => (
                     <div
                       key={entry.id}
@@ -145,7 +202,7 @@ const AdminWaitlistModal = ({
                       <div className="flex items-center justify-between space-x-10">
                         <div className="flex items-center gap-3">
                           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-800">
-                            {entry.position}
+                            {entry.activePosition}
                           </div>
                           <div>
                             <p className="font-medium text-gray-900">
@@ -160,13 +217,16 @@ const AdminWaitlistModal = ({
                           <div className="flex gap-1">
                             {idx === 0 && (
                               <button
-                                onClick={() => handleMoveToBooking(entry)}
+                                onClick={() => handleMoveToBookingClick(entry)}
                                 className="rounded bg-green-100 px-2 py-1 text-xs text-green-700 hover:bg-green-200"
                               >
                                 Move to Booking
                               </button>
                             )}
-                            <button className="rounded bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200">
+                            <button
+                              onClick={() => handleRemoveClick(entry)}
+                              className="rounded bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200"
+                            >
                               Remove
                             </button>
                           </div>
@@ -249,6 +309,53 @@ const AdminWaitlistModal = ({
               <button
                 disabled={isSubmitting}
                 onClick={handleScheduleFromWailist}
+                className="rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Waitlist Removal Sub-Modal */}
+      {cancellationModalOpen && selectedEntry && (
+        <div className="bg-opacity-75 fixed inset-0 z-60 flex items-center justify-center bg-black">
+          <div className="mx-4 max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Remove Waitlist Entry from Waitlist
+              </h3>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-gray-600">
+                Are you sure you want to remove{" "}
+                <strong>
+                  {`${selectedEntry.user?.firstName}` || ""}{" "}
+                  {`${selectedEntry.user?.lastName}` || ""}
+                </strong>{" "}
+                from the waitlist entry queue
+                <span className="font-medium text-gray-900">
+                  {/* {confirmationModal.user?.firstName ?? "Unknown User"} */}
+                </span>{" "}
+                for the jump on{" "}
+                <span className="font-medium text-gray-900">
+                  {formatDate(waitlist.day)}
+                </span>
+                ?
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={closeCancellationModal}
+                className="rounded-md bg-gray-100 px-4 py-2 text-gray-600 hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={isSubmitting}
+                onClick={handleRemoveFromWaitlist}
                 className="rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700"
               >
                 Confirm
