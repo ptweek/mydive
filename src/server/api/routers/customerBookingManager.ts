@@ -1,4 +1,5 @@
 import { createTRPCRouter, protectedProcedure } from "mydive/server/api/trpc";
+import { cancelBookingWindow } from "mydive/server/businessLogic/bookingOperations";
 import z from "zod";
 
 export const customerBookingManagerRouter = createTRPCRouter({
@@ -24,4 +25,5 @@ export const customerBookingManagerRouter = createTRPCRouter({
         throw new Error("Failed to fetch user bookings");
       }
     }),
+  cancelBookingWindow,
 });

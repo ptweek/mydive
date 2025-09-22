@@ -101,6 +101,7 @@ export const bookingWindowRouter = createTRPCRouter({
             id: input.id,
           },
         });
+
         return { success: true, booking: updatedBooking };
       } catch (error) {
         console.error("Error fetching bookings by user:", error);

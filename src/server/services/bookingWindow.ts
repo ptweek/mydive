@@ -63,7 +63,6 @@ export class BookingWindowService {
       include: bookingWindowIncludeConfig,
     });
   }
-
   async cancelById(id: number): Promise<void> {
     await this.db.bookingWindow.update({
       where: {

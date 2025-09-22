@@ -165,19 +165,17 @@ export default function ManageBookingRequestsClient({
   }, [formattedTableData, showCancelled, showPast]);
 
   // Mutations
-  const utils = api.useUtils();
-  const cancelBookingMutation = api.bookingWindow.cancelBooking.useMutation({
-    onSuccess: async () => {
-      // Invalidate and refetch the bookings data
-      await utils.customerBookingManager.getBookingRequestsByUser.invalidate();
-      setCancelModalOpen(false);
-      setSelectedBookingWindow(null);
-    },
-    onError: (error) => {
-      console.error("Failed to cancel booking:", error.message);
-      // You could add a toast notification here
-    },
-  });
+  const cancelBookingMutation =
+    api.customerBookingManager.cancelBookingWindow.useMutation({
+      onSuccess: async () => {
+        setCancelModalOpen(false);
+        setSelectedBookingWindow(null);
+      },
+      onError: (error) => {
+        console.error("Failed to cancel booking:", error.message);
+        // You could add a toast notification here
+      },
+    });
 
   // Handlers
 
@@ -195,8 +193,7 @@ export default function ManageBookingRequestsClient({
   const handleConfirmCancel = () => {
     if (selectedBookingWindow) {
       cancelBookingMutation.mutate({
-        id: selectedBookingWindow.id,
-        bookedBy: selectedBookingWindow.bookedBy,
+        bookingWindowId: selectedBookingWindow.id,
       });
     }
   };

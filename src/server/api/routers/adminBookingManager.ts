@@ -1,6 +1,7 @@
 import { clerkClient, type User } from "@clerk/nextjs/server";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "mydive/server/api/trpc";
+import { cancelBookingWindow } from "mydive/server/businessLogic/bookingOperations";
 import z from "zod";
 
 type UserDto = {
@@ -441,40 +442,5 @@ export const adminBookingManagerRouter = createTRPCRouter({
         };
       });
     }),
-  cancelBookingWindow: protectedProcedure
-    .input(
-      z.object({
-        bookingWindowId: z.number(),
-        // canceledBy: z.string(), // admin
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const bookingWindow = await ctx.services.bookingWindow.findByIdPopulated(
-        input.bookingWindowId,
-      );
-      if (!bookingWindow) {
-        throw new Error("Couldn't find booking window!");
-      }
-      await ctx.services.bookingWindow.cancelById(bookingWindow.id);
-      const waitlistIds = bookingWindow?.waitlists.map((waitlist) => {
-        return waitlist.id;
-      });
-      const scheduledJumpIds = bookingWindow?.scheduledJumpDates.map(
-        (scheduledJump) => {
-          return scheduledJump.id;
-        },
-      );
-      await ctx.services.waitlist.closeMany({
-        ids: waitlistIds,
-      });
-      await ctx.db.waitlistEntry.updateMany({
-        where: {
-          waitlistId: {
-            in: waitlistIds,
-          },
-        },
-        data: { status: "CANCELED" },
-      });
-      await ctx.services.scheduledJump.cancelMany({ ids: scheduledJumpIds });
-    }),
+  cancelBookingWindow,
 });
