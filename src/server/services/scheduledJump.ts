@@ -8,4 +8,12 @@ export class ScheduledJumpService {
   async findAll(): Promise<ScheduledJump[]> {
     return await this.db.scheduledJump.findMany();
   }
+  async cancelMany({ ids }: { ids: number[] }): Promise<void> {
+    await this.db.scheduledJump.updateMany({
+      where: {
+        id: { in: ids },
+      },
+      data: { status: "CANCELED" },
+    });
+  }
 }

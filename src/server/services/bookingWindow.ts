@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
 
-const bookWindowIncludeConfig = {
+const bookingWindowIncludeConfig = {
   scheduledJumpDates: {
     orderBy: {
       jumpDate: "asc" as const,
@@ -15,7 +15,7 @@ const bookWindowIncludeConfig = {
 
 export type BookingWindow = Prisma.BookingWindowGetPayload<object>;
 export type BookingWindowWithPopulatedFields = Prisma.BookingWindowGetPayload<{
-  include: typeof bookWindowIncludeConfig;
+  include: typeof bookingWindowIncludeConfig;
 }>;
 
 export class BookingWindowService {
@@ -26,7 +26,24 @@ export class BookingWindowService {
   }
   async findAllPopulated(): Promise<BookingWindowWithPopulatedFields[]> {
     return await this.db.bookingWindow.findMany({
-      include: bookWindowIncludeConfig,
+      include: bookingWindowIncludeConfig,
+    });
+  }
+  async findById(id: number): Promise<BookingWindow | null> {
+    return await this.db.bookingWindow.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+  async findByIdPopulated(
+    id: number,
+  ): Promise<BookingWindowWithPopulatedFields | null> {
+    return await this.db.bookingWindow.findUnique({
+      where: {
+        id,
+      },
+      include: bookingWindowIncludeConfig,
     });
   }
   async findAllByUser(id: string): Promise<BookingWindow[]> {
@@ -43,7 +60,18 @@ export class BookingWindowService {
       where: {
         bookedBy: id,
       },
-      include: bookWindowIncludeConfig,
+      include: bookingWindowIncludeConfig,
+    });
+  }
+
+  async cancelById(id: number): Promise<void> {
+    await this.db.bookingWindow.update({
+      where: {
+        id,
+      },
+      data: {
+        status: "CANCELED",
+      },
     });
   }
 }

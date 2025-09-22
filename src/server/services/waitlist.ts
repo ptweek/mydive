@@ -17,6 +17,13 @@ export class WaitlistService {
       include: waitlistIncludeConfig,
     });
   }
+  async findById(id: number): Promise<Waitlist | null> {
+    return await this.db.waitlist.findFirst({
+      where: {
+        id,
+      },
+    });
+  }
   async findByIdPopulated(
     id: number,
   ): Promise<WaitlistWithPopulatedFields | null> {
@@ -27,7 +34,28 @@ export class WaitlistService {
       include: waitlistIncludeConfig,
     });
   }
+  async closeById(id: number): Promise<void> {
+    await this.db.waitlist.update({
+      where: {
+        id,
+      },
+      data: { status: "CLOSED" },
+    });
+  }
+  async closeMany({ ids }: { ids: number[] }): Promise<void> {
+    await this.db.waitlist.updateMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+      data: {
+        status: "CLOSED",
+      },
+    });
+  }
 }
+
 export type Waitlist = Prisma.WaitlistGetPayload<object>;
 export type WaitlistWithPopulatedFields = Prisma.WaitlistGetPayload<{
   include: typeof waitlistIncludeConfig;

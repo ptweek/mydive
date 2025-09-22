@@ -162,7 +162,6 @@ export const adminBookingManagerRouter = createTRPCRouter({
               });
             }),
           );
-          console.log("jumpsToCancel", jumpsToCancel);
 
           // 2. Handle waitlist status for canceled jump dates
           const waitlistUpdatesForCanceled = await Promise.all(
@@ -441,5 +440,41 @@ export const adminBookingManagerRouter = createTRPCRouter({
               : null,
         };
       });
+    }),
+  cancelBookingWindow: protectedProcedure
+    .input(
+      z.object({
+        bookingWindowId: z.number(),
+        // canceledBy: z.string(), // admin
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const bookingWindow = await ctx.services.bookingWindow.findByIdPopulated(
+        input.bookingWindowId,
+      );
+      if (!bookingWindow) {
+        throw new Error("Couldn't find booking window!");
+      }
+      await ctx.services.bookingWindow.cancelById(bookingWindow.id);
+      const waitlistIds = bookingWindow?.waitlists.map((waitlist) => {
+        return waitlist.id;
+      });
+      const scheduledJumpIds = bookingWindow?.scheduledJumpDates.map(
+        (scheduledJump) => {
+          return scheduledJump.id;
+        },
+      );
+      await ctx.services.waitlist.closeMany({
+        ids: waitlistIds,
+      });
+      await ctx.db.waitlistEntry.updateMany({
+        where: {
+          waitlistId: {
+            in: waitlistIds,
+          },
+        },
+        data: { status: "CANCELED" },
+      });
+      await ctx.services.scheduledJump.cancelMany({ ids: scheduledJumpIds });
     }),
 });

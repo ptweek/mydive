@@ -75,6 +75,7 @@ export const BookingActionsDropdown = ({
             label: "Cancel Booking",
             icon: "❌",
             onClick: () => {
+              onCancel(booking);
               setIsOpen(false);
             },
             className: "text-red-600 hover:bg-red-50",

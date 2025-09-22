@@ -77,6 +77,8 @@ model ScheduledJump {
     bookedBy String // jumperId
     confirmedBy String // adminId
 
+    // Add canceled by?
+
     @@index([jumpDate])
 }
 

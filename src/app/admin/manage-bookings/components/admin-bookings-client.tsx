@@ -30,12 +30,7 @@ import type {
 import { CancelConfirmationModal } from "./cancel-confirmation-modal";
 import { ContactModal } from "./contact-modal";
 import { ConfirmBookingDatesModal } from "./confirm-booking-date-modal";
-import type {
-  BookingStatus,
-  Waitlist,
-  WaitlistEntry,
-  WaitlistStatus,
-} from "@prisma/client";
+import type { WaitlistEntry, WaitlistStatus } from "@prisma/client";
 import AdminWaitlistModal from "./admin-waitlist-modal";
 import {
   formatDateShort,
@@ -104,6 +99,7 @@ export default function AdminBookingsClient({
   // Modals
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  console.log("cancelModalOpen?", cancelModalOpen);
   const [confirmBookingDateModalOpen, setConfirmBookingDateModalOpen] =
     useState(false);
   const [waitlistModalOpen, setWaitlistModalOpen] = useState(false);
@@ -136,20 +132,22 @@ export default function AdminBookingsClient({
   // Filtered bookings - Remove pagination since we're now using scrolling
 
   const utils = api.useUtils();
-  const cancelBookingMutation = api.bookingWindow.cancelBooking.useMutation({
-    onSuccess: async () => {
-      // Invalidate and refetch the bookings data
-      await utils.customerBookingManager.getBookingRequestsByUser.invalidate();
-      setCancelModalOpen(false);
-      setSelectedBookingTableRow(null);
-    },
-    onError: (error) => {
-      console.error("Failed to cancel booking:", error.message);
-      // You could add a toast notification here
-    },
-  });
+  const cancelBookingMutation =
+    api.adminBookingManager.cancelBookingWindow.useMutation({
+      onSuccess: async () => {
+        // Invalidate and refetch the bookings data
+        await utils.customerBookingManager.getBookingRequestsByUser.invalidate();
+        setCancelModalOpen(false);
+        setSelectedBookingTableRow(null);
+      },
+      onError: (error) => {
+        console.error("Failed to cancel booking:", error.message);
+        // You could add a toast notification here
+      },
+    });
 
   const handleCancelClick = (booking: BookingTableRow) => {
+    console.log("handlingCancelClick");
     setSelectedBookingTableRow(booking);
     setCancelModalOpen(true);
   };
@@ -162,8 +160,7 @@ export default function AdminBookingsClient({
   const handleConfirmCancel = () => {
     if (selectedBookingTableRow) {
       cancelBookingMutation.mutate({
-        id: selectedBookingTableRow.id,
-        bookedBy: selectedBookingTableRow.bookedBy,
+        bookingWindowId: selectedBookingTableRow.id,
       });
     }
   };

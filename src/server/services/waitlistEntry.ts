@@ -7,6 +7,24 @@ const waitlistEntryIncludeConfig = {
 export class WaitlistEntryService {
   constructor(private db: PrismaClient) {}
 
+  async findManyByWaitlistId(waitlistId: number): Promise<WaitlistEntry[]> {
+    return await this.db.waitlistEntry.findMany({
+      where: {
+        waitlistId,
+      },
+      include: waitlistEntryIncludeConfig,
+    });
+  }
+  async findManyByWaitlistIdPopulated(
+    waitlistId: number,
+  ): Promise<WaitlistEntryWithPopulatedFields[]> {
+    return await this.db.waitlistEntry.findMany({
+      where: {
+        waitlistId,
+      },
+      include: waitlistEntryIncludeConfig,
+    });
+  }
   async findAllByUserPopulated(
     id: string,
   ): Promise<WaitlistEntryWithPopulatedFields[]> {
@@ -17,7 +35,6 @@ export class WaitlistEntryService {
       include: waitlistEntryIncludeConfig,
     });
   }
-
   async cancelEntryAndReorder(id: number) {
     return await this.db.$transaction(async (tx) => {
       const entryToRemove = await tx.waitlistEntry.findUniqueOrThrow({
@@ -43,7 +60,7 @@ export class WaitlistEntryService {
     });
   }
 }
-export type Waitlist = Prisma.WaitlistGetPayload<object>;
+export type WaitlistEntry = Prisma.WaitlistEntryGetPayload<object>;
 export type WaitlistEntryWithPopulatedFields = Prisma.WaitlistEntryGetPayload<{
   include: typeof waitlistEntryIncludeConfig;
 }>;
