@@ -96,6 +96,7 @@ const AdminWaitlistModal = ({
     try {
       await scheduleJumpDateFromWaitlistEntry.mutateAsync({
         waitlistId: selectedEntry.waitlistId,
+        waitlistEntryId: selectedEntry.id,
         bookerId: selectedEntry.waitlistedUserId,
         confirmedBy: adminUserId,
       });

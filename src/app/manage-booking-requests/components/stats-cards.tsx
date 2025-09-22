@@ -11,10 +11,14 @@ export default function BookingRequestsStatsCards({
 }: {
   stats: {
     total: number;
-    confirmed: number;
-    completed: number;
-    pending: number;
-    cancelled: number;
+    confirmedBws: number;
+    confirmedWles: number;
+    completedBws: number;
+    completedWles: number;
+    pendingBws: number;
+    pendingWles: number;
+    cancelledBws: number;
+    cancelledWles: number;
     totalJumpers: number;
   };
 }) {
@@ -37,7 +41,13 @@ export default function BookingRequestsStatsCards({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-green-100">Confirmed</p>
-              <p className="text-2xl font-bold">{stats.confirmed}</p>
+              <p className="text-2xl font-bold">
+                {stats.confirmedBws + stats.confirmedWles}
+              </p>
+              <p className="text-sm">
+                {stats.confirmedBws} booking windows, {stats.confirmedWles}{" "}
+                waitlist entry(s){" "}
+              </p>
             </div>
             <CheckCircleIcon className="h-8 w-8 text-green-200" />
           </div>
@@ -51,7 +61,13 @@ export default function BookingRequestsStatsCards({
               <p className="text-sm text-yellow-100">
                 Waiting Jump Confirmation
               </p>
-              <p className="text-2xl font-bold">{stats.pending}</p>
+              <p className="text-2xl font-bold">
+                {stats.pendingBws + stats.pendingWles}
+              </p>
+              <p className="text-sm">
+                {stats.pendingBws} booking windows, {stats.pendingWles} waitlist
+                entry(s){" "}
+              </p>
             </div>
             <ClockIcon className="h-8 w-8 text-yellow-200" />
           </div>
@@ -62,7 +78,13 @@ export default function BookingRequestsStatsCards({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-yellow-100">Canceled</p>
-              <p className="text-2xl font-bold">{stats.cancelled}</p>
+              <p className="text-2xl font-bold">
+                {stats.cancelledBws + stats.cancelledWles}
+              </p>
+              <p className="text-sm">
+                {stats.cancelledBws} booking windows, {stats.cancelledWles}{" "}
+                waitlist entry(s){" "}
+              </p>
             </div>
             <ClockIcon className="h-8 w-8 text-yellow-200" />
           </div>
@@ -73,8 +95,14 @@ export default function BookingRequestsStatsCards({
         <CardBody className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-purple-100">Completed</p>
-              <p className="text-2xl font-bold">{stats.completed}</p>
+              <p className="text-sm text-yellow-100">Completed</p>
+              <p className="text-2xl font-bold">
+                {stats.completedBws + stats.completedWles}
+              </p>
+              <p className="text-sm">
+                {stats.completedBws} booking windows, {stats.completedWles}{" "}
+                waitlist entry(s){" "}
+              </p>
             </div>
             <Badge
               content={stats.totalJumpers}

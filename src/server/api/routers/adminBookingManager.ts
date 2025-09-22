@@ -300,6 +300,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
     .input(
       z.object({
         waitlistId: z.number(),
+        waitlistEntryId: z.number(),
         bookerId: z.string(), // should be someone from the waitlist entry
         confirmedBy: z.string(), // admin
       }),
@@ -312,7 +313,6 @@ export const adminBookingManagerRouter = createTRPCRouter({
         const waitlist = await ctx.services.waitlist.findByIdPopulated(
           input.waitlistId,
         );
-        console.log("waitlist", waitlist);
         const existingBooking = waitlist?.associatedBooking;
         if (!existingBooking) {
           throw new Error("Existing booking not found for waitlist!");
@@ -331,7 +331,13 @@ export const adminBookingManagerRouter = createTRPCRouter({
             schedulingMethod: "WAITLIST",
           },
         });
-        return ctx.db.waitlist.update({
+        await ctx.db.waitlistEntry.update({
+          where: { id: input.waitlistEntryId },
+          data: {
+            status: "CONFIRMED",
+          },
+        });
+        await ctx.db.waitlist.update({
           where: { id: waitlist.id },
           data: {
             status: "CONFIRMED",

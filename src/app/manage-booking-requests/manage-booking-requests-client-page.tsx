@@ -49,23 +49,47 @@ export default function ManageBookingRequestsClient({
 
   // Statistics calculation
   const stats = useMemo(() => {
-    const total = bookingWindows.length;
-    const confirmed = bookingWindows.filter(
+    const total = bookingWindows.length + loadedWaitlistEntries.length;
+    const confirmedBws = bookingWindows.filter(
       (b) => b.status === "CONFIRMED",
     ).length;
-    const cancelled = bookingWindows.filter(
+    const confirmedWles = loadedWaitlistEntries.filter(
+      (b) => b.status === "CONFIRMED",
+    ).length;
+    const cancelledBws = bookingWindows.filter(
       (b) => b.status === "CANCELED",
     ).length;
-    const completed = bookingWindows.filter(
+    const cancelledWles = loadedWaitlistEntries.filter(
+      (b) => b.status === "CANCELED",
+    ).length;
+    const completedBws = bookingWindows.filter(
       (b) => b.status === "COMPLETED",
     ).length;
-    const pending = bookingWindows.filter((b) => b.status === "PENDING").length;
-    const totalJumpers = bookingWindows.reduce(
-      (sum, b) => sum + b.numJumpers,
-      0,
-    );
-    return { total, confirmed, completed, pending, cancelled, totalJumpers };
-  }, []);
+    const completedWles = loadedWaitlistEntries.filter(
+      (b) => b.status === "COMPLETED",
+    ).length;
+    const pendingBws = bookingWindows.filter(
+      (b) => b.status === "PENDING",
+    ).length;
+    const pendingWles = bookingWindows.filter(
+      (b) => b.status === "PENDING",
+    ).length;
+    const totalJumpers =
+      bookingWindows.reduce((sum, b) => sum + b.numJumpers, 0) +
+      loadedWaitlistEntries.length;
+    return {
+      total,
+      confirmedBws,
+      confirmedWles,
+      cancelledBws,
+      cancelledWles,
+      completedBws,
+      completedWles,
+      pendingBws,
+      pendingWles,
+      totalJumpers,
+    };
+  }, [bookingWindows, loadedWaitlistEntries]);
 
   const formattedTableData = useMemo(() => {
     const formattedBookingWindowsData: BookingRequestTableRow[] =
