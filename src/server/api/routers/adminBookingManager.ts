@@ -34,7 +34,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
   // In the future, I should only fetch this information a single time per month, and cache previous months.
   getBookingReservationData: protectedProcedure.query(async ({ ctx }) => {
     const client = await clerkClient();
-    const bookingWindows = await ctx.services.bookingWindow.findAll();
+    const bookingWindows = await ctx.services.bookingWindow.findAllPopulated();
     const waitlists = await ctx.services.waitlist.findAllPopulated();
     const scheduledJumps = await ctx.services.scheduledJump.findAll();
 

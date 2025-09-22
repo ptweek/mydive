@@ -7,7 +7,6 @@ import type {
   BookingWindowPopulatedDto,
   WaitlistEntryPopulatedDto,
 } from "mydive/server/api/routers/types";
-import BookingRequestsStatsCards from "./components/stats-cards";
 import BookingRequestsTable from "./components/booking-requests-table/table";
 import BookingRequestsTableFilters from "./components/booking-requests-table/filters";
 import { type BookingRequestTableRow } from "./components/booking-requests-table/table";
@@ -15,8 +14,12 @@ import {
   isBookingWindowPopulatedDto,
   isWaitlistEntryPopulatedDto,
 } from "./_utils/table";
-import { getActiveScheduledJumpDatesFromBookingWindow } from "../_utils/booking";
+import {
+  calculateBookingStats,
+  getActiveScheduledJumpDatesFromBookingWindow,
+} from "../_utils/booking";
 import { CancelWaitlistEntryConfirmationModal } from "./components/cancel-waitlist-confirmation-modal";
+import BookingRequestsStatsCards from "../_components/booking-requests-stats-cards";
 
 export default function ManageBookingRequestsClient({
   loadedBookingWindows,
@@ -49,46 +52,7 @@ export default function ManageBookingRequestsClient({
 
   // Statistics calculation
   const stats = useMemo(() => {
-    const total = bookingWindows.length + loadedWaitlistEntries.length;
-    const confirmedBws = bookingWindows.filter(
-      (b) => b.status === "CONFIRMED",
-    ).length;
-    const confirmedWles = loadedWaitlistEntries.filter(
-      (b) => b.status === "CONFIRMED",
-    ).length;
-    const cancelledBws = bookingWindows.filter(
-      (b) => b.status === "CANCELED",
-    ).length;
-    const cancelledWles = loadedWaitlistEntries.filter(
-      (b) => b.status === "CANCELED",
-    ).length;
-    const completedBws = bookingWindows.filter(
-      (b) => b.status === "COMPLETED",
-    ).length;
-    const completedWles = loadedWaitlistEntries.filter(
-      (b) => b.status === "COMPLETED",
-    ).length;
-    const pendingBws = bookingWindows.filter(
-      (b) => b.status === "PENDING",
-    ).length;
-    const pendingWles = bookingWindows.filter(
-      (b) => b.status === "PENDING",
-    ).length;
-    const totalJumpers =
-      bookingWindows.reduce((sum, b) => sum + b.numJumpers, 0) +
-      loadedWaitlistEntries.length;
-    return {
-      total,
-      confirmedBws,
-      confirmedWles,
-      cancelledBws,
-      cancelledWles,
-      completedBws,
-      completedWles,
-      pendingBws,
-      pendingWles,
-      totalJumpers,
-    };
+    return calculateBookingStats(bookingWindows, loadedWaitlistEntries);
   }, [bookingWindows, loadedWaitlistEntries]);
 
   const formattedTableData = useMemo(() => {
