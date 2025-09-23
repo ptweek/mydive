@@ -19,7 +19,7 @@ import {
   CheckCircleIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
-import { BookingActionsDropdown } from "./booking-actions-dropdown";
+import { BookingActionsDropdown } from "./components/booking-actions-dropdown";
 import { api } from "mydive/trpc/react";
 import type {
   BookingWindowDto,
@@ -27,16 +27,16 @@ import type {
   UserDto,
   WaitlistPopulatedDto,
 } from "mydive/server/api/routers/types";
-import { CancelConfirmationModal } from "./cancel-confirmation-modal";
-import { ContactModal } from "./contact-modal";
-import { ConfirmBookingDatesModal } from "./confirm-booking-date-modal";
+import { CancelConfirmationModal } from "./components/cancel-confirmation-modal";
+import { ContactModal } from "./components/contact-modal";
+import { ConfirmBookingDatesModal } from "./components/confirm-booking-date-modal";
 import type { WaitlistEntry, WaitlistStatus } from "@prisma/client";
-import AdminWaitlistModal from "./admin-waitlist-modal";
+import AdminWaitlistModal from "./components/admin-waitlist-modal";
 import {
   formatDateShort,
   getActiveScheduledJumps,
 } from "mydive/app/_utils/booking";
-import AdminScheduledJumpModal from "./admin-scheduled-jump-modal";
+import AdminScheduledJumpModal from "./components/admin-scheduled-jump-modal";
 import { getBookingStatusIcon } from "mydive/app/_components/statusIcons";
 
 export interface WaitlistEntryWithUser extends WaitlistEntry {

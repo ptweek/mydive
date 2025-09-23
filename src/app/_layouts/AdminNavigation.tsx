@@ -26,7 +26,21 @@ export const AdminNavigation = () => (
       >
         <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
       </svg>
-      <span className="relative z-10">Manage Booking</span>
+      <span className="relative z-10">Manage Booking Requests</span>
+    </a>
+    <a
+      href="/admin/scheduled-jumps"
+      className="group relative flex items-center gap-2 overflow-hidden rounded-lg border border-white/20 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:from-blue-500/30 hover:to-indigo-500/30 hover:shadow-xl hover:shadow-blue-500/25"
+    >
+      <div className="absolute inset-0 translate-x-full bg-gradient-to-r from-white/0 to-white/10 transition-transform duration-500 group-hover:translate-x-0"></div>
+      <svg
+        className="relative z-10 h-4 w-4 transition-transform group-hover:rotate-12"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
+      </svg>
+      <span className="relative z-10">Scheduled Jumps</span>
     </a>
     <a
       href="/admin"

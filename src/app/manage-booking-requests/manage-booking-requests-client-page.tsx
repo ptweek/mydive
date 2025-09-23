@@ -14,12 +14,10 @@ import {
   isBookingWindowPopulatedDto,
   isWaitlistEntryPopulatedDto,
 } from "./_utils/table";
-import {
-  calculateBookingStats,
-  getActiveScheduledJumpDatesFromBookingWindow,
-} from "../_utils/booking";
+import { getActiveScheduledJumpDatesFromBookingWindow } from "../_utils/booking";
+import { calculateBookingStats } from "../_utils/stats";
 import { CancelWaitlistEntryConfirmationModal } from "./components/cancel-waitlist-confirmation-modal";
-import BookingRequestsStatsCards from "../_components/booking-requests-stats-cards";
+import BookingRequestsStatsCards from "../_components/cards/booking-requests-stats-cards";
 
 export default function ManageBookingRequestsClient({
   loadedBookingWindows,

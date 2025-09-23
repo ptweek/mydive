@@ -3,9 +3,8 @@ import type { WaitlistStatus } from "@prisma/client";
 import type {
   WaitlistEntryWithUser,
   WaitlistWithUsers,
-} from "./admin-bookings-client";
+} from "../admin-bookings-client";
 import { api } from "mydive/trpc/react";
-import { select } from "@nextui-org/react";
 
 const AdminWaitlistModal = ({
   waitlist,

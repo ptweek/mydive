@@ -1,17 +1,20 @@
 import { api, HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import AdminBookingsClient from "./admin-bookings-client";
-import { clerkUserToDto } from "mydive/server/api/routers/adminBookingManager";
 
-export default async function AdminBookingsPage() {
+import { clerkUserToDto } from "mydive/server/api/routers/adminBookingManager";
+import ScheduledJumpsClient from "./admin-scheduled-jumps-client";
+
+// Probably need to implement some fetch that allows us to get all the admin users!
+
+export default async function MyBookingsPage() {
   const user = await currentUser();
   if (!user) {
     redirect("/");
   }
   const adminUserDto = clerkUserToDto(user);
-  const { bookingWindows, waitlists, scheduledJumps, users } =
-    await api.adminBookingManager.getBookingReservationData();
+  const { scheduledJumps, users } =
+    await api.adminBookingManager.getScheduledJumpsAndUsers();
   return (
     <HydrateClient>
       <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-white">
@@ -27,13 +30,7 @@ export default async function AdminBookingsPage() {
         </video>
 
         {/* Content */}
-        <AdminBookingsClient
-          loadedBookingWindows={bookingWindows}
-          loadedWaitlists={waitlists}
-          loadedScheduledJumps={scheduledJumps}
-          loadedUsers={users}
-          adminUser={adminUserDto}
-        />
+        <ScheduledJumpsClient scheduledJumps={scheduledJumps} users={users} />
       </main>
     </HydrateClient>
   );

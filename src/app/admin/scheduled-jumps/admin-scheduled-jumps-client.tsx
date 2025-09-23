@@ -1,0 +1,46 @@
+"use client";
+
+import type { ScheduledJump } from "@prisma/client";
+import ScheduledJumpsStatsCards from "mydive/app/_components/cards/scheduled-jumps-stats-cards";
+import { computeScheduledJumpStats } from "mydive/app/_utils/stats";
+import type { UserDto } from "mydive/server/api/routers/types";
+import { useMemo } from "react";
+import ScheduledJumpsTable from "mydive/app/_components/tables/scheduled-jump-table";
+
+export default function AdminScheduledJumpsClient({
+  scheduledJumps,
+  users,
+}: {
+  scheduledJumps: ScheduledJump[];
+  users: UserDto[];
+}) {
+  const stats = useMemo(() => {
+    return computeScheduledJumpStats(scheduledJumps);
+  }, [scheduledJumps]);
+  return (
+    <div className="z-0 p-4 md:p-8">
+      <div className="mx-auto max-w-7xl">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="mb-2 text-4xl font-bold text-gray-900">
+            Scheduled Jumps Manager
+          </h1>
+          <p className="text-gray-600">
+            {`See all of your scheduled jumps in one place`}
+          </p>
+        </div>
+        <ScheduledJumpsStatsCards stats={stats} />
+        <div className="h-max-[400px]">
+          <ScheduledJumpsTable
+            scheduledJumps={scheduledJumps}
+            users={users}
+            handleJumpCancellationClick={() => {
+              console.log("handling cancellation");
+            }}
+            isAdminView={true}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}

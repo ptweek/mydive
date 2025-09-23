@@ -3,9 +3,6 @@ import {
   CheckCircleIcon,
   ClockIcon,
   UsersIcon,
-  XCircleIcon,
-  ExclamationTriangleIcon,
-  PauseCircleIcon,
 } from "@heroicons/react/24/outline";
 import {
   Table,
