@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import { formatDateShort } from "mydive/app/_utils/booking";
+import { formatDateShort } from "mydive/app/shared-frontend/_utils/booking";
 import type {
   BookingWindowPopulatedDto,
   WaitlistEntryPopulatedDto,
@@ -24,7 +24,7 @@ import {
   isWaitlistEntryPopulatedDto,
 } from "../../_utils/table";
 import { WaitlistEntryActionsDropdown } from "./waitlist-actions-dropdown";
-import { getBookingStatusIcon } from "mydive/app/_components/statusIcons";
+import { getBookingStatusIcon } from "mydive/app/shared-frontend/_components/statusIcons";
 
 export type BookingRequestTableRow = {
   type: "BOOKING_WINDOW" | "WAITLIST_ENTRY";

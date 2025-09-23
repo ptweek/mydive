@@ -21,13 +21,16 @@ export default function HomePageClient() {
             variant="shadow"
             className="w-full cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-700 text-lg font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30 sm:w-48"
             onPress={() => {
-              window.location.href = "/booking-calendar";
+              window.location.href = "/customer/booking-calendar";
             }}
           >
             Book Now
           </Button>
         ) : (
-          <SignUpButton mode="redirect" forceRedirectUrl={"/booking-calendar"}>
+          <SignUpButton
+            mode="redirect"
+            forceRedirectUrl={"/customer/booking-calendar"}
+          >
             <Button
               size="lg"
               variant="shadow"

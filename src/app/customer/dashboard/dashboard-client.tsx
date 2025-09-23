@@ -1,6 +1,7 @@
 "use client";
 import { Button, Card, CardBody } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
+
 export default function DashboardClient() {
   const router = useRouter();
   return (
@@ -22,7 +23,7 @@ export default function DashboardClient() {
             variant="shadow"
             className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-lg font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30"
             onPress={() => {
-              router.push("/booking-calendar");
+              router.push("/customer/booking-calendar");
             }}
           >
             Book Now
@@ -31,7 +32,7 @@ export default function DashboardClient() {
       </Card>
 
       {/* My Bookings Card */}
-      <Card className="backzdrop-blur-md flex-1 border-2 border-blue-400/30 bg-gradient-to-br from-blue-500/15 to-indigo-600/15 transition-all duration-300 hover:scale-105 hover:border-blue-300/50 hover:shadow-2xl hover:shadow-blue-500/20">
+      <Card className="flex-1 border-2 border-blue-400/30 bg-gradient-to-br from-blue-500/15 to-indigo-600/15 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-blue-300/50 hover:shadow-2xl hover:shadow-blue-500/20">
         <CardBody className="p-8 text-center">
           <div className="mb-6">
             <div className="mb-4 text-6xl">📋</div>
@@ -46,9 +47,9 @@ export default function DashboardClient() {
           <Button
             size="lg"
             variant="shadow"
-            className="from-booking-requests-table/table.tsxblue-600 w-full bg-gradient-to-r to-indigo-700 text-lg font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30"
+            className="blue-600 w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-lg font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30"
             onPress={() => {
-              router.push("/manage-booking-requests");
+              router.push("/customer/manage-booking-requests");
             }}
           >
             Manage Booking Requests

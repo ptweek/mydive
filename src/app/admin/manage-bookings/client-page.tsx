@@ -35,9 +35,9 @@ import AdminWaitlistModal from "./components/admin-waitlist-modal";
 import {
   formatDateShort,
   getActiveScheduledJumps,
-} from "mydive/app/_utils/booking";
+} from "mydive/app/shared-frontend/_utils/booking";
 import AdminScheduledJumpModal from "./components/admin-scheduled-jump-modal";
-import { getBookingStatusIcon } from "mydive/app/_components/statusIcons";
+import { getBookingStatusIcon } from "mydive/app/shared-frontend/_components/statusIcons";
 
 export interface WaitlistEntryWithUser extends WaitlistEntry {
   user?: UserDto; // Optional in case user lookup fails

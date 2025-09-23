@@ -9,9 +9,9 @@ import {
   Chip,
   Button,
 } from "@nextui-org/react";
-import { formatDateShort } from "mydive/app/_utils/booking";
+import { formatDateShort } from "mydive/app/shared-frontend/_utils/booking";
 import type { BookingStatus, ScheduledJump } from "@prisma/client";
-import { getBookingStatusIcon } from "mydive/app/_components/statusIcons";
+import { getBookingStatusIcon } from "mydive/app/shared-frontend/_components/statusIcons";
 import type { UserDto } from "mydive/server/api/routers/types";
 import { useMemo, useState } from "react";
 import { ContactModal } from "../../modals/contact-modal";

@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import type { WaitlistStatus } from "@prisma/client";
-import type {
-  WaitlistEntryWithUser,
-  WaitlistWithUsers,
-} from "../admin-bookings-client";
+import type { WaitlistEntryWithUser, WaitlistWithUsers } from "../client-page";
 import { api } from "mydive/trpc/react";
 
 const AdminWaitlistModal = ({

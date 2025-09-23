@@ -1,7 +1,7 @@
 import { api, HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import AdminBookingsClient from "./admin-bookings-client";
+import AdminBookingsClient from "./client-page";
 import { clerkUserToDto } from "mydive/server/api/routers/adminBookingManager";
 
 export default async function AdminBookingsPage() {

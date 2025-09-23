@@ -188,7 +188,7 @@ export default function WaitlistModal({
                 waitlist in the{" "}
                 <Link
                   className="text-blue-400"
-                  href={"/manage-booking-requests"}
+                  href={"/customer/manage-booking-requests"}
                 >
                   Manage Booking Requests
                 </Link>{" "}

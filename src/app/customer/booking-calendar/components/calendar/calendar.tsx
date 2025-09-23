@@ -25,7 +25,7 @@ import { Button } from "@nextui-org/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { api } from "mydive/trpc/react";
-import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_utils/booking";
+import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/shared-frontend/_utils/booking";
 const localizer = momentLocalizer(moment);
 export default function SchedulingCalendar({ userId }: { userId: string }) {
   const router = useRouter();
@@ -60,7 +60,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
       setShowSuccessAlert(true);
       // Wait 2 seconds, then navigate
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/customer/dashboard");
       }, 2000);
     },
     onError: (error) => {
