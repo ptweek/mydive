@@ -99,6 +99,10 @@ const AdminBookingRequestsTable = ({
     setSelectedUser(user);
     setIsContactModalOpen(true);
   };
+  const handleModifyBookingWindowClick = (booking: BookingTableRow) => {
+    setSelectedBookingTableRow(booking);
+    setIsModifyScheduledJumpsModalOpen(true);
+  };
   const handleCancelBookingWindowClick = (booking: BookingTableRow) => {
     setSelectedBookingTableRow(booking);
     setIsCancelBookingWindowConfirmationModalOpen(true);
@@ -437,11 +441,11 @@ const AdminBookingRequestsTable = ({
                     <div className="z-0 flex justify-center">
                       <BookingActionsDropdown
                         booking={booking}
-                        onCancel={() => handleCancelBookingWindowClick(booking)}
-                        onConfirmBookingDates={() =>
-                          cancelBookingWindowMutation.mutate({
-                            bookingWindowId: booking.id,
-                          })
+                        onModifyBookingWindowClick={() =>
+                          handleModifyBookingWindowClick(booking)
+                        }
+                        onCancelBookingWindowClick={() =>
+                          handleCancelBookingWindowClick(booking)
                         }
                       />
                     </div>

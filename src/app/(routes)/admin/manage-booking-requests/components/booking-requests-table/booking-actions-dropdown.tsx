@@ -3,12 +3,12 @@ import React, { useState, useRef, useEffect } from "react";
 
 export const BookingActionsDropdown = ({
   booking,
-  onConfirmBookingDates,
-  onCancel,
+  onModifyBookingWindowClick,
+  onCancelBookingWindowClick,
 }: {
   booking: BookingWindow;
-  onConfirmBookingDates: (booking: BookingWindow) => void;
-  onCancel: (booking: BookingWindow) => void;
+  onModifyBookingWindowClick: (booking: BookingWindow) => void;
+  onCancelBookingWindowClick: (booking: BookingWindow) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -35,10 +35,10 @@ export const BookingActionsDropdown = ({
       case "PENDING":
         return [
           {
-            label: "Confirm Jump Dates",
+            label: "Modify scheduled jumps",
             icon: "✏️",
             onClick: () => {
-              onConfirmBookingDates(booking);
+              onModifyBookingWindowClick(booking);
               setIsOpen(false);
             },
             className: "text-blue-600 hover:bg-blue-50",
@@ -47,7 +47,7 @@ export const BookingActionsDropdown = ({
             label: "Cancel Booking",
             icon: "❌",
             onClick: () => {
-              onCancel(booking);
+              onCancelBookingWindowClick(booking);
               setIsOpen(false);
             },
             className: "text-red-600 hover:bg-red-50",
@@ -57,10 +57,10 @@ export const BookingActionsDropdown = ({
       case "CONFIRMED":
         return [
           {
-            label: "Modify Confirmed Jump Dates",
+            label: "Modify scheduled jumps",
             icon: "✏️",
             onClick: () => {
-              onConfirmBookingDates(booking);
+              onModifyBookingWindowClick(booking);
               setIsOpen(false);
             },
             className: "text-blue-600 hover:bg-blue-50",
@@ -69,7 +69,7 @@ export const BookingActionsDropdown = ({
             label: "Cancel Booking",
             icon: "❌",
             onClick: () => {
-              onCancel(booking);
+              onCancelBookingWindowClick(booking);
               setIsOpen(false);
             },
             className: "text-red-600 hover:bg-red-50",

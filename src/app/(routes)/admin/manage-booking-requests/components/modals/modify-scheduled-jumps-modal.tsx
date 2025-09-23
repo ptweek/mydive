@@ -4,6 +4,7 @@ import { api } from "mydive/trpc/react";
 import { useState, useEffect, useCallback } from "react";
 import type { ScheduledJump } from "@prisma/client";
 import type { BookingTableRow } from "../../types";
+import { useRouter } from "next/navigation";
 
 export const ModifyScheduledJumpsModal = ({
   isOpen,
@@ -16,6 +17,7 @@ export const ModifyScheduledJumpsModal = ({
   booking: BookingTableRow;
   adminUserId: string;
 }): React.ReactNode => {
+  const router = useRouter();
   const { scheduledJumps } = booking;
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,8 +25,8 @@ export const ModifyScheduledJumpsModal = ({
   const modifyBookingMutation =
     api.adminBookingManager.modifyBookingDates.useMutation({
       onSuccess: async () => {
-        // Invalidate and refetch the bookings data
         onClose();
+        router.refresh();
       },
       onError: (error) => {
         console.error("Failed to cancel booking:", error.message);
