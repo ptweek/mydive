@@ -88,9 +88,6 @@ export default function AdminBookingRequestsClient({
   const router = useRouter();
   // Selections
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
-  const [bookingWindows, setBookingWindows] = useState<BookingWindowDto[]>(
-    loadedBookingWindows ?? [],
-  );
   const [selectedWaitlist, setSelectedWaitlist] =
     useState<WaitlistWithUsers | null>(null);
   const [selectedBookingTableRow, setSelectedBookingTableRow] =
@@ -112,24 +109,26 @@ export default function AdminBookingRequestsClient({
   const [showPast, setShowPast] = useState(false);
 
   const stats = useMemo(() => {
-    const total = bookingWindows.length;
-    const confirmed = bookingWindows.filter(
+    const total = loadedBookingWindows.length;
+    const confirmed = loadedBookingWindows.filter(
       (b) => b.status === "CONFIRMED",
     ).length;
-    const cancelled = bookingWindows.filter(
+    const cancelled = loadedBookingWindows.filter(
       (b) => b.status === "CANCELED",
     ).length;
-    const completed = bookingWindows.filter(
+    const completed = loadedBookingWindows.filter(
       (b) => b.status === "COMPLETED",
     ).length;
-    const pending = bookingWindows.filter((b) => b.status === "PENDING").length;
-    const totalJumpers = bookingWindows.reduce(
+    const pending = loadedBookingWindows.filter(
+      (b) => b.status === "PENDING",
+    ).length;
+    const totalJumpers = loadedBookingWindows.reduce(
       (sum, b) => sum + b.numJumpers,
       0,
     );
 
     return { total, confirmed, completed, pending, cancelled, totalJumpers };
-  }, [bookingWindows]);
+  }, [loadedBookingWindows]);
 
   // Filtered bookings - Remove pagination since we're now using scrolling
   const cancelBookingMutation =
@@ -635,11 +634,6 @@ export default function AdminBookingRequestsClient({
                                 onCancel={() => handleCancelClick(booking)}
                                 onConfirmBookingDates={() =>
                                   handleConfirmBookingClick(booking)
-                                }
-                                onRebook={() => console.log("Rebook:", booking)}
-                                onRemove={() => console.log("Remove:", booking)}
-                                onViewDetails={() =>
-                                  console.log("View Details:", booking)
                                 }
                               />
                             </div>

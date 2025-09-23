@@ -1,5 +1,5 @@
 import moment from "moment";
-import type { CalendarEvent } from "src/app/customer/booking-calendar/components/calendar/types";
+import type { CalendarEvent } from "../types";
 
 const getIdealizedDate = (startDate: Date, dayNumber: number): Date => {
   const date = moment(startDate)

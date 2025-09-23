@@ -59,12 +59,6 @@ const AdminScheduledJumpModal = ({
     });
   };
 
-  const getEndDate = (jumpDate: Date) => {
-    const endDate = new Date(jumpDate);
-    endDate.setDate(endDate.getDate() + 3);
-    return endDate;
-  };
-
   const getStatusBadge = (status: BookingStatus) => {
     const baseClasses =
       "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium";

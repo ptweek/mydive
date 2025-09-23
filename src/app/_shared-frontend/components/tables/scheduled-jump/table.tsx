@@ -1,5 +1,5 @@
 import { Table, TableBody, TableHeader, TableRow } from "@nextui-org/react";
-import type { BookingStatus, ScheduledJump } from "@prisma/client";
+import type { ScheduledJump } from "@prisma/client";
 import type { UserDto } from "mydive/server/api/routers/types";
 import { useMemo, useState } from "react";
 import { ContactModal } from "../../modals/contact-modal";

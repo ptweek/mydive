@@ -1,4 +1,4 @@
-import { formatDateShort } from "mydive/app/shared-frontend/_utils/booking";
+import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
 import type { ScheduledJumpDto } from "mydive/server/api/routers/types";
 
 export const CancelScheduleJumpConfirmationModal = ({

@@ -5,16 +5,10 @@ export const BookingActionsDropdown = ({
   booking,
   onConfirmBookingDates,
   onCancel,
-  onViewDetails,
-  onRebook,
-  onRemove,
 }: {
   booking: BookingWindow;
   onConfirmBookingDates: (booking: BookingWindow) => void;
   onCancel: (booking: BookingWindow) => void;
-  onViewDetails: () => void;
-  onRebook: () => void;
-  onRemove: () => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -79,19 +73,6 @@ export const BookingActionsDropdown = ({
               setIsOpen(false);
             },
             className: "text-red-600 hover:bg-red-50",
-          },
-        ];
-
-      case "COMPLETED":
-        return [
-          {
-            label: "View Details",
-            icon: "📄",
-            onClick: () => {
-              onViewDetails();
-              setIsOpen(false);
-            },
-            className: "text-gray-600 hover:bg-gray-50",
           },
         ];
 

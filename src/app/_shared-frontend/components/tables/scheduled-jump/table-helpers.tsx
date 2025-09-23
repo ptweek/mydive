@@ -1,6 +1,6 @@
 import { UserIcon, UsersIcon } from "@heroicons/react/24/outline";
 import { Button, Chip, TableCell, TableColumn } from "@nextui-org/react";
-import { formatDateShort } from "mydive/app/shared-frontend/_utils/booking";
+import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
 import type {
   ScheduledJumpDto,
   UserDto,

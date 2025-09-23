@@ -10,9 +10,9 @@ import {
 import { Geist } from "next/font/google";
 import { Providers } from "./providers";
 import { checkRole } from "mydive/utils/roles";
-import { AdminNavigation } from "./shared-frontend/_layouts/AdminNavigation";
-import { UserNavigation } from "./shared-frontend/_layouts/UserNavigation";
-import { GuestNavigation } from "./shared-frontend/_layouts/GuestNavigation";
+import { AdminNavigation } from "./_shared-frontend/layouts/AdminNavigation";
+import { UserNavigation } from "./_shared-frontend/layouts/UserNavigation";
+import { GuestNavigation } from "./_shared-frontend/layouts/GuestNavigation";
 
 export const metadata: Metadata = {
   title: "MyDive Skydiving",
