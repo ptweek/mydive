@@ -38,6 +38,7 @@ import {
 } from "mydive/app/shared-frontend/_utils/booking";
 import AdminScheduledJumpModal from "./components/admin-scheduled-jump-modal";
 import { getBookingStatusIcon } from "mydive/app/shared-frontend/_components/statusIcons";
+import { useRouter } from "next/navigation";
 
 export interface WaitlistEntryWithUser extends WaitlistEntry {
   user?: UserDto; // Optional in case user lookup fails
@@ -71,7 +72,7 @@ const getActiveScheduledJumpFromPopulatedWaitlist = (
 
 export type BookingTableData = BookingTableRow[];
 
-export default function AdminBookingsClient({
+export default function AdminBookingRequestsClient({
   loadedBookingWindows,
   loadedUsers,
   loadedWaitlists,
@@ -84,6 +85,7 @@ export default function AdminBookingsClient({
   loadedScheduledJumps: ScheduledJumpDto[];
   adminUser: UserDto;
 }) {
+  const router = useRouter();
   // Selections
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
   const [bookingWindows, setBookingWindows] = useState<BookingWindowDto[]>(
@@ -130,15 +132,12 @@ export default function AdminBookingsClient({
   }, [bookingWindows]);
 
   // Filtered bookings - Remove pagination since we're now using scrolling
-
-  const utils = api.useUtils();
   const cancelBookingMutation =
     api.adminBookingManager.cancelBookingWindow.useMutation({
       onSuccess: async () => {
-        // Invalidate and refetch the bookings data
-        await utils.customerBookingManager.getBookingRequestsByUser.invalidate();
         setCancelModalOpen(false);
         setSelectedBookingTableRow(null);
+        router.refresh();
       },
       onError: (error) => {
         console.error("Failed to cancel booking:", error.message);
@@ -147,7 +146,6 @@ export default function AdminBookingsClient({
     });
 
   const handleCancelClick = (booking: BookingTableRow) => {
-    console.log("handlingCancelClick");
     setSelectedBookingTableRow(booking);
     setCancelModalOpen(true);
   };
@@ -225,8 +223,6 @@ export default function AdminBookingsClient({
     }
     return user;
   }, [loadedUsers, selectedJumpDate]);
-
-  console.log("filteredBookings", filteredBookings);
 
   return (
     <div className="z-0 p-4 md:p-8">

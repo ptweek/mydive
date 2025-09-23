@@ -7,6 +7,7 @@ import { CancelScheduleJumpConfirmationModal } from "../../modals/scheduled-jump
 import { api } from "mydive/trpc/react";
 import ScheduledJumpsTableFilters from "./filters";
 import { getColumns, getTableCells } from "./table-helpers";
+import { useRouter } from "next/navigation";
 
 export default function ScheduledJumpsTable({
   scheduledJumps,
@@ -17,6 +18,7 @@ export default function ScheduledJumpsTable({
   users?: UserDto[];
   isAdminView?: boolean;
 }) {
+  const router = useRouter();
   // modal states
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [
@@ -55,6 +57,7 @@ export default function ScheduledJumpsTable({
   const cancelJumpDate =
     api.adminScheduledJumpsManager.cancelScheduledJump.useMutation({
       onSuccess: async () => {
+        router.refresh();
         handleJumpCancellationClose();
       },
       onError: (error) => {

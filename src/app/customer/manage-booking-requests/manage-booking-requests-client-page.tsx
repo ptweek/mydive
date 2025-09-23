@@ -13,11 +13,12 @@ import { type BookingRequestTableRow } from "./components/booking-requests-table
 import {
   isBookingWindowPopulatedDto,
   isWaitlistEntryPopulatedDto,
-} from "./_utils/table";
+} from "mydive/app/shared-types/type-validation";
 import { getActiveScheduledJumpDatesFromBookingWindow } from "../../shared-frontend/_utils/booking";
-import { calculateBookingStats } from "../../shared-frontend/_utils/stats";
+import { calculateBookingRequestsStats } from "../../shared-frontend/_utils/stats";
 import { CancelWaitlistEntryConfirmationModal } from "./components/cancel-waitlist-confirmation-modal";
 import BookingRequestsStatsCards from "../../shared-frontend/_components/cards/booking-requests-stats-cards";
+import { useRouter } from "next/navigation";
 
 export default function ManageBookingRequestsClient({
   loadedBookingWindows,
@@ -26,6 +27,7 @@ export default function ManageBookingRequestsClient({
   loadedBookingWindows: BookingWindowPopulatedDto[];
   loadedWaitlistEntries: WaitlistEntryPopulatedDto[];
 }) {
+  const router = useRouter();
   // Load States
   const [bookingWindows, setBookingWindows] = useState<
     BookingWindowPopulatedDto[]
@@ -50,7 +52,7 @@ export default function ManageBookingRequestsClient({
 
   // Statistics calculation
   const stats = useMemo(() => {
-    return calculateBookingStats(bookingWindows, loadedWaitlistEntries);
+    return calculateBookingRequestsStats(bookingWindows, loadedWaitlistEntries);
   }, [bookingWindows, loadedWaitlistEntries]);
 
   const formattedTableData = useMemo(() => {
@@ -105,7 +107,6 @@ export default function ManageBookingRequestsClient({
     return tableData;
   }, [loadedBookingWindows, loadedWaitlistEntries]);
 
-  // Get Filtered Bookings
   const filteredBookings = useMemo(() => {
     let filtered = formattedTableData;
 
@@ -168,6 +169,7 @@ export default function ManageBookingRequestsClient({
       onSuccess: async () => {
         setCancelModalOpen(false);
         setSelectedBookingWindow(null);
+        router.refresh();
       },
       onError: (error) => {
         console.error("Failed to cancel booking:", error.message);
@@ -180,10 +182,10 @@ export default function ManageBookingRequestsClient({
       onSuccess: async () => {
         setWaitlistEntryCancellationModalOpen(false);
         setSelectedWaitlistEntry(null);
+        router.refresh();
       },
       onError: (error) => {
         console.error("Failed to cancel booking:", error.message);
-        // You could add a toast notification here
       },
     });
 

@@ -3,6 +3,14 @@ import type {
   WaitlistEntryPopulatedDto,
 } from "mydive/server/api/routers/types";
 
+export function isWaitlistEntryPopulatedDto(
+  data: BookingWindowPopulatedDto | WaitlistEntryPopulatedDto,
+): data is WaitlistEntryPopulatedDto {
+  // Add your specific validation logic here based on WaitlistEntryPopulatedDto structure
+  // This is a placeholder - replace with actual property checks
+  return data && typeof data === "object" && "latestPosition" in data;
+}
+
 export function isBookingWindowPopulatedDto(
   data: BookingWindowPopulatedDto | WaitlistEntryPopulatedDto,
 ): data is BookingWindowPopulatedDto {
@@ -12,12 +20,4 @@ export function isBookingWindowPopulatedDto(
     "windowStartDate" in data &&
     "windowEndDate" in data
   );
-}
-
-export function isWaitlistEntryPopulatedDto(
-  data: BookingWindowPopulatedDto | WaitlistEntryPopulatedDto,
-): data is WaitlistEntryPopulatedDto {
-  // Add your specific validation logic here based on WaitlistEntryPopulatedDto structure
-  // This is a placeholder - replace with actual property checks
-  return data && typeof data === "object" && "latestPosition" in data;
 }

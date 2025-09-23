@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import AdminBookingsClient from "./client-page";
 import { clerkUserToDto } from "mydive/server/api/routers/adminBookingManager";
 
-export default async function AdminBookingsPage() {
+export default async function AdminManageBookingRequestsPage() {
   const user = await currentUser();
   if (!user) {
     redirect("/");

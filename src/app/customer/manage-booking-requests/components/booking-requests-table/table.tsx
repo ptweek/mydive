@@ -22,7 +22,7 @@ import type { BookingStatus } from "@prisma/client";
 import {
   isBookingWindowPopulatedDto,
   isWaitlistEntryPopulatedDto,
-} from "../../_utils/table";
+} from "mydive/app/shared-types/type-validation";
 import { WaitlistEntryActionsDropdown } from "./waitlist-actions-dropdown";
 import { getBookingStatusIcon } from "mydive/app/shared-frontend/_components/statusIcons";
 

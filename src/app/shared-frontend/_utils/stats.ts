@@ -4,9 +4,9 @@ import type {
 } from "mydive/server/api/routers/types";
 import type { BookingStatus } from "@prisma/client";
 
-export function calculateBookingStats(
+export function calculateBookingRequestsStats(
   bookingWindows: BookingWindowPopulatedDto[],
-  loadedWaitlistEntries: WaitlistEntryPopulatedDto[],
+  waitlistEntries: WaitlistEntryPopulatedDto[],
 ) {
   const statusCounts: {
     bws: Record<string, number>;
@@ -25,14 +25,14 @@ export function calculateBookingStats(
   });
 
   // Count waitlist entries
-  loadedWaitlistEntries.forEach((w) => {
+  waitlistEntries.forEach((w) => {
     statusCounts.wles[w.status] = (statusCounts.wles[w.status] ?? 0) + 1;
   });
 
-  totalJumpers += loadedWaitlistEntries.length;
+  totalJumpers += waitlistEntries.length;
 
   return {
-    total: bookingWindows.length + loadedWaitlistEntries.length,
+    total: bookingWindows.length + waitlistEntries.length,
     confirmedBws: statusCounts.bws.CONFIRMED ?? 0,
     confirmedWles: statusCounts.wles.CONFIRMED ?? 0,
     cancelledBws: statusCounts.bws.CANCELED ?? 0,
