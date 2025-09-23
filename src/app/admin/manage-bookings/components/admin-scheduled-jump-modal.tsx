@@ -24,7 +24,7 @@ const AdminScheduledJumpModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const cancelJumpDate =
-    api.adminBookingManager.cancelJumpFromScheduledJumpModal.useMutation({
+    api.adminBookingManager.cancelScheduledJump.useMutation({
       onSuccess: async () => {
         // Invalidate and refetch the bookings data
         onClose();

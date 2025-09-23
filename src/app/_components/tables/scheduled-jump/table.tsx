@@ -14,9 +14,10 @@ import type { BookingStatus, ScheduledJump } from "@prisma/client";
 import { getBookingStatusIcon } from "mydive/app/_components/statusIcons";
 import type { UserDto } from "mydive/server/api/routers/types";
 import { useMemo, useState } from "react";
-import { ContactModal } from "../modals/contact-modal";
-import { CancelScheduleJumpConfirmationModal } from "../modals/scheduled-jump-cancel-confirmation-modal";
+import { ContactModal } from "../../modals/contact-modal";
+import { CancelScheduleJumpConfirmationModal } from "../../modals/scheduled-jump-cancel-confirmation-modal";
 import { api } from "mydive/trpc/react";
+import ScheduledJumpsTableFilters from "./filters";
 
 // Define the SchedulingMethod enum to match your schema
 export type SchedulingMethod = "BOOKING_WINDOW" | "WAITLIST";
@@ -58,6 +59,10 @@ export default function ScheduledJumpsTable({
   const [selectedScheduledJump, setSelectedScheduledJump] =
     useState<ScheduledJump | null>(null);
 
+  // Filters
+  const [showPast, setShowPast] = useState(false);
+  const [showCancelled, setShowCancelled] = useState(false);
+
   // click and close handlers
   const handleContactInfoClick = (user: UserDto) => {
     setSelectedUser(user);
@@ -87,12 +92,8 @@ export default function ScheduledJumpsTable({
       },
     });
 
-  const handleCancelJump = (scheduledJump: ScheduledJump) => {
-    cancelJumpDate.mutate({ scheduledJumpId: scheduledJump.id });
-  };
-
   // useMemo hooks
-  const tableData = useMemo(() => {
+  const convertedTableData = useMemo(() => {
     return scheduledJumps
       .map((scheduledJump) => {
         return {
@@ -109,8 +110,34 @@ export default function ScheduledJumpsTable({
         );
       });
   }, [scheduledJumps, users]);
+
+  const tableData = useMemo(() => {
+    let tableData = convertedTableData;
+    if (!showPast) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      tableData = tableData.filter((row) => {
+        const jumpDate = new Date(row.scheduledJump.jumpDate);
+        jumpDate.setHours(0, 0, 0, 0);
+        return jumpDate >= today;
+      });
+    }
+    if (!showCancelled) {
+      tableData = tableData.filter((row) => {
+        return row.scheduledJump.status !== "CANCELED";
+      });
+    }
+    return tableData;
+  }, [convertedTableData, showPast, showCancelled]);
   return (
     <>
+      <ScheduledJumpsTableFilters
+        numVisibleRows={tableData.length}
+        showPast={showPast}
+        setShowPast={setShowPast}
+        showCancelled={showCancelled}
+        setShowCancelled={setShowCancelled}
+      />
       <Table
         aria-label="Scheduled Jumps Table"
         removeWrapper

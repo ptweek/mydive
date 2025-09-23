@@ -5,7 +5,7 @@ import ScheduledJumpsStatsCards from "mydive/app/_components/cards/scheduled-jum
 import { computeScheduledJumpStats } from "mydive/app/_utils/stats";
 import type { UserDto } from "mydive/server/api/routers/types";
 import { useMemo } from "react";
-import ScheduledJumpsTable from "mydive/app/_components/tables/scheduled-jump-table";
+import ScheduledJumpsTable from "mydive/app/_components/tables/scheduled-jump/table";
 
 export default function AdminScheduledJumpsClient({
   scheduledJumps,
@@ -34,9 +34,6 @@ export default function AdminScheduledJumpsClient({
           <ScheduledJumpsTable
             scheduledJumps={scheduledJumps}
             users={users}
-            handleJumpCancellationClick={() => {
-              console.log("handling cancellation");
-            }}
             isAdminView={true}
           />
         </div>
