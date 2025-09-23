@@ -2,17 +2,19 @@ import { api, HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-import ScheduledJumpsClient from "./client-page";
+import CustomerScheduledJumpsClient from "./client-page";
 
 // Probably need to implement some fetch that allows us to get all the admin users!
 
-export default async function AdminScheduledJumpsManager() {
+export default async function ScheduledJumpsPage() {
   const user = await currentUser();
   if (!user) {
     redirect("/");
   }
-  const { scheduledJumps, users } =
-    await api.adminScheduledJumpsManager.getScheduledJumpsAndUsers();
+  const { scheduledJumps } =
+    await api.customerScheduledJumpsManager.getScheduledJumpsForUser({
+      userId: user.id,
+    });
   return (
     <HydrateClient>
       <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-white">
@@ -28,7 +30,7 @@ export default async function AdminScheduledJumpsManager() {
         </video>
 
         {/* Content */}
-        <ScheduledJumpsClient scheduledJumps={scheduledJumps} users={users} />
+        <CustomerScheduledJumpsClient scheduledJumps={scheduledJumps} />
       </main>
     </HydrateClient>
   );

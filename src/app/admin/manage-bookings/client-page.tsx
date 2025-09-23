@@ -633,7 +633,7 @@ export default function AdminBookingsClient({
 
                         <TableCell>
                           {!(booking.status === "CANCELED") && (
-                            <div className="flex justify-center">
+                            <div className="z-0 flex justify-center">
                               <BookingActionsDropdown
                                 booking={booking}
                                 onCancel={() => handleCancelClick(booking)}

@@ -1,42 +1,12 @@
-import { UsersIcon, UserIcon } from "@heroicons/react/24/outline";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-  Chip,
-  Button,
-} from "@nextui-org/react";
-import { formatDateShort } from "mydive/app/shared-frontend/_utils/booking";
+import { Table, TableBody, TableHeader, TableRow } from "@nextui-org/react";
 import type { BookingStatus, ScheduledJump } from "@prisma/client";
-import { getBookingStatusIcon } from "mydive/app/shared-frontend/_components/statusIcons";
 import type { UserDto } from "mydive/server/api/routers/types";
 import { useMemo, useState } from "react";
 import { ContactModal } from "../../modals/contact-modal";
 import { CancelScheduleJumpConfirmationModal } from "../../modals/scheduled-jump-cancel-confirmation-modal";
 import { api } from "mydive/trpc/react";
 import ScheduledJumpsTableFilters from "./filters";
-
-// Define the SchedulingMethod enum to match your schema
-export type SchedulingMethod = "BOOKING_WINDOW" | "WAITLIST";
-
-export type ScheduledJumpTableRow = {
-  id: number;
-  jumpDate: Date;
-  bookingZone: string;
-  numJumpers: number;
-  schedulingMethod: SchedulingMethod;
-  status: BookingStatus;
-  bookedBy: string;
-  confirmedBy?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  // You can expand this with populated data as needed
-  associatedBookingId: number;
-  associatedWaitlistId?: number;
-};
+import { getColumns, getTableCells } from "./table-helpers";
 
 export default function ScheduledJumpsTable({
   scheduledJumps,
@@ -44,7 +14,7 @@ export default function ScheduledJumpsTable({
   isAdminView = false,
 }: {
   scheduledJumps: ScheduledJump[];
-  users: UserDto[];
+  users?: UserDto[];
   isAdminView?: boolean;
 }) {
   // modal states
@@ -98,15 +68,15 @@ export default function ScheduledJumpsTable({
       .map((scheduledJump) => {
         return {
           scheduledJump,
-          user: users.find((user) => {
+          user: users?.find((user) => {
             return user.userId === scheduledJump.bookedBy;
           }),
         };
       })
       .sort((a, b) => {
         return (
-          a.scheduledJump.jumpDate.getDate() -
-          b.scheduledJump.jumpDate.getDate()
+          a.scheduledJump.jumpDate.getTime() -
+          b.scheduledJump.jumpDate.getTime()
         );
       });
   }, [scheduledJumps, users]);
@@ -129,6 +99,10 @@ export default function ScheduledJumpsTable({
     }
     return tableData;
   }, [convertedTableData, showPast, showCancelled]);
+
+  // Column Definitions
+
+  const columns = getColumns(isAdminView);
   return (
     <>
       <ScheduledJumpsTableFilters
@@ -153,152 +127,19 @@ export default function ScheduledJumpsTable({
             tr: "hover:bg-slate-50/50 transition-colors duration-200",
           }}
         >
-          <TableHeader>
-            <TableColumn className="text-left">SCHEDULED JUMP DATE</TableColumn>
-            <TableColumn className="text-left">BOOKING ZONE</TableColumn>
-            <TableColumn className="text-center">BOOKED BY</TableColumn>
-            <TableColumn className="text-center">STATUS</TableColumn>
-            <TableColumn className="text-center">JUMPERS</TableColumn>
-            <TableColumn className="text-center">BOOKING METHOD</TableColumn>
-            <TableColumn className="text-center">CREATED</TableColumn>
-            <TableColumn className="text-center">LAST UPDATED</TableColumn>
-            <TableColumn className="text-center">ACTIONS</TableColumn>
-          </TableHeader>
+          <TableHeader>{columns}</TableHeader>
           <TableBody emptyContent="No scheduled jumps found">
             {tableData.map((row) => {
               const { scheduledJump, user } = row;
               return (
                 <TableRow key={scheduledJump.id} className="group">
-                  <TableCell>
-                    <div className="flex flex-col space-y-1">
-                      <div className="mt-2 ml-5">
-                        <div className="text-sm font-semibold text-slate-700">
-                          {formatDateShort(scheduledJump.jumpDate)}
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  <TableCell className="text-sm font-semibold text-slate-700">
-                    <div className="flex justify-center">
-                      {scheduledJump.bookingZone}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {isAdminView && user ? (
-                      <Button
-                        variant="ghost"
-                        className="h-auto justify-start p-2 text-left transition-colors duration-200 hover:bg-blue-50"
-                        onPress={() => handleContactInfoClick(user)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="rounded-full bg-blue-100 p-1">
-                            <UserIcon className="h-3 w-3 text-blue-600" />
-                          </div>
-                          <div>
-                            <div className="font-medium text-slate-700">
-                              {user.firstName} {user.lastName}
-                            </div>
-                            <div className="text-xs text-slate-500">
-                              Click for contact info
-                            </div>
-                          </div>
-                        </div>
-                      </Button>
-                    ) : (
-                      <div className="text-slate-500 italic">
-                        User not found
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex justify-center">
-                      {getBookingStatusIcon(scheduledJump.status)}
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex items-center justify-center">
-                      <div className="rounded-full border border-purple-200 bg-gradient-to-r from-purple-100 to-pink-100 p-3">
-                        <div className="flex items-center gap-2">
-                          <UsersIcon className="h-4 w-4 text-purple-600" />
-                          <span className="text-lg font-bold text-purple-800">
-                            {scheduledJump.numJumpers}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex justify-center text-sm font-medium text-slate-700">
-                      <Chip
-                        variant="flat"
-                        color={
-                          scheduledJump.schedulingMethod === "BOOKING_WINDOW"
-                            ? "primary"
-                            : "secondary"
-                        }
-                      >
-                        {scheduledJump.schedulingMethod === "BOOKING_WINDOW"
-                          ? "Booking Window"
-                          : "Waitlist"}
-                      </Chip>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex justify-center">
-                      <div className="text-center">
-                        <div className="text-sm font-medium text-slate-700">
-                          {formatDateShort(scheduledJump.createdAt)}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {new Date(scheduledJump.createdAt).toLocaleDateString(
-                            "en-US",
-                            {
-                              weekday: "short",
-                            },
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex justify-center">
-                      <div className="text-center">
-                        <div className="text-sm font-medium text-slate-700">
-                          {formatDateShort(scheduledJump.updatedAt)}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {new Date(scheduledJump.updatedAt).toLocaleDateString(
-                            "en-US",
-                            {
-                              weekday: "short",
-                            },
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex justify-center gap-2">
-                      {scheduledJump.status !== "CANCELED" ? (
-                        <button
-                          onClick={() =>
-                            handleJumpCancellationClick(scheduledJump)
-                          }
-                          className="rounded bg-red-500 px-3 py-1 text-xs text-white hover:bg-red-600"
-                        >
-                          Cancel
-                        </button>
-                      ) : (
-                        <span className="text-sm text-slate-400">--</span>
-                      )}
-                    </div>
-                  </TableCell>
+                  {getTableCells(
+                    isAdminView,
+                    scheduledJump,
+                    handleJumpCancellationClick,
+                    user,
+                    handleContactInfoClick,
+                  )}
                 </TableRow>
               );
             })}

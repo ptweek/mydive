@@ -3,6 +3,7 @@ import { bookingWindowRouter } from "mydive/server/api/routers/bookingWindow";
 import { adminBookingManagerRouter } from "./routers/adminBookingManager";
 import { customerBookingManagerRouter } from "./routers/customerBookingManager";
 import { adminScheduledJumpsManagerRouter } from "./routers/adminScheduledJumpsManager";
+import { customerScheduledJumpsManagerRouter } from "./routers/customerScheduledJumpsManager";
 
 /**
  * This is the primary router for your server.
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   adminBookingManager: adminBookingManagerRouter,
   customerBookingManager: customerBookingManagerRouter,
   adminScheduledJumpsManager: adminScheduledJumpsManagerRouter,
+  customerScheduledJumpsManager: customerScheduledJumpsManagerRouter,
 });
 
 // export type definition of API

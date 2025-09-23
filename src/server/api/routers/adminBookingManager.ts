@@ -55,22 +55,6 @@ export const adminBookingManagerRouter = createTRPCRouter({
 
     return { bookingWindows, waitlists, scheduledJumps, users: userData };
   }),
-  getScheduledJumpsAndUsers: protectedProcedure.query(async ({ ctx }) => {
-    const client = await clerkClient();
-    const scheduledJumps = await ctx.services.scheduledJump.findAll();
-
-    const allUserIds = scheduledJumps.map((scheduledJump) => {
-      return scheduledJump.bookedBy;
-    });
-
-    // Fetch all users at once
-    const users = (await client.users.getUserList({ userId: allUserIds })).data;
-    const userData = users.map((user) => {
-      return clerkUserToDto(user);
-    });
-
-    return { scheduledJumps, users: userData };
-  }),
   modifyBookingDates: protectedProcedure
     .input(
       z.object({
