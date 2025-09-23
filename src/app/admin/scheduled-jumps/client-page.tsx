@@ -6,6 +6,7 @@ import { computeScheduledJumpStats } from "mydive/app/shared-frontend/_utils/sta
 import type { UserDto } from "mydive/server/api/routers/types";
 import { useMemo } from "react";
 import ScheduledJumpsTable from "mydive/app/shared-frontend/_components/tables/scheduled-jump/table";
+import { Card, CardBody } from "@nextui-org/react";
 
 export default function AdminScheduledJumpsClient({
   scheduledJumps,
@@ -29,14 +30,17 @@ export default function AdminScheduledJumpsClient({
             {`See all of your scheduled jumps in one place`}
           </p>
         </div>
+        {/* Main Content */}
         <ScheduledJumpsStatsCards stats={stats} />
-        <div className="h-max-[400px]">
-          <ScheduledJumpsTable
-            scheduledJumps={scheduledJumps}
-            users={users}
-            isAdminView={true}
-          />
-        </div>
+        <Card className="shadow-2xl">
+          <CardBody className="bg-white p-0">
+            <ScheduledJumpsTable
+              scheduledJumps={scheduledJumps}
+              users={users}
+              isAdminView={true}
+            />
+          </CardBody>
+        </Card>
       </div>
     </div>
   );

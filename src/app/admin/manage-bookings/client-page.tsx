@@ -226,6 +226,8 @@ export default function AdminBookingsClient({
     return user;
   }, [loadedUsers, selectedJumpDate]);
 
+  console.log("filteredBookings", filteredBookings);
+
   return (
     <div className="z-0 p-4 md:p-8">
       <div className="mx-auto max-w-7xl">
@@ -348,7 +350,7 @@ export default function AdminBookingsClient({
               </div>
             </div>
             {/* Fixed Height Table Container with Scroll */}
-            <div className="h-[400px] overflow-auto">
+            <div className="max-h-[400px] overflow-auto">
               <Table
                 aria-label="Booking table"
                 removeWrapper

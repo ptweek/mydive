@@ -2,8 +2,7 @@ import { api, HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-import { clerkUserToDto } from "mydive/server/api/routers/adminBookingManager";
-import ScheduledJumpsClient from "./admin-scheduled-jumps-client";
+import ScheduledJumpsClient from "./client-page";
 
 // Probably need to implement some fetch that allows us to get all the admin users!
 
@@ -12,7 +11,6 @@ export default async function MyBookingsPage() {
   if (!user) {
     redirect("/");
   }
-  const adminUserDto = clerkUserToDto(user);
   const { scheduledJumps, users } =
     await api.adminBookingManager.getScheduledJumpsAndUsers();
   return (

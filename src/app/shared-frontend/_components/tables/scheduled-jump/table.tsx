@@ -138,169 +138,173 @@ export default function ScheduledJumpsTable({
         showCancelled={showCancelled}
         setShowCancelled={setShowCancelled}
       />
-      <Table
-        aria-label="Scheduled Jumps Table"
-        removeWrapper
-        classNames={{
-          base: "min-h-0 m-0 p-0 bg-white",
-          wrapper: "p-0 m-0 shadow-none bg-transparent",
-          table: "min-h-0 m-0 border-collapse",
-          thead: "bg-white m-0",
-          tbody: "bg-white m-0",
-          th: "bg-gradient-to-r from-slate-50 to-slate-100 text-slate-700 font-semibold text-xs uppercase tracking-wider border-b-2 border-slate-200 py-3 px-6 m-0 first:rounded-none last:rounded-none",
-          td: "py-4 px-6 border-b border-slate-100 m-0",
-          tr: "hover:bg-slate-50/50 transition-colors duration-200 m-0",
-        }}
-      >
-        <TableHeader>
-          <TableColumn className="text-left">SCHEDULED JUMP DATE</TableColumn>
-          <TableColumn className="text-left">BOOKING ZONE</TableColumn>
-          <TableColumn className="text-center">BOOKED BY</TableColumn>
-          <TableColumn className="text-center">STATUS</TableColumn>
-          <TableColumn className="text-center">JUMPERS</TableColumn>
-          <TableColumn className="text-center">BOOKING METHOD</TableColumn>
-          <TableColumn className="text-center">CREATED</TableColumn>
-          <TableColumn className="text-center">LAST UPDATED</TableColumn>
-          <TableColumn className="text-center">ACTIONS</TableColumn>
-        </TableHeader>
-        <TableBody emptyContent="No scheduled jumps found">
-          {tableData.map((row) => {
-            const { scheduledJump, user } = row;
-            return (
-              <TableRow key={scheduledJump.id} className="group">
-                <TableCell>
-                  <div className="flex flex-col space-y-1">
-                    <div className="mt-2 ml-5">
-                      <div className="text-sm font-semibold text-slate-700">
-                        {formatDateShort(scheduledJump.jumpDate)}
-                      </div>
-                    </div>
-                  </div>
-                </TableCell>
-
-                <TableCell className="text-sm font-semibold text-slate-700">
-                  <div className="flex justify-center">
-                    {scheduledJump.bookingZone}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {isAdminView && user ? (
-                    <Button
-                      variant="ghost"
-                      className="h-auto justify-start p-2 text-left transition-colors duration-200 hover:bg-blue-50"
-                      onPress={() => handleContactInfoClick(user)}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="rounded-full bg-blue-100 p-1">
-                          <UserIcon className="h-3 w-3 text-blue-600" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-slate-700">
-                            {user.firstName} {user.lastName}
-                          </div>
-                          <div className="text-xs text-slate-500">
-                            Click for contact info
-                          </div>
+      <div className="max-h-[400px] overflow-auto">
+        <Table
+          aria-label="Scheduled Jumps Table"
+          removeWrapper
+          classNames={{
+            base: "min-h-0",
+            wrapper: "p-0 shadow-none bg-transparent",
+            table: "min-h-0",
+            thead: "bg-transparent",
+            tbody: "bg-transparent",
+            th: "bg-gradient-to-r from-slate-50 to-slate-100 text-slate-700 font-semibold text-xs uppercase tracking-wider border-b-2 border-slate-200 py-4 sticky top-0 z-10",
+            td: "py-4 px-6 border-b border-slate-100",
+            tr: "hover:bg-slate-50/50 transition-colors duration-200",
+          }}
+        >
+          <TableHeader>
+            <TableColumn className="text-left">SCHEDULED JUMP DATE</TableColumn>
+            <TableColumn className="text-left">BOOKING ZONE</TableColumn>
+            <TableColumn className="text-center">BOOKED BY</TableColumn>
+            <TableColumn className="text-center">STATUS</TableColumn>
+            <TableColumn className="text-center">JUMPERS</TableColumn>
+            <TableColumn className="text-center">BOOKING METHOD</TableColumn>
+            <TableColumn className="text-center">CREATED</TableColumn>
+            <TableColumn className="text-center">LAST UPDATED</TableColumn>
+            <TableColumn className="text-center">ACTIONS</TableColumn>
+          </TableHeader>
+          <TableBody emptyContent="No scheduled jumps found">
+            {tableData.map((row) => {
+              const { scheduledJump, user } = row;
+              return (
+                <TableRow key={scheduledJump.id} className="group">
+                  <TableCell>
+                    <div className="flex flex-col space-y-1">
+                      <div className="mt-2 ml-5">
+                        <div className="text-sm font-semibold text-slate-700">
+                          {formatDateShort(scheduledJump.jumpDate)}
                         </div>
                       </div>
-                    </Button>
-                  ) : (
-                    <div className="text-slate-500 italic">User not found</div>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <div className="flex justify-center">
-                    {getBookingStatusIcon(scheduledJump.status)}
-                  </div>
-                </TableCell>
-
-                <TableCell>
-                  <div className="flex items-center justify-center">
-                    <div className="rounded-full border border-purple-200 bg-gradient-to-r from-purple-100 to-pink-100 p-3">
-                      <div className="flex items-center gap-2">
-                        <UsersIcon className="h-4 w-4 text-purple-600" />
-                        <span className="text-lg font-bold text-purple-800">
-                          {scheduledJump.numJumpers}
-                        </span>
-                      </div>
                     </div>
-                  </div>
-                </TableCell>
+                  </TableCell>
 
-                <TableCell>
-                  <div className="flex justify-center text-sm font-medium text-slate-700">
-                    <Chip
-                      variant="flat"
-                      color={
-                        scheduledJump.schedulingMethod === "BOOKING_WINDOW"
-                          ? "primary"
-                          : "secondary"
-                      }
-                    >
-                      {scheduledJump.schedulingMethod === "BOOKING_WINDOW"
-                        ? "Booking Window"
-                        : "Waitlist"}
-                    </Chip>
-                  </div>
-                </TableCell>
-
-                <TableCell>
-                  <div className="flex justify-center">
-                    <div className="text-center">
-                      <div className="text-sm font-medium text-slate-700">
-                        {formatDateShort(scheduledJump.createdAt)}
-                      </div>
-                      <div className="text-xs text-slate-500">
-                        {new Date(scheduledJump.createdAt).toLocaleDateString(
-                          "en-US",
-                          {
-                            weekday: "short",
-                          },
-                        )}
-                      </div>
+                  <TableCell className="text-sm font-semibold text-slate-700">
+                    <div className="flex justify-center">
+                      {scheduledJump.bookingZone}
                     </div>
-                  </div>
-                </TableCell>
-
-                <TableCell>
-                  <div className="flex justify-center">
-                    <div className="text-center">
-                      <div className="text-sm font-medium text-slate-700">
-                        {formatDateShort(scheduledJump.updatedAt)}
-                      </div>
-                      <div className="text-xs text-slate-500">
-                        {new Date(scheduledJump.updatedAt).toLocaleDateString(
-                          "en-US",
-                          {
-                            weekday: "short",
-                          },
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </TableCell>
-
-                <TableCell>
-                  <div className="flex justify-center gap-2">
-                    {scheduledJump.status !== "CANCELED" ? (
-                      <button
-                        onClick={() =>
-                          handleJumpCancellationClick(scheduledJump)
-                        }
-                        className="rounded bg-red-500 px-3 py-1 text-xs text-white hover:bg-red-600"
+                  </TableCell>
+                  <TableCell>
+                    {isAdminView && user ? (
+                      <Button
+                        variant="ghost"
+                        className="h-auto justify-start p-2 text-left transition-colors duration-200 hover:bg-blue-50"
+                        onPress={() => handleContactInfoClick(user)}
                       >
-                        Cancel
-                      </button>
+                        <div className="flex items-center gap-2">
+                          <div className="rounded-full bg-blue-100 p-1">
+                            <UserIcon className="h-3 w-3 text-blue-600" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-slate-700">
+                              {user.firstName} {user.lastName}
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              Click for contact info
+                            </div>
+                          </div>
+                        </div>
+                      </Button>
                     ) : (
-                      <span className="text-sm text-slate-400">--</span>
+                      <div className="text-slate-500 italic">
+                        User not found
+                      </div>
                     )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex justify-center">
+                      {getBookingStatusIcon(scheduledJump.status)}
+                    </div>
+                  </TableCell>
+
+                  <TableCell>
+                    <div className="flex items-center justify-center">
+                      <div className="rounded-full border border-purple-200 bg-gradient-to-r from-purple-100 to-pink-100 p-3">
+                        <div className="flex items-center gap-2">
+                          <UsersIcon className="h-4 w-4 text-purple-600" />
+                          <span className="text-lg font-bold text-purple-800">
+                            {scheduledJump.numJumpers}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  <TableCell>
+                    <div className="flex justify-center text-sm font-medium text-slate-700">
+                      <Chip
+                        variant="flat"
+                        color={
+                          scheduledJump.schedulingMethod === "BOOKING_WINDOW"
+                            ? "primary"
+                            : "secondary"
+                        }
+                      >
+                        {scheduledJump.schedulingMethod === "BOOKING_WINDOW"
+                          ? "Booking Window"
+                          : "Waitlist"}
+                      </Chip>
+                    </div>
+                  </TableCell>
+
+                  <TableCell>
+                    <div className="flex justify-center">
+                      <div className="text-center">
+                        <div className="text-sm font-medium text-slate-700">
+                          {formatDateShort(scheduledJump.createdAt)}
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          {new Date(scheduledJump.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              weekday: "short",
+                            },
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  <TableCell>
+                    <div className="flex justify-center">
+                      <div className="text-center">
+                        <div className="text-sm font-medium text-slate-700">
+                          {formatDateShort(scheduledJump.updatedAt)}
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          {new Date(scheduledJump.updatedAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              weekday: "short",
+                            },
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  <TableCell>
+                    <div className="flex justify-center gap-2">
+                      {scheduledJump.status !== "CANCELED" ? (
+                        <button
+                          onClick={() =>
+                            handleJumpCancellationClick(scheduledJump)
+                          }
+                          className="rounded bg-red-500 px-3 py-1 text-xs text-white hover:bg-red-600"
+                        >
+                          Cancel
+                        </button>
+                      ) : (
+                        <span className="text-sm text-slate-400">--</span>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
       {selectedUser && (
         <ContactModal
           isOpen={isContactModalOpen}

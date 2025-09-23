@@ -39,10 +39,6 @@ export default function ScheduledJumpsStatsCards({
             <div>
               <p className="text-sm text-green-100">Confirmed</p>
               <p className="text-2xl font-bold">{stats.confirmedJumps}</p>
-              <p className="text-sm">
-                {stats.bookingWindowJumps} booking window, {stats.waitlistJumps}{" "}
-                waitlist
-              </p>
             </div>
             <CheckCircleIcon className="h-8 w-8 text-green-200" />
           </div>
@@ -55,7 +51,6 @@ export default function ScheduledJumpsStatsCards({
             <div>
               <p className="text-sm text-yellow-100">Pending Confirmation</p>
               <p className="text-2xl font-bold">{stats.pendingJumps}</p>
-              <p className="text-sm">Awaiting admin approval</p>
             </div>
             <ClockIcon className="h-8 w-8 text-yellow-200" />
           </div>
@@ -68,7 +63,6 @@ export default function ScheduledJumpsStatsCards({
             <div>
               <p className="text-sm text-red-100">Cancelled</p>
               <p className="text-2xl font-bold">{stats.cancelledJumps}</p>
-              <p className="text-sm">Cancelled jumps</p>
             </div>
             <ClockIcon className="h-8 w-8 text-red-200" />
           </div>
@@ -81,7 +75,6 @@ export default function ScheduledJumpsStatsCards({
             <div>
               <p className="text-sm text-purple-100">Completed</p>
               <p className="text-2xl font-bold">{stats.completedJumps}</p>
-              <p className="text-sm">Successfully completed</p>
             </div>
           </div>
         </CardBody>

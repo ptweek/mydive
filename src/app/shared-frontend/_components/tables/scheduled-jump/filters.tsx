@@ -16,7 +16,6 @@ export default function ScheduledJumpsTableFilters({
       <div className="flex items-center gap-4">
         <span className="text-sm font-medium text-gray-700">
           Showing {numVisibleRows} scheduled jumps
-          {numVisibleRows !== 1 ? "s" : ""}
         </span>
       </div>
       <div>
