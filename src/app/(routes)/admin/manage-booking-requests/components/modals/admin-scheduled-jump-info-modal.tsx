@@ -8,7 +8,7 @@ import type {
 import { api } from "mydive/trpc/react";
 import React, { useState } from "react";
 
-const AdminScheduledJumpModal = ({
+const AdminScheduledJumpInfoModal = ({
   scheduledJump,
   isOpen,
   onClose,
@@ -337,4 +337,4 @@ const AdminScheduledJumpModal = ({
   );
 };
 
-export default AdminScheduledJumpModal;
+export default AdminScheduledJumpInfoModal;

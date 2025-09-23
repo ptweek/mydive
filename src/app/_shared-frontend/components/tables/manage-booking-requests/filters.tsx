@@ -16,7 +16,6 @@ export default function BookingRequestsTableFilters({
       <div className="flex items-center gap-4">
         <span className="text-sm font-medium text-gray-700">
           Showing {numVisibleRows} booking
-          {numVisibleRows !== 1 ? "s" : ""}
         </span>
       </div>
       <div>
@@ -29,7 +28,7 @@ export default function BookingRequestsTableFilters({
               className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span className="text-sm font-medium text-gray-700">
-              Show cancelled bookings
+              Show cancelled booking windows
             </span>
           </label>
         </div>
@@ -42,7 +41,7 @@ export default function BookingRequestsTableFilters({
               className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span className="text-sm font-medium text-gray-700">
-              Show past bookings
+              Show past bookings windows
             </span>
           </label>
         </div>

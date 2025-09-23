@@ -1,5 +1,7 @@
 import type { ScheduledJump, SchedulingMethod } from "@prisma/client";
 import moment from "moment";
+import type { WaitlistWithUsers } from "mydive/app/(routes)/admin/manage-booking-requests/types";
+import type { WaitlistPopulatedDto } from "mydive/server/api/routers/types";
 
 export function getActiveScheduledJumpDatesFromBookingWindow(bookingWindow: {
   scheduledJumpDates: ScheduledJump[];
@@ -14,6 +16,17 @@ export function getActiveScheduledJumpDatesFromBookingWindow(bookingWindow: {
     .filter((scheduledJumpDate) => scheduledJumpDate.status !== "CANCELED")
     .map((scheduledJumpDate) => scheduledJumpDate.jumpDate);
 }
+
+export const getActiveScheduledJumpFromPopulatedWaitlist = (
+  waitlist: WaitlistPopulatedDto | WaitlistWithUsers,
+) => {
+  const scheduledJump = waitlist.associatedScheduledJumps.find(
+    (scheduledJump) => {
+      return scheduledJump.status === "CONFIRMED";
+    },
+  );
+  return scheduledJump;
+};
 
 export function getActiveScheduledJumps(
   scheduledJumps: ScheduledJump[],
@@ -45,10 +58,6 @@ export function getActiveScheduledJumpDates(
       );
     })
     .map((scheduledJumpDate) => scheduledJumpDate.jumpDate);
-}
-
-export function setConfirmedJumpDays(dates: Date[]): string[] {
-  return dates.map((date) => date.toISOString());
 }
 
 export const formatDateShort = (date: Date) => {

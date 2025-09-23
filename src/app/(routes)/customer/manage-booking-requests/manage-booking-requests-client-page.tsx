@@ -9,7 +9,7 @@ import type {
   WaitlistEntryPopulatedDto,
 } from "mydive/server/api/routers/types";
 import BookingRequestsTable from "./components/booking-requests-table/table";
-import BookingRequestsTableFilters from "./components/booking-requests-table/filters";
+import BookingRequestsTableFilters from "../../../_shared-frontend/components/tables/manage-booking-requests/filters";
 import { type BookingRequestTableRow } from "./components/booking-requests-table/table";
 import {
   isBookingWindowPopulatedDto,

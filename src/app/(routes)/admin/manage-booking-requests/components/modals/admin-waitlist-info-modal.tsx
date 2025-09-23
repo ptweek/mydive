@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import type { WaitlistStatus } from "@prisma/client";
-import type { WaitlistEntryWithUser, WaitlistWithUsers } from "../client-page";
+import type { WaitlistEntryWithUser, WaitlistWithUsers } from "../../types";
 import { api } from "mydive/trpc/react";
 
-const AdminWaitlistModal = ({
+const AdminWaitlistInfoModal = ({
   waitlist,
   isOpen,
   onClose,
@@ -365,4 +365,4 @@ const AdminWaitlistModal = ({
   );
 };
 
-export default AdminWaitlistModal;
+export default AdminWaitlistInfoModal;

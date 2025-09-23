@@ -2,10 +2,10 @@
 import { getActiveScheduledJumpDates } from "mydive/app/_shared-frontend/utils/booking";
 import { api } from "mydive/trpc/react";
 import { useState, useEffect, useCallback } from "react";
-import type { BookingTableRow } from "../client-page";
 import type { ScheduledJump } from "@prisma/client";
+import type { BookingTableRow } from "../../types";
 
-export const ConfirmBookingDatesModal = ({
+export const ModifyScheduledJumpsModal = ({
   isOpen,
   onClose,
   booking,
