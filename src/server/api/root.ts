@@ -2,6 +2,7 @@ import { createCallerFactory, createTRPCRouter } from "mydive/server/api/trpc";
 import { bookingWindowRouter } from "mydive/server/api/routers/bookingWindow";
 import { adminBookingManagerRouter } from "./routers/adminBookingManager";
 import { customerBookingManagerRouter } from "./routers/customerBookingManager";
+import { adminScheduledJumpsManagerRouter } from "./routers/adminScheduledJumpsManager";
 
 /**
  * This is the primary router for your server.
@@ -12,6 +13,7 @@ export const appRouter = createTRPCRouter({
   bookingWindow: bookingWindowRouter,
   adminBookingManager: adminBookingManagerRouter,
   customerBookingManager: customerBookingManagerRouter,
+  adminScheduledJumpsManager: adminScheduledJumpsManagerRouter,
 });
 
 // export type definition of API

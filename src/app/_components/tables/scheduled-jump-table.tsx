@@ -1,11 +1,4 @@
-import {
-  CalendarIcon,
-  ClockIcon,
-  UsersIcon,
-  MapPinIcon,
-  QueueListIcon,
-  UserIcon,
-} from "@heroicons/react/24/outline";
+import { UsersIcon, UserIcon } from "@heroicons/react/24/outline";
 import {
   Table,
   TableBody,
@@ -22,6 +15,8 @@ import { getBookingStatusIcon } from "mydive/app/_components/statusIcons";
 import type { UserDto } from "mydive/server/api/routers/types";
 import { useMemo, useState } from "react";
 import { ContactModal } from "../modals/contact-modal";
+import { CancelScheduleJumpConfirmationModal } from "../modals/scheduled-jump-cancel-confirmation-modal";
+import { api } from "mydive/trpc/react";
 
 // Define the SchedulingMethod enum to match your schema
 export type SchedulingMethod = "BOOKING_WINDOW" | "WAITLIST";
@@ -42,69 +37,28 @@ export type ScheduledJumpTableRow = {
   associatedWaitlistId?: number;
 };
 
-const ScheduledJumpSummaryInfo = ({
-  jumpDate,
-  bookingZone,
-  schedulingMethod,
-}: {
-  jumpDate: Date;
-  bookingZone: string;
-  schedulingMethod: SchedulingMethod;
-}) => {
-  return (
-    <div className="flex flex-col space-y-1 text-black">
-      <div className="mt-2 ml-5">
-        <div className="text-sm font-semibold text-slate-700">
-          {formatDateShort(jumpDate)}
-        </div>
-        <div className="mt-1 flex items-center gap-2">
-          <div className="flex items-center gap-1 text-xs text-slate-500">
-            <MapPinIcon className="h-3 w-3" />
-            {bookingZone}
-          </div>
-          <Chip
-            size="sm"
-            variant="flat"
-            color={
-              schedulingMethod === "BOOKING_WINDOW" ? "primary" : "secondary"
-            }
-            className="text-xs"
-          >
-            {schedulingMethod === "BOOKING_WINDOW" ? (
-              <>
-                <CalendarIcon className="mr-1 h-3 w-3" />
-                Booking Window
-              </>
-            ) : (
-              <>
-                <QueueListIcon className="mr-1 h-3 w-3" />
-                Waitlist
-              </>
-            )}
-          </Chip>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export default function ScheduledJumpsTable({
   scheduledJumps,
   users,
-  handleJumpCancellationClick,
   isAdminView = false,
 }: {
   scheduledJumps: ScheduledJump[];
   users: UserDto[];
-  handleJumpCancellationClick?: (jump: ScheduledJump) => void;
   isAdminView?: boolean;
 }) {
   // modal states
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [
+    isScheduledJumpCancellationModalOpen,
+    setIsScheduledJumpCancellationModalOpen,
+  ] = useState(false);
 
   // selected user
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
+  const [selectedScheduledJump, setSelectedScheduledJump] =
+    useState<ScheduledJump | null>(null);
 
+  // click and close handlers
   const handleContactInfoClick = (user: UserDto) => {
     setSelectedUser(user);
     setIsContactModalOpen(true);
@@ -113,20 +67,46 @@ export default function ScheduledJumpsTable({
     setSelectedUser(null);
     setIsContactModalOpen(false);
   };
+  const handleJumpCancellationClick = (scheduledJump: ScheduledJump) => {
+    setSelectedScheduledJump(scheduledJump);
+    setIsScheduledJumpCancellationModalOpen(true);
+  };
+  const handleJumpCancellationClose = () => {
+    setSelectedScheduledJump(null);
+    setIsScheduledJumpCancellationModalOpen(false);
+  };
+
+  // mutations
+  const cancelJumpDate =
+    api.adminScheduledJumpsManager.cancelScheduledJump.useMutation({
+      onSuccess: async () => {
+        handleJumpCancellationClose();
+      },
+      onError: (error) => {
+        console.error("Failed to cancel booking:", error.message);
+      },
+    });
+
+  const handleCancelJump = (scheduledJump: ScheduledJump) => {
+    cancelJumpDate.mutate({ scheduledJumpId: scheduledJump.id });
+  };
 
   // useMemo hooks
   const tableData = useMemo(() => {
     return scheduledJumps
       .map((scheduledJump) => {
         return {
-          ...scheduledJump,
+          scheduledJump,
           user: users.find((user) => {
             return user.userId === scheduledJump.bookedBy;
           }),
         };
       })
       .sort((a, b) => {
-        return a.jumpDate.getDate() - b.jumpDate.getDate();
+        return (
+          a.scheduledJump.jumpDate.getDate() -
+          b.scheduledJump.jumpDate.getDate()
+        );
       });
   }, [scheduledJumps, users]);
   return (
@@ -157,22 +137,24 @@ export default function ScheduledJumpsTable({
           <TableColumn className="text-center">ACTIONS</TableColumn>
         </TableHeader>
         <TableBody emptyContent="No scheduled jumps found">
-          {tableData.map((jump) => {
-            const { user } = jump;
+          {tableData.map((row) => {
+            const { scheduledJump, user } = row;
             return (
-              <TableRow key={jump.id} className="group">
+              <TableRow key={scheduledJump.id} className="group">
                 <TableCell>
                   <div className="flex flex-col space-y-1">
                     <div className="mt-2 ml-5">
                       <div className="text-sm font-semibold text-slate-700">
-                        {formatDateShort(jump.jumpDate)}
+                        {formatDateShort(scheduledJump.jumpDate)}
                       </div>
                     </div>
                   </div>
                 </TableCell>
 
                 <TableCell className="text-sm font-semibold text-slate-700">
-                  <div className="flex justify-center">{jump.bookingZone}</div>
+                  <div className="flex justify-center">
+                    {scheduledJump.bookingZone}
+                  </div>
                 </TableCell>
                 <TableCell>
                   {isAdminView && user ? (
@@ -201,7 +183,7 @@ export default function ScheduledJumpsTable({
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-center">
-                    {getBookingStatusIcon(jump.status)}
+                    {getBookingStatusIcon(scheduledJump.status)}
                   </div>
                 </TableCell>
 
@@ -211,7 +193,7 @@ export default function ScheduledJumpsTable({
                       <div className="flex items-center gap-2">
                         <UsersIcon className="h-4 w-4 text-purple-600" />
                         <span className="text-lg font-bold text-purple-800">
-                          {jump.numJumpers}
+                          {scheduledJump.numJumpers}
                         </span>
                       </div>
                     </div>
@@ -219,16 +201,16 @@ export default function ScheduledJumpsTable({
                 </TableCell>
 
                 <TableCell>
-                  <div className="flex justify-center text-black">
+                  <div className="flex justify-center text-sm font-medium text-slate-700">
                     <Chip
                       variant="flat"
                       color={
-                        jump.schedulingMethod === "BOOKING_WINDOW"
+                        scheduledJump.schedulingMethod === "BOOKING_WINDOW"
                           ? "primary"
                           : "secondary"
                       }
                     >
-                      {jump.schedulingMethod === "BOOKING_WINDOW"
+                      {scheduledJump.schedulingMethod === "BOOKING_WINDOW"
                         ? "Booking Window"
                         : "Waitlist"}
                     </Chip>
@@ -239,12 +221,15 @@ export default function ScheduledJumpsTable({
                   <div className="flex justify-center">
                     <div className="text-center">
                       <div className="text-sm font-medium text-slate-700">
-                        {formatDateShort(jump.createdAt)}
+                        {formatDateShort(scheduledJump.createdAt)}
                       </div>
                       <div className="text-xs text-slate-500">
-                        {new Date(jump.createdAt).toLocaleDateString("en-US", {
-                          weekday: "short",
-                        })}
+                        {new Date(scheduledJump.createdAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            weekday: "short",
+                          },
+                        )}
                       </div>
                     </div>
                   </div>
@@ -254,12 +239,15 @@ export default function ScheduledJumpsTable({
                   <div className="flex justify-center">
                     <div className="text-center">
                       <div className="text-sm font-medium text-slate-700">
-                        {formatDateShort(jump.updatedAt)}
+                        {formatDateShort(scheduledJump.updatedAt)}
                       </div>
                       <div className="text-xs text-slate-500">
-                        {new Date(jump.updatedAt).toLocaleDateString("en-US", {
-                          weekday: "short",
-                        })}
+                        {new Date(scheduledJump.updatedAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            weekday: "short",
+                          },
+                        )}
                       </div>
                     </div>
                   </div>
@@ -267,18 +255,15 @@ export default function ScheduledJumpsTable({
 
                 <TableCell>
                   <div className="flex justify-center gap-2">
-                    {handleJumpCancellationClick ? (
-                      <>
-                        {handleJumpCancellationClick &&
-                          jump.status !== "CANCELED" && (
-                            <button
-                              onClick={() => handleJumpCancellationClick(jump)}
-                              className="rounded bg-red-500 px-3 py-1 text-xs text-white hover:bg-red-600"
-                            >
-                              Cancel
-                            </button>
-                          )}
-                      </>
+                    {scheduledJump.status !== "CANCELED" ? (
+                      <button
+                        onClick={() =>
+                          handleJumpCancellationClick(scheduledJump)
+                        }
+                        className="rounded bg-red-500 px-3 py-1 text-xs text-white hover:bg-red-600"
+                      >
+                        Cancel
+                      </button>
                     ) : (
                       <span className="text-sm text-slate-400">--</span>
                     )}
@@ -294,6 +279,16 @@ export default function ScheduledJumpsTable({
           isOpen={isContactModalOpen}
           user={selectedUser}
           onClose={handleContactModalClose}
+        />
+      )}
+      {selectedScheduledJump && (
+        <CancelScheduleJumpConfirmationModal
+          isOpen={isScheduledJumpCancellationModalOpen}
+          scheduledJump={selectedScheduledJump}
+          onClose={handleJumpCancellationClose}
+          onConfirm={() =>
+            cancelJumpDate.mutate({ scheduledJumpId: selectedScheduledJump.id })
+          }
         />
       )}
     </>

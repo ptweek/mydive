@@ -1,11 +1,10 @@
 import { clerkClient, type User } from "@clerk/nextjs/server";
-import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "mydive/server/api/trpc";
 import {
   cancelBookingWindow,
+  cancelScheduledJump,
   removeWaitlistEntry,
 } from "mydive/server/businessLogic/bookingOperations";
-import { c } from "node_modules/framer-motion/dist/types.d-Cjd591yU";
 import z from "zod";
 
 type UserDto = {
@@ -371,103 +370,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
         throw new Error("Failed to confirm waitlist as a scheduled jump date");
       }
     }),
-
-  cancelJumpFromScheduledJumpModal: protectedProcedure
-    .input(
-      z.object({
-        scheduledJumpId: z.number(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const { scheduledJumpId } = input;
-
-      return await ctx.db.$transaction(async (tx) => {
-        // 1. Find the scheduled jump to cancel
-        const scheduledJump = await tx.scheduledJump.findUnique({
-          where: { id: scheduledJumpId },
-          include: {
-            associatedBooking: true,
-            associatedWaitlist: true,
-          },
-        });
-
-        if (!scheduledJump) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Scheduled jump not found",
-          });
-        }
-
-        // 2. Cancel the scheduled jump
-        await tx.scheduledJump.update({
-          where: { id: scheduledJumpId },
-          data: {
-            status: "CANCELED",
-            updatedAt: new Date(),
-          },
-        });
-
-        // 3. Handle waitlist logic based on scheduling method
-        if (scheduledJump.schedulingMethod === "BOOKING_WINDOW") {
-          // If this was from a booking window, check if there's a closed waitlist for this day
-          const waitlistForDay = await tx.waitlist.findFirst({
-            where: {
-              day: scheduledJump.jumpDate,
-              status: "CLOSED", // Only reopen if it was closed
-            },
-          });
-
-          if (waitlistForDay) {
-            await tx.waitlist.update({
-              where: { id: waitlistForDay.id },
-              data: {
-                status: "OPENED",
-              },
-            });
-          }
-        } else if (scheduledJump.schedulingMethod === "WAITLIST") {
-          // If this was from a waitlist, reopen that specific waitlist
-          if (scheduledJump.associatedWaitlistId) {
-            await tx.waitlist.update({
-              where: { id: scheduledJump.associatedWaitlistId },
-              data: {
-                status: "OPENED",
-              },
-            });
-          }
-        }
-
-        // 4. Check if we need to update the booking window status
-        // If there are no more confirmed jumps for this booking, set it back to PENDING
-        const remainingConfirmedJumps = await tx.scheduledJump.count({
-          where: {
-            associatedBookingId: scheduledJump.associatedBookingId,
-            status: "CONFIRMED",
-            id: { not: scheduledJumpId },
-          },
-        });
-
-        if (remainingConfirmedJumps === 0) {
-          await tx.bookingWindow.update({
-            where: { id: scheduledJump.associatedBookingId },
-            data: {
-              status: "PENDING",
-              updatedAt: new Date(),
-            },
-          });
-        }
-
-        return {
-          success: true,
-          message: "Jump canceled successfully",
-          canceledJumpId: scheduledJumpId,
-          waitlistReopened:
-            scheduledJump.schedulingMethod === "WAITLIST"
-              ? scheduledJump.associatedWaitlistId
-              : null,
-        };
-      });
-    }),
+  cancelScheduledJump,
   cancelBookingWindow,
   removeWaitlistEntry,
 });

@@ -2,10 +2,8 @@ import {
   CalendarIcon,
   CheckCircleIcon,
   ClockIcon,
-  UsersIcon,
-  MapPinIcon,
 } from "@heroicons/react/24/outline";
-import { Badge, Card, CardBody } from "@nextui-org/react";
+import { Card, CardBody } from "@nextui-org/react";
 
 export default function ScheduledJumpsStatsCards({
   stats,
@@ -85,13 +83,6 @@ export default function ScheduledJumpsStatsCards({
               <p className="text-2xl font-bold">{stats.completedJumps}</p>
               <p className="text-sm">Successfully completed</p>
             </div>
-            <Badge
-              content={stats.totalJumpers}
-              color="warning"
-              className="text-xs"
-            >
-              <UsersIcon className="h-8 w-8 text-purple-200" />
-            </Badge>
           </div>
         </CardBody>
       </Card>
