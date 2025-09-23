@@ -1,14 +1,16 @@
-import type { BookingWindowPopulatedDto } from "mydive/server/api/routers/types";
-export const CancelConfirmationModal = ({
+import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
+import type { WaitlistEntryPopulatedDto } from "mydive/server/api/routers/types";
+
+export const CancelWaitlistEntryConfirmationModal = ({
+  waitlistEntry,
   isOpen,
   onClose,
   onConfirm,
-  booking,
 }: {
+  waitlistEntry: WaitlistEntryPopulatedDto;
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  booking: BookingWindowPopulatedDto;
 }) => {
   if (!isOpen) return null;
 
@@ -19,12 +21,8 @@ export const CancelConfirmationModal = ({
           Cancel Booking
         </h3>
         <p className="mb-6 text-gray-600">
-          Are you sure you want to cancel your booking for {booking?.numJumpers}{" "}
-          jumper(s) on{" "}
-          {booking?.idealizedJumpDate
-            ? new Date(booking.idealizedJumpDate).toLocaleDateString()
-            : "N/A"}
-          ?
+          Are you sure you want to cancel your waitlist entry for on{" "}
+          {formatDateShort(waitlistEntry.waitlist.day)}?
         </p>
         <div className="flex justify-end gap-3">
           <button

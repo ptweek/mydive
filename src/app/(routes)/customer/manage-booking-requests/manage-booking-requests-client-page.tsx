@@ -2,7 +2,8 @@
 import React, { useState, useMemo } from "react";
 import { Card, CardBody } from "@nextui-org/react";
 import { api } from "mydive/trpc/react";
-import { CancelConfirmationModal } from "./components/cancel-confirmation-modal";
+
+import { CancelBookingWindowConfirmationModal } from "mydive/app/_shared-frontend/components/modals/cancellation-confirmation/booking-window";
 import type {
   BookingWindowPopulatedDto,
   WaitlistEntryPopulatedDto,
@@ -13,11 +14,11 @@ import { type BookingRequestTableRow } from "./components/booking-requests-table
 import {
   isBookingWindowPopulatedDto,
   isWaitlistEntryPopulatedDto,
-} from "mydive/app/shared-types/type-validation";
-import { getActiveScheduledJumpDatesFromBookingWindow } from "../../shared-frontend/_utils/booking";
-import { calculateBookingRequestsStats } from "../../shared-frontend/_utils/stats";
-import { CancelWaitlistEntryConfirmationModal } from "./components/cancel-waitlist-confirmation-modal";
-import BookingRequestsStatsCards from "../../shared-frontend/_components/cards/booking-requests-stats-cards";
+} from "mydive/app/_shared-types/type-validation";
+import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_shared-frontend/utils/booking";
+import { calculateBookingRequestsStats } from "mydive/app/_shared-frontend/utils/stats";
+import { CancelWaitlistEntryConfirmationModal } from "mydive/app/_shared-frontend/components/modals/cancellation-confirmation/waitlist-entry";
+import BookingRequestsStatsCards from "mydive/app/_shared-frontend/components/cards/booking-requests-stats-cards";
 import { useRouter } from "next/navigation";
 
 export default function ManageBookingRequestsClient({
@@ -28,10 +29,6 @@ export default function ManageBookingRequestsClient({
   loadedWaitlistEntries: WaitlistEntryPopulatedDto[];
 }) {
   const router = useRouter();
-  // Load States
-  const [bookingWindows, setBookingWindows] = useState<
-    BookingWindowPopulatedDto[]
-  >(loadedBookingWindows ?? []);
 
   // Modal States
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
@@ -52,8 +49,11 @@ export default function ManageBookingRequestsClient({
 
   // Statistics calculation
   const stats = useMemo(() => {
-    return calculateBookingRequestsStats(bookingWindows, loadedWaitlistEntries);
-  }, [bookingWindows, loadedWaitlistEntries]);
+    return calculateBookingRequestsStats(
+      loadedBookingWindows,
+      loadedWaitlistEntries,
+    );
+  }, [loadedBookingWindows, loadedWaitlistEntries]);
 
   const formattedTableData = useMemo(() => {
     const formattedBookingWindowsData: BookingRequestTableRow[] =
@@ -173,10 +173,8 @@ export default function ManageBookingRequestsClient({
       },
       onError: (error) => {
         console.error("Failed to cancel booking:", error.message);
-        // You could add a toast notification here
       },
     });
-
   const cancelWaitlistEntry =
     api.customerBookingManager.removeWaitlistEntry.useMutation({
       onSuccess: async () => {
@@ -190,18 +188,18 @@ export default function ManageBookingRequestsClient({
     });
 
   // Handlers
-  const handleCancelClick = (booking: BookingWindowPopulatedDto) => {
+  const handleCancelBookingWindowClick = (
+    booking: BookingWindowPopulatedDto,
+  ) => {
     setSelectedBookingWindow(booking);
     setCancelModalOpen(true);
   };
-
-  const handleWaitlistEntryCancelClick = (
+  const handleCancelWaitlistEntryClick = (
     waitlistEntry: WaitlistEntryPopulatedDto,
   ) => {
     setSelectedWaitlistEntry(waitlistEntry);
     setWaitlistEntryCancellationModalOpen(true);
   };
-
   const handleConfirmWaitlistEntryCancellation = () => {
     if (selectedWaitlistEntry) {
       cancelWaitlistEntry.mutate({
@@ -209,7 +207,6 @@ export default function ManageBookingRequestsClient({
       });
     }
   };
-
   const handleConfirmCancel = () => {
     if (selectedBookingWindow) {
       cancelBookingMutation.mutate({
@@ -230,6 +227,7 @@ export default function ManageBookingRequestsClient({
         </div>
         {/* Stats Cards */}
         <BookingRequestsStatsCards stats={stats} />
+        {/* Table */}
         <Card className="shadow-2xl">
           <CardBody className="bg-white p-0">
             <BookingRequestsTableFilters
@@ -242,23 +240,25 @@ export default function ManageBookingRequestsClient({
             <div className="h-[400px] overflow-auto">
               <BookingRequestsTable
                 tableData={filteredBookings}
-                handleBookingWindowCancellationClick={handleCancelClick}
+                handleBookingWindowCancellationClick={
+                  handleCancelBookingWindowClick
+                }
                 handleWaitlistEntryCancellationClick={
-                  handleWaitlistEntryCancelClick
+                  handleCancelWaitlistEntryClick
                 }
               />
             </div>
           </CardBody>
         </Card>
         {selectedBookingWindow && (
-          <CancelConfirmationModal
+          <CancelBookingWindowConfirmationModal
             isOpen={cancelModalOpen}
             onClose={() => {
               setCancelModalOpen(false);
               setSelectedBookingWindow(null);
             }}
             onConfirm={handleConfirmCancel}
-            booking={selectedBookingWindow}
+            bookingWindow={selectedBookingWindow}
           />
         )}
         {selectedWaitlistEntry && (
@@ -271,16 +271,6 @@ export default function ManageBookingRequestsClient({
             onConfirm={handleConfirmWaitlistEntryCancellation}
             waitlistEntry={selectedWaitlistEntry}
           />
-        )}
-        {cancelBookingMutation.isPending && (
-          <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
-            <div className="rounded-lg bg-white p-6">
-              <div className="flex items-center gap-3">
-                <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
-                <span>Canceling booking...</span>
-              </div>
-            </div>
-          </div>
         )}
       </div>
     </div>

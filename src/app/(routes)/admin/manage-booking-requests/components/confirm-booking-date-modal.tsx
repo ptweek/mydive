@@ -1,5 +1,5 @@
 "use client";
-import { getActiveScheduledJumpDates } from "mydive/app/shared-frontend/_utils/booking";
+import { getActiveScheduledJumpDates } from "mydive/app/_shared-frontend/utils/booking";
 import { api } from "mydive/trpc/react";
 import { useState, useEffect, useCallback } from "react";
 import type { BookingTableRow } from "../client-page";

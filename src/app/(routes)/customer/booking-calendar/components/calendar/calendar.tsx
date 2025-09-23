@@ -25,7 +25,7 @@ import { Button } from "@nextui-org/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { api } from "mydive/trpc/react";
-import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/shared-frontend/_utils/booking";
+import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_shared-frontend/utils/booking";
 const localizer = momentLocalizer(moment);
 export default function SchedulingCalendar({ userId }: { userId: string }) {
   const router = useRouter();

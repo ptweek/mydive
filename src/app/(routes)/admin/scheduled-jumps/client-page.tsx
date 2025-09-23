@@ -1,11 +1,11 @@
 "use client";
 
 import type { ScheduledJump } from "@prisma/client";
-import ScheduledJumpsStatsCards from "mydive/app/shared-frontend/_components/cards/scheduled-jumps-stats-cards";
-import { computeScheduledJumpStats } from "mydive/app/shared-frontend/_utils/stats";
+import ScheduledJumpsStatsCards from "mydive/app/_shared-frontend/components/cards/scheduled-jumps-stats-cards";
+import { computeScheduledJumpStats } from "mydive/app/_shared-frontend/utils/stats";
 import type { UserDto } from "mydive/server/api/routers/types";
 import { useMemo } from "react";
-import ScheduledJumpsTable from "mydive/app/shared-frontend/_components/tables/scheduled-jump/table";
+import ScheduledJumpsTable from "mydive/app/_shared-frontend/components/tables/scheduled-jump/table";
 import { Card, CardBody } from "@nextui-org/react";
 
 export default function AdminScheduledJumpsClient({

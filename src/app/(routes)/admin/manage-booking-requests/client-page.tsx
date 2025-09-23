@@ -35,9 +35,9 @@ import AdminWaitlistModal from "./components/admin-waitlist-modal";
 import {
   formatDateShort,
   getActiveScheduledJumps,
-} from "mydive/app/shared-frontend/_utils/booking";
+} from "mydive/app/_shared-frontend/utils/booking";
 import AdminScheduledJumpModal from "./components/admin-scheduled-jump-modal";
-import { getBookingStatusIcon } from "mydive/app/shared-frontend/_components/statusIcons";
+import { getBookingStatusIcon } from "mydive/app/_shared-frontend/components/statusIcons";
 import { useRouter } from "next/navigation";
 
 export interface WaitlistEntryWithUser extends WaitlistEntry {

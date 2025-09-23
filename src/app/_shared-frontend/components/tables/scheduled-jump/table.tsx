@@ -3,7 +3,7 @@ import type { BookingStatus, ScheduledJump } from "@prisma/client";
 import type { UserDto } from "mydive/server/api/routers/types";
 import { useMemo, useState } from "react";
 import { ContactModal } from "../../modals/contact-modal";
-import { CancelScheduleJumpConfirmationModal } from "../../modals/scheduled-jump-cancel-confirmation-modal";
+import { CancelScheduleJumpConfirmationModal } from "../../modals/cancellation-confirmation/scheduled-jump";
 import { api } from "mydive/trpc/react";
 import ScheduledJumpsTableFilters from "./filters";
 import { getColumns, getTableCells } from "./table-helpers";

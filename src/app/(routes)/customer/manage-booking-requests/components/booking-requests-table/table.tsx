@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import { formatDateShort } from "mydive/app/shared-frontend/_utils/booking";
+import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
 import type {
   BookingWindowPopulatedDto,
   WaitlistEntryPopulatedDto,
@@ -22,9 +22,9 @@ import type { BookingStatus } from "@prisma/client";
 import {
   isBookingWindowPopulatedDto,
   isWaitlistEntryPopulatedDto,
-} from "mydive/app/shared-types/type-validation";
+} from "mydive/app/_shared-types/type-validation";
 import { WaitlistEntryActionsDropdown } from "./waitlist-actions-dropdown";
-import { getBookingStatusIcon } from "mydive/app/shared-frontend/_components/statusIcons";
+import { getBookingStatusIcon } from "mydive/app/_shared-frontend/components/statusIcons";
 
 export type BookingRequestTableRow = {
   type: "BOOKING_WINDOW" | "WAITLIST_ENTRY";
