@@ -36,13 +36,9 @@ export default function HomePageClient() {
             mode="redirect"
             forceRedirectUrl={"/customer/booking-calendar"}
           >
-            <Button
-              size="lg"
-              variant="shadow"
-              className="min-h-[48px] w-full cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-700 text-sm font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30 sm:min-h-[52px] sm:w-44 sm:text-base lg:w-48 lg:text-lg"
-            >
+            <button className="min-h-[48px] w-full transform cursor-pointer touch-manipulation bg-gradient-to-r from-blue-600 to-indigo-700 text-sm font-semibold tracking-wider text-white uppercase shadow-xl transition-all duration-300 hover:scale-[1.02] hover:from-blue-500 hover:to-indigo-600 hover:shadow-2xl hover:shadow-blue-500/30 active:scale-[0.98] sm:min-h-[52px] sm:w-44 sm:text-base lg:w-48 lg:text-lg">
               Book Now
-            </Button>
+            </button>
           </SignUpButton>
         )}
 

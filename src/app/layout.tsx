@@ -1,6 +1,6 @@
-// Updated layout.tsx with better mobile navigation handling
+// Updated layout.tsx with proper viewport configuration
 import "mydive/styles/globals.css";
-import { type Metadata } from "next";
+import { type Metadata, type Viewport } from "next";
 import {
   SignInButton,
   SignUpButton,
@@ -19,7 +19,11 @@ export const metadata: Metadata = {
   title: "MyDive Skydiving",
   description: "Private Skydiving. Anywhere.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
-  viewport: "width=device-width, initial-scale=1.0",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1.0,
 };
 
 const geist = Geist({
@@ -34,9 +38,6 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${geist.variable}`}>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </head>
       <body className="overflow-x-hidden">
         <Providers>
           <header className="fixed top-0 right-0 left-0 z-50 flex h-16 w-full items-center justify-between bg-black/10 px-3 backdrop-blur-sm sm:px-4">
@@ -59,7 +60,7 @@ export default async function RootLayout({
                 </span>
               )}
               <SignedOut>
-                <div className="xs:block">
+                <div className="block">
                   <SignInButton>
                     <button className="px-2 py-1 text-sm text-black hover:text-gray-300">
                       Sign In
