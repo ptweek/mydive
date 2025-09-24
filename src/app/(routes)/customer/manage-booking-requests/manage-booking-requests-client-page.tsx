@@ -216,40 +216,51 @@ export default function ManageBookingRequestsClient({
   };
 
   return (
-    <div className="z-0 p-4 md:p-8">
-      <div className="mx-auto max-w-7xl">
+    <div className="flex h-full flex-col px-2 pb-2 sm:px-4 sm:pb-4 md:px-6 md:pb-6">
+      <div className="flex h-full flex-col">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="mb-2 text-4xl font-bold text-gray-900">
+        <div className="mb-3 flex-shrink-0 pt-2 text-center sm:mb-4 sm:pt-3 sm:text-left md:mb-6 md:pt-4">
+          <h1 className="mb-2 text-2xl font-bold text-white drop-shadow-lg sm:text-3xl md:text-4xl">
             Booking Requests Manager
           </h1>
-          <p className="text-gray-600">Manage and track all your requests</p>
+          <p className="text-sm text-gray-100 drop-shadow sm:text-base">
+            Manage and track all your requests
+          </p>
         </div>
+
         {/* Stats Cards */}
-        <BookingRequestsStatsCards stats={stats} />
-        {/* Table */}
-        <Card className="shadow-2xl">
-          <CardBody className="bg-white p-0">
-            <BookingRequestsTableFilters
-              numVisibleRows={filteredBookings.length}
-              showCancelled={showCancelled}
-              setShowCancelled={setShowCancelled}
-              showPast={showPast}
-              setShowPast={setShowPast}
-            />
-            <div className="h-[400px] overflow-auto">
-              <BookingRequestsTable
-                tableData={filteredBookings}
-                handleBookingWindowCancellationClick={
-                  handleCancelBookingWindowClick
-                }
-                handleWaitlistEntryCancellationClick={
-                  handleCancelWaitlistEntryClick
-                }
-              />
-            </div>
-          </CardBody>
-        </Card>
+        <div className="mb-3 flex-shrink-0 sm:mb-4">
+          <BookingRequestsStatsCards stats={stats} />
+        </div>
+
+        {/* Table - Takes remaining space */}
+        <div className="mb-5 min-h-0 flex-1">
+          <Card className="h-full bg-white/95 shadow-2xl backdrop-blur-sm">
+            <CardBody className="flex h-full flex-col p-0">
+              <div className="flex-shrink-0">
+                <BookingRequestsTableFilters
+                  numVisibleRows={filteredBookings.length}
+                  showCancelled={showCancelled}
+                  setShowCancelled={setShowCancelled}
+                  showPast={showPast}
+                  setShowPast={setShowPast}
+                />
+              </div>
+              <div className="min-h-0 flex-1 overflow-auto">
+                <BookingRequestsTable
+                  tableData={filteredBookings}
+                  handleBookingWindowCancellationClick={
+                    handleCancelBookingWindowClick
+                  }
+                  handleWaitlistEntryCancellationClick={
+                    handleCancelWaitlistEntryClick
+                  }
+                />
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+
         {selectedBookingWindow && (
           <CancelBookingWindowConfirmationModal
             isOpen={cancelModalOpen}

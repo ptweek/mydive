@@ -14,7 +14,7 @@ export default async function ManageBookingsRequestsPage() {
     });
   return (
     <HydrateClient>
-      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-white">
+      <main className="relative flex h-screen flex-col overflow-hidden text-white">
         {/* Background Video */}
         <video
           autoPlay
@@ -26,11 +26,16 @@ export default async function ManageBookingsRequestsPage() {
           <source src="/videos/skydiving-background.mp4" type="video/mp4" />
         </video>
 
+        {/* Dark overlay for better text readability on mobile */}
+        <div className="absolute inset-0 z-10 bg-black/30 sm:bg-black/20" />
+
         {/* Content */}
-        <ManageBookingRequestsClient
-          loadedBookingWindows={bookingWindows}
-          loadedWaitlistEntries={waitlistEntries}
-        />
+        <div className="relative z-20 flex h-full flex-col pt-16 sm:pt-20">
+          <ManageBookingRequestsClient
+            loadedBookingWindows={bookingWindows}
+            loadedWaitlistEntries={waitlistEntries}
+          />
+        </div>
       </main>
     </HydrateClient>
   );
