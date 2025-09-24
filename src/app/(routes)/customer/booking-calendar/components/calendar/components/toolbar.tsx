@@ -1,12 +1,13 @@
 import clsx from "clsx";
 import moment from "moment";
+import { useState } from "react";
 import type { ToolbarProps } from "react-big-calendar";
 
 const generateDateOptions = () => {
   const options = [];
   const currentDate = new Date();
 
-  // Generate options for next 24 months
+  // Generate options for next 36 months
   for (let i = 0; i < 36; i++) {
     const optionDate = new Date(
       currentDate.getFullYear(),
@@ -24,6 +25,7 @@ const generateDateOptions = () => {
 };
 
 export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
   const dateOptions = generateDateOptions();
   const isFirstMonth = moment(date).isSame(dateOptions[0]?.value, "month");
   const isLastMonth = moment(date).isSame(
@@ -31,7 +33,14 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
     "month",
   );
 
-  const handleDateSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleDateSelect = (selectedDate: Date) => {
+    onNavigate("DATE", selectedDate);
+    setIsMobileDropdownOpen(false);
+  };
+
+  const handleDesktopDateSelect = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
     const selectedDate = new Date(event.target.value);
     onNavigate("DATE", selectedDate);
   };
@@ -53,57 +62,165 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
   );
 
   return (
-    <div className="mb-6 flex flex-col items-center justify-between gap-4 rounded-lg border bg-white p-4 shadow-sm sm:flex-row">
-      {/* Navigation buttons */}
-      <div className="flex items-center space-x-2">
-        <button
-          disabled={isFirstMonth}
-          onClick={handlePrevClick}
-          className={clsx(
-            "rounded-lg px-4 py-2 font-medium transition-colors",
-            {
-              "cursor-not-allowed bg-gray-300 text-gray-500": isFirstMonth,
-              "bg-blue-500 text-white hover:bg-blue-600": !isFirstMonth,
-            },
+    <div className="mb-4 sm:mb-6">
+      {/* Mobile Layout */}
+      <div className="flex flex-col gap-3 rounded-lg border bg-white p-3 shadow-sm sm:hidden">
+        {/* Current Month Title */}
+        <div className="text-center">
+          <h2 className="text-lg font-bold text-gray-900">
+            {moment(date).format("MMMM YYYY")}
+          </h2>
+        </div>
+
+        {/* Navigation Row */}
+        <div className="flex items-center justify-between gap-2">
+          <button
+            disabled={isFirstMonth}
+            onClick={handlePrevClick}
+            className={clsx(
+              "flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              {
+                "cursor-not-allowed bg-gray-300 text-gray-500": isFirstMonth,
+                "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700":
+                  !isFirstMonth,
+              },
+            )}
+          >
+            ← Prev
+          </button>
+
+          <button
+            onClick={handleTodayClick}
+            className="flex-1 rounded-md bg-gray-700 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800 active:bg-gray-900"
+          >
+            Today
+          </button>
+
+          <button
+            disabled={isLastMonth}
+            onClick={handleNextClick}
+            className={clsx(
+              "flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              {
+                "cursor-not-allowed bg-gray-300 text-gray-500": isLastMonth,
+                "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700":
+                  !isLastMonth,
+              },
+            )}
+          >
+            Next →
+          </button>
+        </div>
+
+        {/* Custom Mobile Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
+            className="flex w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          >
+            <span>{currentDateOption?.label ?? dateOptions[0]?.label}</span>
+            <svg
+              className={`h-4 w-4 transition-transform duration-200 ${
+                isMobileDropdownOpen ? "rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+
+          {/* Mobile Dropdown Menu */}
+          {isMobileDropdownOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-40 bg-black/20"
+                onClick={() => setIsMobileDropdownOpen(false)}
+              />
+              <div className="absolute top-full right-0 left-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                {dateOptions.map((option) => (
+                  <button
+                    key={option.key}
+                    onClick={() => handleDateSelect(option.value)}
+                    className={clsx(
+                      "w-full px-3 py-3 text-left text-sm hover:bg-gray-50 focus:bg-blue-50 focus:outline-none",
+                      {
+                        "bg-blue-100 font-medium text-blue-900": moment(
+                          option.value,
+                        ).isSame(moment(date), "month"),
+                        "text-gray-700": !moment(option.value).isSame(
+                          moment(date),
+                          "month",
+                        ),
+                      },
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
-        >
-          ← Prev
-        </button>
-        <button
-          onClick={handleTodayClick}
-          className="rounded-lg bg-gray-700 px-4 py-2 font-medium text-white transition-colors hover:bg-gray-800"
-        >
-          This month
-        </button>
-        <button
-          disabled={isLastMonth}
-          onClick={handleNextClick}
-          className={clsx(
-            "rounded-lg px-4 py-2 font-medium transition-colors",
-            {
-              "cursor-not-allowed bg-gray-300 text-gray-500": isLastMonth,
-              "bg-blue-500 text-white hover:bg-blue-600": !isLastMonth,
-            },
-          )}
-        >
-          Next →
-        </button>
+        </div>
       </div>
 
-      <h2 className="text-xl font-bold text-gray-900">
-        {moment(date).format("MMMM YYYY")}
-      </h2>
+      {/* Desktop Layout */}
+      <div className="hidden items-center justify-between gap-4 rounded-lg border bg-white p-4 shadow-sm sm:flex">
+        {/* Navigation buttons */}
+        <div className="flex items-center space-x-2">
+          <button
+            disabled={isFirstMonth}
+            onClick={handlePrevClick}
+            className={clsx(
+              "rounded-lg px-4 py-2 font-medium transition-colors",
+              {
+                "cursor-not-allowed bg-gray-300 text-gray-500": isFirstMonth,
+                "bg-blue-500 text-white hover:bg-blue-600": !isFirstMonth,
+              },
+            )}
+          >
+            ← Prev
+          </button>
+          <button
+            onClick={handleTodayClick}
+            className="rounded-lg bg-gray-700 px-4 py-2 font-medium text-white transition-colors hover:bg-gray-800"
+          >
+            This month
+          </button>
+          <button
+            disabled={isLastMonth}
+            onClick={handleNextClick}
+            className={clsx(
+              "rounded-lg px-4 py-2 font-medium transition-colors",
+              {
+                "cursor-not-allowed bg-gray-300 text-gray-500": isLastMonth,
+                "bg-blue-500 text-white hover:bg-blue-600": !isLastMonth,
+              },
+            )}
+          >
+            Next →
+          </button>
+        </div>
 
-      {/* Center section with current month and dropdown */}
-      <div className="flex flex-col items-center space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4">
-        {/* Month/Year Dropdown */}
+        {/* Current Month Title */}
+        <h2 className="text-xl font-bold text-gray-900">
+          {moment(date).format("MMMM YYYY")}
+        </h2>
+
+        {/* Desktop Month/Year Dropdown */}
         <div className="relative">
           <select
             value={
               currentDateOption?.value.toISOString() ??
               dateOptions[0]?.value.toISOString()
             }
-            onChange={handleDateSelect}
+            onChange={handleDesktopDateSelect}
             className="min-w-[160px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-700 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           >
             {dateOptions.map((option) => (

@@ -1,7 +1,7 @@
 import { HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import CalendarClient from "./components/calendar/calendar";
+import CalendarClientPage from "./client-page";
 
 export default async function CalendarPage() {
   const user = await currentUser();
@@ -12,7 +12,7 @@ export default async function CalendarPage() {
 
   return (
     <HydrateClient>
-      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-white">
+      <main className="relative min-h-screen overflow-hidden pt-16 text-white">
         {/* Background Video */}
         <video
           autoPlay
@@ -23,12 +23,14 @@ export default async function CalendarPage() {
         >
           <source src="/videos/skydiving-background.mp4" type="video/mp4" />
         </video>
-        x{/* Dark overlay for better text readability */}
+
+        {/* Dark overlay for better text readability */}
         <div className="absolute inset-0 z-0 bg-black/40"></div>
+
         {/* Content */}
-        <div className="z-10 flex w-full justify-center">
-          <div className="w-3/4">
-            <CalendarClient userId={user.id} />
+        <div className="relative z-10 w-full px-2 py-4 sm:px-4 sm:py-6 lg:px-6 lg:py-8">
+          <div className="mx-auto max-w-7xl">
+            <CalendarClientPage userId={user.id} />
           </div>
         </div>
       </main>

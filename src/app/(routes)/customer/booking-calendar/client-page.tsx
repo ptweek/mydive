@@ -3,14 +3,13 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Calendar, momentLocalizer, type SlotInfo } from "react-big-calendar";
 import moment from "moment";
-import CalendarToolbar from "./components/toolbar";
-import EventComponent from "./components/event";
-import CalendarLegend from "./components/calendar-legend";
-import EventCreationModal from "./components/event-creation-modal";
-import type { CalendarEvent } from "./types";
-
+import CalendarToolbar from "./components/calendar/components/toolbar";
+import EventComponent from "./components/calendar/components/event";
+import CalendarLegend from "./components/calendar/components/calendar-legend";
+import EventCreationModal from "./components/calendar/components/event-creation-modal";
+import type { CalendarEvent } from "./components/calendar/types";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import "./calendar-overrides.css"; // Add this line
+import "./components/calendar/calendar-overrides.css";
 import {
   findBookingByDate,
   isDateBookable,
@@ -19,15 +18,17 @@ import {
   isDatePartOfEvent,
   isDatePartOfYourEvent,
   isIdealizedDay,
-} from "./helpers";
-import WaitlistModal from "./components/waitlist-modal";
+} from "./components/calendar/helpers";
+import WaitlistModal from "./components/calendar/components/waitlist-modal";
 import { Button } from "@nextui-org/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { api } from "mydive/trpc/react";
 import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_shared-frontend/utils/booking";
+
 const localizer = momentLocalizer(moment);
-export default function SchedulingCalendar({ userId }: { userId: string }) {
+
+export default function CalendarClientPage({ userId }: { userId: string }) {
   const router = useRouter();
   const [showEventForm, setShowEventForm] = useState(false);
   const [showWaitlistForm, setShowWaitlistForm] = useState(false);
@@ -49,16 +50,14 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
     {
       refetchOnMount: true,
       refetchOnWindowFocus: true,
-      staleTime: 0, // Data is immediately considered stale
-      gcTime: 0, // Don't cache the data
+      staleTime: 0,
+      gcTime: 0,
     },
   );
+
   const createBookingMutation = api.bookingWindow.createBooking.useMutation({
     onSuccess: () => {
-      // Invalidate and refetch bookings after successful creation
-      // Show nice success alert
       setShowSuccessAlert(true);
-      // Wait 2 seconds, then navigate
       setTimeout(() => {
         router.push("/customer/dashboard");
       }, 2000);
@@ -71,31 +70,30 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
 
   useEffect(() => {
     if (data && !isLoading) {
-      // Transform your API data into CalendarEvent format
       const transformedEvents: CalendarEvent[] = data.bookings.map(
         (booking) => {
           const confirmedJumpDates = booking?.scheduledJumpDates
             ? getActiveScheduledJumpDatesFromBookingWindow(booking)
             : undefined;
           return {
-            start: new Date(booking.windowStartDate), // assuming your API returns startDate
-            end: new Date(booking.windowEndDate), // assuming your API returns endDate
+            start: new Date(booking.windowStartDate),
+            end: new Date(booking.windowEndDate),
             idealizedDay: new Date(booking.idealizedJumpDate),
             numJumpers: booking.numJumpers,
             bookedBy: booking.bookedBy,
             resource: "custom-3day",
             confirmedJumpDays: confirmedJumpDates,
-            // Add any other properties you need from your booking data
           };
         },
       );
-
       setEvents(transformedEvents);
     }
   }, [data, isLoading]);
+
   const clearNewBooking = () => {
     setNewEvent(null);
   };
+
   const handleBookNow = async () => {
     if (!newEvent) return;
     try {
@@ -106,7 +104,6 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
       const windowEndDate = new Date(windowStartDay);
       windowEndDate.setDate(windowEndDate.getDate() + 2);
 
-      // Create the booking using the tRPC mutation
       createBookingMutation.mutate({
         numJumpers: newEvent.numJumpers,
         windowStartDate: windowStartDay,
@@ -119,8 +116,8 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
       alert("Error submitting booking. Please try again.");
     }
   };
+
   const handleSelectSlot = (slotInfo: SlotInfo, userId: string) => {
-    // Only allow for the creation of one event
     if (!!newEvent) {
       return;
     }
@@ -157,16 +154,19 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
       setShowEventForm(true);
     }
   };
+
   const createEvent = () => {
     if (!newEvent) {
       return;
     }
-    setEvents([...events]); // hacky, needs fix
+    setEvents([...events]);
     setShowEventForm(false);
   };
+
   const handleNavigate = useCallback((newDate: Date) => {
     setCurrentDate(newDate);
   }, []);
+
   const dayPropGetter = useCallback(
     (date: Date) => {
       const unbookableStyling = {
@@ -174,7 +174,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
           background:
             "repeating-linear-gradient(45deg, #ffffff, #ffffff 2px, #f1f5f9 2px, #f1f5f9 6px)",
           opacity: 0.9,
-          pointerEvents: "none" as const, // Disable interactions
+          pointerEvents: "none" as const,
         },
       };
 
@@ -187,9 +187,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
       }
       const isConfirmedJumpDate = isDateConfirmedJumpdate(date, events);
 
-      // If it's a confirmed jump day, style as reserved (red)
       if (isConfirmedJumpDate) {
-        // Find the event that has this confirmed jump day to check if it's a user booking
         const confirmedJumpEvent = events.find((event) =>
           event.confirmedJumpDays?.some((jumpDay) =>
             moment(jumpDay).isSame(moment(date), "day"),
@@ -201,7 +199,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
           style: {
             backgroundColor: "#fecaca",
             fontWeight: "700",
-            color: "#dc2626", // Darker red text
+            color: "#dc2626",
             position: "relative" as const,
             boxShadow: isUserConfirmedJump
               ? "0 2px 4px rgba(0, 0, 0, 0.1)"
@@ -212,12 +210,12 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
             : "confirmed-jump-day",
         };
       }
+
       if (newEvent) {
         const newEventStart = moment(newEvent.start);
         const newEventEnd = moment(newEvent.start).add(3, "days");
         const checkDate = moment(date);
 
-        // Check if current date falls within the newEvent's 3-day range
         if (checkDate.isBetween(newEventStart, newEventEnd, "day", "[)")) {
           const isNewEventIdealizedDay = moment(date).isSame(
             moment(newEvent.idealizedDay),
@@ -225,23 +223,20 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
           );
 
           if (isNewEventIdealizedDay) {
-            // GREEN for new event's idealized day with diagonal stripes and strikethrough
             return {
               style: {
                 background: "#86efac",
                 fontWeight: "700",
-                // textDecoration: "line-through", // Strikethrough to show it's the idealized day
-                opacity: 1, // Slightly transparent
+                opacity: 1,
               },
             };
           } else {
-            // LIGHTER GREEN for other new event days with diagonal stripes (no strikethrough)
             return {
               style: {
                 backgroundColor: "#dcfce7",
                 fontWeight: "700",
-                opacity: 0.8, // Slightly transparent
-                textDecoration: "line-through", // Strikethrough to show it's the idealized day
+                opacity: 0.8,
+                textDecoration: "line-through",
               },
             };
           }
@@ -255,20 +250,17 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
           moment(event.start).isSame(moment(date).subtract(2, "day"), "day")
         );
       });
+
       if (maybeEvent) {
         const isIdealizedDay = moment(date).isSame(
           moment(maybeEvent.idealizedDay),
           "day",
         );
-
-        // Check if this booking belongs to the current user
         const isUserBooking = maybeEvent.bookedBy === userId;
 
         const baseStyle = {
           fontWeight: isIdealizedDay ? "700" : "600",
-          // Add thicker border for user bookings
           borderRadius: "4px",
-          // Add relative positioning for potential icon overlay
           position: "relative" as const,
         };
 
@@ -277,12 +269,10 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
             style: {
               ...baseStyle,
               backgroundColor: "#fecaca",
-              // Add subtle box shadow for user bookings
               boxShadow: isUserBooking
                 ? "0 2px 4px rgba(0, 0, 0, 0.1)"
                 : "none",
             },
-            // Add data attribute for potential icon styling via CSS
             className: isUserBooking
               ? "user-booking idealized-day"
               : "idealized-day",
@@ -300,68 +290,77 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
           };
         }
       }
-      // Check if this day is bookable (no events in this day + next 2 days)
+
       const isBookable = isDateBookable(date, events);
 
       if (!isBookable) {
-        // Subtle diagonal stripe pattern for non-bookable days
         return {
           style: {
             background:
               "repeating-linear-gradient(45deg, #ffffff, #ffffff 2px, #f1f5f9 2px, #f1f5f9 6px)",
-            color: "#64748b", // Slate gray text
+            color: "#64748b",
             opacity: 0.9,
-            textDecoration: "line-through", // Add strikethrough for extra visual indication
+            textDecoration: "line-through",
           },
         };
       }
 
-      return {}; // No styling for days without events
+      return {};
     },
     [events, isLoading, newEvent, userId],
   );
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="mb-2 text-3xl font-bold">Scheduling Calendar</h1>
-        <p className="text-white">
+    <div className="w-full space-y-4 sm:space-y-6">
+      {/* Header - Mobile Optimized */}
+      <div className="px-2 sm:px-0">
+        <h1 className="text-2xl font-bold sm:text-3xl">Scheduling Calendar</h1>
+        <p className="mt-2 text-sm text-gray-200 sm:text-base">
           Book an isolated three day window, or hop on the waitlist.
         </p>
       </div>
-      {/* Calendar */}
-      <CalendarLegend />
-      <div
-        style={{ height: "600px" }}
-        className="rounded-lg bg-white p-4 text-black shadow-lg"
-      >
-        <Calendar
-          localizer={localizer} // Date handling utility
-          events={[]} // Array of events to display
-          startAccessor="start" // Which property contains event start time
-          endAccessor="end" // Which property contains event end time
-          style={{ height: 500 }} // Fixed height for calendar (keep as inline style for Big React Calendar)
-          date={currentDate}
-          onNavigate={handleNavigate}
-          onSelectSlot={(slotInfo) => handleSelectSlot(slotInfo, userId)}
-          selectable={true} // Enables clicking on empty slots
-          dayPropGetter={dayPropGetter}
-          components={{
-            toolbar: CalendarToolbar,
-            event: EventComponent,
-          }}
-          views={["month"]} // Available calendar views
-          step={60} // Time slot step in minutes (for week/day views)
-          showMultiDayTimes // Show times for multi-day events
-        />
-        <div className="mt-4 flex justify-end space-x-3">
+
+      {/* Calendar Legend - Mobile Optimized */}
+      <div className="px-2 sm:px-0">
+        <CalendarLegend />
+      </div>
+
+      {/* Calendar Container - Mobile Optimized */}
+      <div className="mx-2 overflow-hidden rounded-lg bg-white p-2 text-black shadow-lg sm:mx-0 sm:p-4">
+        <div style={{ height: "450px" }} className="sm:h-[600px]">
+          <Calendar
+            localizer={localizer}
+            events={[]}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: "100%" }}
+            date={currentDate}
+            onNavigate={handleNavigate}
+            onSelectSlot={(slotInfo) => {
+              console.log("Slot selected:", slotInfo);
+              handleSelectSlot(slotInfo, userId);
+            }}
+            selectable={true}
+            dayPropGetter={dayPropGetter}
+            components={{
+              toolbar: CalendarToolbar,
+              event: EventComponent,
+            }}
+            views={["month"]}
+            step={60}
+            showMultiDayTimes
+          />
+        </div>
+
+        {/* Action Buttons - Mobile Optimized */}
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-end sm:space-y-0 sm:space-x-3">
           <Button
             size="lg"
             variant="shadow"
             disabled={!newEvent}
             onPress={clearNewBooking}
             className={clsx(
-              "px-3 py-3 text-lg font-semibold tracking-wider uppercase transition-all duration-200",
+              "w-full px-3 py-3 text-sm font-semibold tracking-wider uppercase transition-all duration-200 sm:w-auto sm:text-lg",
               !newEvent
                 ? "cursor-not-allowed bg-gray-400 text-gray-200 shadow-none hover:bg-gray-400 hover:shadow-none"
                 : "bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30",
@@ -375,7 +374,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
             disabled={!newEvent}
             onPress={handleBookNow}
             className={clsx(
-              "px-3 py-3 text-lg font-semibold tracking-wider uppercase transition-all duration-200",
+              "w-full px-3 py-3 text-sm font-semibold tracking-wider uppercase transition-all duration-200 sm:w-auto sm:text-lg",
               !newEvent
                 ? "cursor-not-allowed bg-gray-400 text-gray-200 shadow-none hover:bg-gray-400 hover:shadow-none"
                 : "bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30",
@@ -385,6 +384,8 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
           </Button>
         </div>
       </div>
+
+      {/* Modals */}
       {showEventForm && newEvent && (
         <EventCreationModal
           newEvent={newEvent}
@@ -393,6 +394,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
           createEvent={createEvent}
         />
       )}
+
       {showWaitlistForm && selectedWaitlistDate && selectedBookingId && (
         <WaitlistModal
           day={selectedWaitlistDate}
@@ -406,6 +408,7 @@ export default function SchedulingCalendar({ userId }: { userId: string }) {
         />
       )}
 
+      {/* Success Alert */}
       {showSuccessAlert && (
         <div className="animate-in slide-in-from-right fixed top-20 right-4 z-[9999] duration-300">
           <div className="rounded-lg border border-green-400 bg-green-500 px-6 py-4 text-white shadow-2xl">
