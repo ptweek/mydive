@@ -1,5 +1,5 @@
 import { HydrateClient } from "mydive/trpc/server";
-import HomePageClient from "./homepage-client";
+import HomePageClient from "./client-page";
 import { checkRole } from "mydive/utils/roles";
 import { redirect } from "next/navigation";
 

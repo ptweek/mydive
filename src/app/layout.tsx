@@ -1,3 +1,4 @@
+// Updated layout.tsx with better mobile navigation handling
 import "mydive/styles/globals.css";
 import { type Metadata } from "next";
 import {
@@ -18,21 +19,29 @@ export const metadata: Metadata = {
   title: "MyDive Skydiving",
   description: "Private Skydiving. Anywhere.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+  viewport: "width=device-width, initial-scale=1.0",
 };
+
 const geist = Geist({
   subsets: ["latin"],
   variable: "--font-geist-sans",
 });
+
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const isAdmin = await checkRole("admin");
+
   return (
     <html lang="en" className={`${geist.variable}`}>
-      <body>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      <body className="overflow-x-hidden">
         <Providers>
-          <header className="fixed top-0 right-0 left-0 z-50 flex h-16 items-center justify-between bg-black/10 px-4 backdrop-blur-sm">
-            <div className="flex items-center gap-6">
+          <header className="fixed top-0 right-0 left-0 z-50 flex h-16 w-full items-center justify-between bg-black/10 px-3 backdrop-blur-sm sm:px-4">
+            {/* Left side - Navigation */}
+            <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-3 md:gap-6">
               <SignedIn>
                 {isAdmin ? <AdminNavigation /> : <UserNavigation />}
               </SignedIn>
@@ -40,17 +49,25 @@ export default async function RootLayout({
                 <GuestNavigation />
               </SignedOut>
             </div>
-            <div className="flex items-center justify-end gap-4">
+
+            {/* Right side - Auth buttons */}
+            <div className="flex flex-shrink-0 items-center justify-end gap-1 sm:gap-2 md:gap-4">
               {/* Show admin badge if user is admin */}
               {isAdmin && (
-                <span className="rounded-full bg-red-500/20 px-3 py-1 text-xs font-semibold text-red-200 backdrop-blur-sm">
+                <span className="hidden rounded-full bg-red-500/20 px-2 py-1 text-xs font-semibold text-red-200 backdrop-blur-sm sm:inline-block sm:px-3">
                   Admin
                 </span>
               )}
               <SignedOut>
-                <SignInButton />
+                <div className="xs:block">
+                  <SignInButton>
+                    <button className="px-2 py-1 text-sm text-black hover:text-gray-300">
+                      Sign In
+                    </button>
+                  </SignInButton>
+                </div>
                 <SignUpButton>
-                  <button className="text-ceramic-white h-10 cursor-pointer rounded-full bg-white px-4 text-sm font-medium sm:h-12 sm:px-5 sm:text-base">
+                  <button className="h-8 cursor-pointer rounded-full bg-white px-3 text-xs font-medium text-black hover:bg-gray-100 sm:h-9 sm:px-4 sm:text-sm">
                     Sign Up
                   </button>
                 </SignUpButton>
@@ -60,7 +77,7 @@ export default async function RootLayout({
               </SignedIn>
             </div>
           </header>
-          {children}
+          <div className="min-h-screen w-full">{children}</div>
         </Providers>
       </body>
     </html>
