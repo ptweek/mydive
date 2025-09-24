@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import type { WaitlistStatus } from "@prisma/client";
 import type { WaitlistEntryWithUser, WaitlistWithUsers } from "../../types";
 import { api } from "mydive/trpc/react";
+import { useRouter } from "next/navigation";
 
 const AdminWaitlistInfoModal = ({
   waitlist,
@@ -14,6 +15,7 @@ const AdminWaitlistInfoModal = ({
   onClose: () => void;
   adminUserId: string;
 }) => {
+  const router = useRouter();
   // Modal Open States
   const [cancellationModalOpen, setCancellationModalOpen] =
     useState<boolean>(false);
@@ -32,6 +34,7 @@ const AdminWaitlistInfoModal = ({
   const scheduleJumpDateFromWaitlistEntry =
     api.adminBookingManager.scheduleJumpDateFromWaitlistEntry.useMutation({
       onSuccess: async () => {
+        router.refresh();
         onClose();
       },
       onError: (error) => {
@@ -44,6 +47,7 @@ const AdminWaitlistInfoModal = ({
   const removeWaitlistEntry =
     api.adminBookingManager.removeWaitlistEntry.useMutation({
       onSuccess: async () => {
+        router.refresh();
         onClose();
       },
       onError: (error) => {
@@ -355,7 +359,7 @@ const AdminWaitlistInfoModal = ({
                 onClick={handleRemoveFromWaitlist}
                 className="rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700"
               >
-                Confirm
+                {"Confirm"}
               </button>
             </div>
           </div>

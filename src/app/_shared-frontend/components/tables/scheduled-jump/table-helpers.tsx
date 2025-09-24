@@ -129,6 +129,7 @@ export const getTableCells = (
               ? "primary"
               : "secondary"
           }
+          className="w-32 text-center" // Fixed width, centered text
         >
           {scheduledJump.schedulingMethod === "BOOKING_WINDOW"
             ? "Booking Window"

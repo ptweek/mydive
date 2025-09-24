@@ -162,6 +162,15 @@ const AdminBookingRequestsTable = ({
     return filtered;
   }, [showCancelled, showPast, tableData]);
 
+  const hasWaitlistsWithActiveEntries = (waitlists: WaitlistPopulatedDto[]) => {
+    return !!waitlists.find((waitlist) => {
+      const entries = waitlist.entries;
+      const hasActiveEntries = !!entries.find((entry) => {
+        return entry.status !== "CANCELED";
+      });
+      return hasActiveEntries;
+    });
+  };
   return (
     <>
       <BookingRequestsTableFilters
@@ -339,7 +348,7 @@ const AdminBookingRequestsTable = ({
 
                 <TableCell>
                   <div className="flex justify-center">
-                    {booking.waitlists.length > 0 ? (
+                    {hasWaitlistsWithActiveEntries(booking.waitlists) ? (
                       <div className="space-y-1">
                         {booking.waitlists
                           .filter((waitlist) => {

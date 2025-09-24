@@ -104,7 +104,6 @@ export default function ScheduledJumpsTable({
   }, [convertedTableData, showPast, showCancelled]);
 
   // Column Definitions
-
   const columns = getColumns(isAdminView);
   return (
     <>
@@ -118,6 +117,7 @@ export default function ScheduledJumpsTable({
       <div className="max-h-[400px] overflow-auto">
         <Table
           aria-label="Scheduled Jumps Table"
+          id="scheduled-jumps-table"
           removeWrapper
           classNames={{
             base: "min-h-0",

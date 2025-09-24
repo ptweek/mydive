@@ -33,7 +33,7 @@ enum BookingStatus {
 
 model BookingWindow {
     id Int @id @default(autoincrement())
-    status BookingStatus @default(PENDING)
+    status BookingStatus @default(PENDING) // when is a booking window 'complete'?
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
@@ -63,7 +63,7 @@ model ScheduledJump {
 
     status BookingStatus @default(CONFIRMED)
 
-    jumpDate DateTime // End date is always 3 days afterwards
+    jumpDate DateTime 
     bookingZone String
     numJumpers Int
     schedulingMethod SchedulingMethod // how the jump day got booked, if waitlist should have waitlist id
