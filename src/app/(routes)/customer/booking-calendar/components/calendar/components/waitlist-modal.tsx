@@ -171,9 +171,15 @@ export default function WaitlistModal({
       <div
         className="fixed inset-0 z-[999] touch-none"
         style={{
-          backgroundColor: isMobile
-            ? "rgba(0, 0, 0, 0.3)"
-            : "rgba(0, 0, 0, 0.5)",
+          backgroundColor: isMobile ? "rgba(0, 0, 0, 0.3)" : "rgba(0, 0, 0, 1)",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: "100vw",
+          height: "100vh",
+          minHeight: "100vh",
         }}
         onClick={handleClose}
       />
@@ -247,7 +253,7 @@ export default function WaitlistModal({
                     {successMessage}
                   </p>
                   <p className="text-sm leading-relaxed text-gray-600">
-                    We'll notify you if a spot opens up on{" "}
+                    {`We'll notify you if a spot opens up on`}{" "}
                     <strong>{formatDate(day)}</strong>. You can monitor your
                     waitlist in the{" "}
                     <Link
@@ -456,10 +462,10 @@ export default function WaitlistModal({
                             How it works:
                           </p>
                           <p className="mt-1 text-xs leading-relaxed text-blue-700">
-                            You'll be added to the waitlist for this specific
+                            {`You'll be added to the waitlist for this specific
                             day. If a spot opens up, you'll be notified based on
                             your position in the waitlist. First come, first
-                            served!
+                            served!`}
                           </p>
                         </div>
                       </div>
@@ -482,7 +488,7 @@ export default function WaitlistModal({
                         </p>
                         {waitlistInfo?.exists && (
                           <p className="mt-1 text-xs text-gray-500">
-                            You'll be position #
+                            {`You'll be position #`}
                             {(waitlistInfo.totalCount || 0) + 1}
                           </p>
                         )}
