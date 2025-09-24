@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { api } from "mydive/trpc/react";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
@@ -26,6 +26,16 @@ export default function WaitlistModal({
   const { user } = useUser();
   const joinWaitlistMutation =
     api.customerBookingManager.joinWaitlist.useMutation();
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "unset";
+      };
+    }
+  }, [isOpen]);
 
   // Get waitlist info for this day
   const {
@@ -148,14 +158,29 @@ export default function WaitlistModal({
 
   return (
     <>
-      {/* Dark overlay */}
+      {/* Dark overlay - Fixed with better positioning */}
       <div
         className="bg-opacity-50 fixed inset-0 z-[999] bg-black"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          minHeight: "100vh",
+          minWidth: "100vw",
+        }}
         onClick={handleClose}
       />
 
       {/* Modal content */}
-      <div className="fixed top-1/2 left-1/2 z-[1000] w-full max-w-md -translate-x-1/2 -translate-y-1/2 transform rounded-xl bg-white p-8 shadow-2xl">
+      <div
+        className="fixed top-1/2 left-1/2 z-[1000] w-full max-w-md -translate-x-1/2 -translate-y-1/2 transform rounded-xl bg-white p-8 shadow-2xl"
+        style={{
+          maxHeight: "90vh",
+          overflowY: "auto",
+        }}
+      >
         {/* Success State */}
         {showSuccess && (
           <div className="text-center">

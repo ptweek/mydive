@@ -6,41 +6,48 @@ const CalendarLegend = () => {
   const legendItems = [
     {
       label: "Open",
-      backgroundColor: "transparent",
-      borderColor: "#d1d5db",
+      getStyle: () => ({
+        backgroundColor: "transparent",
+        borderColor: "#d1d5db",
+      }),
       description:
         "Days that are open and can be booked as start dates for booking window",
     },
     {
       label: "Non-bookable days",
-      backgroundColor: "#ffffff",
-      borderColor: "#d1d5db",
-      background:
-        "repeating-linear-gradient(45deg, #ffffff, #ffffff 2px, #f1f5f9 2px, #f1f5f9 6px)",
-      color: "#64748b",
-      opacity: 0.9,
-      textDecoration: "line-through",
+      getStyle: () => ({
+        background:
+          "repeating-linear-gradient(45deg, #ffffff, #ffffff 2px, #f1f5f9 2px, #f1f5f9 6px)",
+        borderColor: "#d1d5db",
+        color: "#64748b",
+        opacity: 0.9,
+        textDecoration: "line-through",
+      }),
       description:
         "Days are in the past the present booking availability, or are open as part of a booking window, but not as the start date",
     },
     {
       label: "Reserved",
-      backgroundColor: "#fecaca",
-      borderColor: "#f87171",
+      getStyle: () => ({
+        backgroundColor: "#fecaca",
+      }),
       description:
         "Days that have been reserved and do not have waitlist availability",
     },
     {
       label: "Waitlist",
-      backgroundColor: "#fef3c7",
-      borderColor: "#fbbf24",
+      getStyle: () => ({
+        backgroundColor: "#fef3c7",
+      }),
       description:
         "Days that have been booked as part of window but have waitlist availability",
     },
     {
       label: "Your Bookings",
-      backgroundColor: "transparent",
-      borderColor: "#d1d5db",
+      getStyle: () => ({
+        backgroundColor: "transparent",
+        borderColor: "#d1d5db",
+      }),
       showUserIcon: true,
       description: "Days that belong to your bookings",
     },
@@ -94,12 +101,7 @@ const CalendarLegend = () => {
               {/* Color indicator */}
               <div
                 className="relative mt-0.5 h-4 w-4 flex-shrink-0 rounded border"
-                style={{
-                  backgroundColor: item.backgroundColor,
-                  borderColor: item.borderColor,
-                  background: item.background,
-                  opacity: item.opacity,
-                }}
+                style={item.getStyle()}
               >
                 {item.showUserIcon && (
                   <span className="absolute inset-0 flex items-center justify-center text-xs">
@@ -129,12 +131,7 @@ const CalendarLegend = () => {
                 {/* Color indicator */}
                 <div
                   className="relative h-6 w-6 flex-shrink-0 rounded border-2"
-                  style={{
-                    backgroundColor: item.backgroundColor,
-                    borderColor: item.borderColor,
-                    background: item.background,
-                    opacity: item.opacity,
-                  }}
+                  style={item.getStyle()}
                 >
                   {item.showUserIcon && (
                     <span
