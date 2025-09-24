@@ -327,9 +327,13 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
 
       {/* Calendar Container - Mobile Optimized */}
       <div className="mx-2 overflow-hidden rounded-lg bg-white p-2 text-black shadow-lg sm:mx-0 sm:p-4">
-        <div style={{ height: "450px" }} className="sm:h-[600px]">
+        <div
+          className="sm:h-[600px]"
+          style={{ height: "450px", touchAction: "manipulation" }}
+        >
           <Calendar
             localizer={localizer}
+            longPressThreshold={1}
             events={[]}
             startAccessor="start"
             endAccessor="end"
