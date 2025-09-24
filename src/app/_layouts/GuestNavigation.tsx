@@ -38,7 +38,7 @@ export const GuestNavigation = () => {
 
   return (
     <>
-      {/* Desktop Navigation - shows on medium screens and up */}
+      {/* Desktop Navigation */}
       <nav className="hidden items-center gap-3 md:flex">
         {navigationItems.map((item) => (
           <Link
@@ -55,17 +55,16 @@ export const GuestNavigation = () => {
         ))}
       </nav>
 
-      {/* Mobile Navigation - shows on small screens only */}
+      {/* Mobile Navigation */}
       <div className="md:hidden">
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="group relative flex items-center justify-center overflow-hidden rounded-lg border border-white/20 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 p-2 text-white backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:from-blue-500/30 hover:to-indigo-500/30"
+          className="relative flex items-center justify-center rounded-lg border border-white/20 bg-black/20 p-2 text-white backdrop-blur-sm transition-all duration-200 hover:bg-black/30"
           aria-label="Toggle navigation menu"
         >
-          <div className="absolute inset-0 translate-x-full bg-gradient-to-r from-white/0 to-white/10 transition-transform duration-500 group-hover:translate-x-0"></div>
           <svg
-            className="relative z-10 h-5 w-5 transition-transform duration-200"
+            className="h-5 w-5 transition-transform duration-200"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -88,36 +87,41 @@ export const GuestNavigation = () => {
           </svg>
         </button>
 
-        {/* Mobile Menu Dropdown */}
-        {isMobileMenuOpen && (
-          <>
-            {/* Backdrop - positioned below header */}
+        {/* Mobile Menu Dropdown - Glass Effect */}
+        <div
+          className={`absolute top-16 right-0 left-0 z-40 transform transition-all duration-300 ease-out ${
+            isMobileMenuOpen
+              ? "translate-y-0 scale-100 opacity-100"
+              : "pointer-events-none -translate-y-1 scale-95 opacity-0"
+          }`}
+        >
+          {/* Backdrop */}
+          {isMobileMenuOpen && (
             <div
-              className="fixed inset-0 top-16 z-40 bg-black/20 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/10"
               onClick={() => setIsMobileMenuOpen(false)}
             />
+          )}
 
-            {/* Menu */}
-            <div className="absolute top-12 left-0 z-50 ml-3 w-48 overflow-hidden rounded-lg border border-white/20 bg-white/10 backdrop-blur-md">
-              <div className="space-y-1 p-2">
-                {navigationItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="group relative flex items-center gap-3 overflow-hidden rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-sm font-medium text-white transition-all duration-300 hover:border-white/30 hover:bg-white/20"
-                  >
-                    <div className="absolute inset-0 translate-x-full bg-gradient-to-r from-white/0 to-white/5 transition-transform duration-500 group-hover:translate-x-0"></div>
-                    <div className="relative z-10 transition-transform group-hover:scale-110">
-                      {item.icon}
-                    </div>
-                    <span className="relative z-10">{item.label}</span>
-                  </Link>
-                ))}
-              </div>
+          {/* Menu Content - Glass Card */}
+          <div className="relative mx-3 mt-2 overflow-hidden rounded-xl border border-white/20 bg-gray-900/90 shadow-xl">
+            <div className="p-1">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-white transition-all duration-150 hover:bg-white/20 active:bg-white/30"
+                >
+                  <div className="opacity-80 transition-opacity group-hover:opacity-100">
+                    {item.icon}
+                  </div>
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              ))}
             </div>
-          </>
-        )}
+          </div>
+        </div>
       </div>
     </>
   );
