@@ -19,4 +19,12 @@ export class ScheduledJumpService {
       data: { status: "CANCELED" },
     });
   }
+  async completeById(id: number): Promise<void> {
+    await this.db.scheduledJump.update({
+      where: {
+        id,
+      },
+      data: { status: "COMPLETED" },
+    });
+  }
 }

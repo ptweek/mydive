@@ -6,6 +6,7 @@ import type {
   UserDto,
 } from "mydive/server/api/routers/types";
 import { getBookingStatusIcon } from "../../statusIcons";
+import { isDateTodayOrPast } from "mydive/app/_shared-frontend/utils/dates";
 
 export const getColumns = (isAdminView: boolean) => {
   return [
@@ -49,6 +50,7 @@ export const getTableCells = (
   handleJumpCancellationClick: (scheduledJump: ScheduledJumpDto) => void,
   user?: UserDto,
   handleContactInfoClick?: (user: UserDto) => void,
+  handleJumpCompletionClick?: (scheduledJump: ScheduledJumpDto) => void,
 ) => {
   return [
     // Date cell
@@ -172,7 +174,18 @@ export const getTableCells = (
 
     // Actions cell
     <TableCell key="actions">
-      <div className="flex justify-center gap-2">
+      <div className="flex flex-col justify-center space-y-1">
+        {isDateTodayOrPast(scheduledJump.jumpDate) &&
+          isAdminView &&
+          handleJumpCompletionClick &&
+          scheduledJump.status !== "CANCELED" && (
+            <button
+              onClick={() => handleJumpCompletionClick(scheduledJump)}
+              className="rounded bg-green-500 px-3 py-1 text-xs text-white hover:bg-green-600"
+            >
+              Complete
+            </button>
+          )}
         {scheduledJump.status !== "CANCELED" ? (
           <button
             onClick={() => handleJumpCancellationClick(scheduledJump)}

@@ -8,6 +8,7 @@ import { api } from "mydive/trpc/react";
 import ScheduledJumpsTableFilters from "./filters";
 import { getColumns, getTableCells } from "./table-helpers";
 import { useRouter } from "next/navigation";
+import { CompleteScheduleJumpConfirmationModal } from "../../modals/complete-confirmation/scheduled-jump";
 
 export default function ScheduledJumpsTable({
   scheduledJumps,
@@ -24,6 +25,10 @@ export default function ScheduledJumpsTable({
   const [
     isScheduledJumpCancellationModalOpen,
     setIsScheduledJumpCancellationModalOpen,
+  ] = useState(false);
+  const [
+    isScheduledJumpCompletionModalOpen,
+    setIsScheduledJumpCompletionModalOpen,
   ] = useState(false);
 
   // selected user
@@ -52,10 +57,29 @@ export default function ScheduledJumpsTable({
     setSelectedScheduledJump(null);
     setIsScheduledJumpCancellationModalOpen(false);
   };
+  const handleJumpCompletionClick = (scheduledJump: ScheduledJump) => {
+    setSelectedScheduledJump(scheduledJump);
+    setIsScheduledJumpCompletionModalOpen(true);
+  };
+  const handleJumpCompletionClose = () => {
+    setSelectedScheduledJump(null);
+    setIsScheduledJumpCompletionModalOpen(false);
+  };
 
   // mutations
   const cancelJumpDate =
     api.adminScheduledJumpsManager.cancelScheduledJump.useMutation({
+      onSuccess: async () => {
+        router.refresh();
+        handleJumpCancellationClose();
+      },
+      onError: (error) => {
+        console.error("Failed to cancel booking:", error.message);
+      },
+    });
+
+  const completeScheduledJump =
+    api.adminScheduledJumpsManager.completeScheduledJump.useMutation({
       onSuccess: async () => {
         router.refresh();
         handleJumpCancellationClose();
@@ -142,6 +166,7 @@ export default function ScheduledJumpsTable({
                     handleJumpCancellationClick,
                     user,
                     handleContactInfoClick,
+                    handleJumpCompletionClick,
                   )}
                 </TableRow>
               );
@@ -163,6 +188,18 @@ export default function ScheduledJumpsTable({
           onClose={handleJumpCancellationClose}
           onConfirm={() =>
             cancelJumpDate.mutate({ scheduledJumpId: selectedScheduledJump.id })
+          }
+        />
+      )}
+      {selectedScheduledJump && (
+        <CompleteScheduleJumpConfirmationModal
+          isOpen={isScheduledJumpCompletionModalOpen}
+          scheduledJump={selectedScheduledJump}
+          onClose={handleJumpCompletionClose}
+          onConfirm={() =>
+            completeScheduledJump.mutate({
+              scheduledJumpId: selectedScheduledJump.id,
+            })
           }
         />
       )}
