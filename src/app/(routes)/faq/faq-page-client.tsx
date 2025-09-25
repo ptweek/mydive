@@ -104,7 +104,7 @@ export default function FAQPage() {
 
         <div className="relative z-30 mx-auto max-w-4xl px-6 text-center">
           <h1 className="mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-5xl leading-tight font-bold text-transparent md:text-7xl">
-            FAQ
+            Frequently Asked Questions
           </h1>
 
           <p className="mx-auto max-w-3xl text-xl leading-relaxed text-gray-100 md:text-2xl">
