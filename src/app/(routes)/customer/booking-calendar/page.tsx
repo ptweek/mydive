@@ -12,26 +12,10 @@ export default async function CalendarPage() {
 
   return (
     <HydrateClient>
-      <main className="relative min-h-screen overflow-hidden pt-16 text-white">
-        {/* Background Video */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 z-0 h-full w-full object-cover"
-        >
-          <source src="/videos/skydiving-background.mp4" type="video/mp4" />
-        </video>
-
-        {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 z-0 bg-black/40"></div>
-
-        {/* Content */}
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-2 py-4 sm:px-4 sm:py-6 lg:px-6 lg:py-8">
-          <CalendarClientPage userId={user.id} />
-        </div>
-      </main>
+      {/* Content */}
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-2 py-4 sm:px-4 sm:py-6 lg:px-6 lg:py-8">
+        <CalendarClientPage userId={user.id} />
+      </div>
     </HydrateClient>
   );
 }

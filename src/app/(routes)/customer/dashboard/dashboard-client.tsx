@@ -1,15 +1,16 @@
 "use client";
 import { Button, Card, CardBody } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
+import DashboardActionButton from "mydive/app/_shared-frontend/components/buttons/dashboard-action-buttons";
 
 export default function DashboardClient() {
   const router = useRouter();
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6">
-      {/* Mobile: Stack vertically, Desktop: Side by side */}
-      <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row">
+      {/* Mobile: 1 column, Tablet+: 2 columns */}
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
         {/* Book Now Card */}
-        <Card className="flex-1 border-2 border-blue-400/30 bg-gradient-to-br from-blue-500/15 to-indigo-600/15 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-blue-300/50 hover:shadow-2xl hover:shadow-blue-500/20">
+        <Card className="border-2 border-blue-400/30 bg-gradient-to-br from-blue-500/15 to-indigo-600/15 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-blue-300/50 hover:shadow-2xl hover:shadow-blue-500/20">
           <CardBody className="p-6 text-center sm:p-8">
             <div className="mb-4 sm:mb-6">
               <div className="mb-3 animate-bounce text-4xl sm:mb-4 sm:text-6xl">
@@ -24,21 +25,17 @@ export default function DashboardClient() {
               </p>
             </div>
 
-            <Button
-              size="lg"
-              variant="shadow"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-base font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30 sm:text-lg"
+            <DashboardActionButton
+              text={"Book Now"}
               onPress={() => {
                 router.push("/customer/booking-calendar");
               }}
-            >
-              Book Now
-            </Button>
+            />
           </CardBody>
         </Card>
 
-        {/* My Bookings Card */}
-        <Card className="flex-1 border-2 border-blue-400/30 bg-gradient-to-br from-blue-500/15 to-indigo-600/15 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-blue-300/50 hover:shadow-2xl hover:shadow-blue-500/20">
+        {/* Manage Bookings Card */}
+        <Card className="border-2 border-blue-400/30 bg-gradient-to-br from-blue-500/15 to-indigo-600/15 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-blue-300/50 hover:shadow-2xl hover:shadow-blue-500/20">
           <CardBody className="p-6 text-center sm:p-8">
             <div className="mb-4 sm:mb-6">
               <div className="mb-3 text-4xl sm:mb-4 sm:text-6xl">📋</div>
@@ -50,16 +47,36 @@ export default function DashboardClient() {
               </p>
             </div>
 
-            <Button
-              size="lg"
-              variant="shadow"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-base font-semibold tracking-wider text-white uppercase hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30 sm:text-lg"
+            <DashboardActionButton
+              text={"View Bookings"}
               onPress={() => {
                 router.push("/customer/manage-booking-requests");
               }}
-            >
-              Manage Booking Requests
-            </Button>
+            />
+          </CardBody>
+        </Card>
+
+        {/* My Scheduled Jumps Card */}
+        <Card className="border-2 border-blue-400/30 bg-gradient-to-br from-blue-500/15 to-indigo-600/15 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-blue-300/50 hover:shadow-2xl hover:shadow-blue-500/20">
+          <CardBody className="p-6 text-center sm:p-8">
+            <div className="mb-4 sm:mb-6">
+              <div className="mb-3 animate-bounce text-4xl sm:mb-4 sm:text-6xl">
+                🪂
+              </div>
+              <h2 className="mb-2 text-2xl font-bold text-white sm:text-3xl">
+                My Scheduled Jumps
+              </h2>
+              <p className="text-base text-white/80 sm:text-lg">
+                Manage your past or upcoming jump dates!
+              </p>
+            </div>
+
+            <DashboardActionButton
+              text={"View Scheduled Jumps"}
+              onPress={() => {
+                router.push("/customer/scheduled-jumps");
+              }}
+            />
           </CardBody>
         </Card>
       </div>
