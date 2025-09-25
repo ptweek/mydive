@@ -312,9 +312,9 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
   return (
     <>
       <CalendarLegend />
-      <div className="overflow-hidden rounded-lg bg-white p-2 text-black shadow-lg">
+      <div className="mb-5 overflow-hidden rounded-lg bg-white p-2 text-black shadow-lg">
         <div
-          className="sm:h-[600px]"
+          className="sm:h-[450px]"
           style={{ height: "450px", touchAction: "manipulation" }}
         >
           <Calendar

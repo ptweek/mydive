@@ -10,7 +10,7 @@ export default async function CalendarPage() {
   }
   return (
     <HydrateClient>
-      <div className="mx-auto flex w-3/4 flex-col space-y-3">
+      <div className="mx-auto flex h-screen w-[90%] flex-col space-y-3 sm:w-3/4">
         <PageHeader
           title={"Booking Calendar"}
           description={
