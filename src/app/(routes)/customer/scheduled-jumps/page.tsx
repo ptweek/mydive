@@ -4,8 +4,6 @@ import { redirect } from "next/navigation";
 
 import CustomerScheduledJumpsClient from "./client-page";
 
-// Probably need to implement some fetch that allows us to get all the admin users!
-
 export default async function ScheduledJumpsPage() {
   const user = await currentUser();
   if (!user) {
@@ -17,7 +15,7 @@ export default async function ScheduledJumpsPage() {
     });
   return (
     <HydrateClient>
-      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-white">
+      <main className="relative flex min-h-screen flex-col overflow-hidden text-white">
         {/* Background Video */}
         <video
           autoPlay

@@ -15,28 +15,40 @@ export default function CustomerScheduledJumpsClientPage({
   const stats = useMemo(() => {
     return computeScheduledJumpStats(scheduledJumps);
   }, [scheduledJumps]);
+
   return (
-    <div className="z-0 p-4 md:p-8">
-      <div className="mx-auto max-w-7xl">
+    <div className="relative z-10 mt-16 h-[calc(100vh-4rem)] w-full px-4 py-6 sm:p-6 md:p-8">
+      <div className="mx-auto flex h-full max-w-7xl flex-col">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="mb-2 text-4xl font-bold text-gray-900">
+        <div className="mb-6 flex-shrink-0 sm:mb-8">
+          <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl md:text-4xl lg:text-4xl">
             Scheduled Jumps Manager
           </h1>
-          <p className="text-gray-600">
-            {`See all of your scheduled jumps in one place`}
+          <p className="text-sm text-gray-200 sm:text-base md:text-gray-600">
+            See all of your scheduled jumps in one place
           </p>
         </div>
-        {/* Main Content */}
-        <ScheduledJumpsStatsCards stats={stats} />
-        <Card className="shadow-2xl">
-          <CardBody className="bg-white p-0">
-            <ScheduledJumpsTable
-              scheduledJumps={scheduledJumps}
-              isAdminView={false}
-            />
-          </CardBody>
-        </Card>
+
+        {/* Stats Cards */}
+        <div className="mb-6 flex-shrink-0 sm:mb-8">
+          <ScheduledJumpsStatsCards stats={stats} />
+        </div>
+
+        {/* Table Card */}
+        <div className="mb-[5px] min-h-0 flex-1">
+          <Card className="h-full bg-white/95 shadow-2xl backdrop-blur-sm">
+            <CardBody className="flex h-full flex-col p-0">
+              <div className="min-h-0 flex-1 overflow-hidden">
+                <div className="h-full overflow-auto">
+                  <ScheduledJumpsTable
+                    scheduledJumps={scheduledJumps}
+                    isAdminView={false}
+                  />
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
       </div>
     </div>
   );
