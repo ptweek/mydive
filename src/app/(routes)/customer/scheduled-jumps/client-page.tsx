@@ -18,7 +18,6 @@ export default function CustomerScheduledJumpsClientPage({
 
   return (
     <div className="flex h-full flex-col gap-3">
-      {/* Added this wrapper with flex container */}
       <div className="flex-shrink-0">
         <ScheduledJumpsStatsCards stats={stats} />
       </div>

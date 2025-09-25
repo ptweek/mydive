@@ -14,7 +14,10 @@ import {
   Card,
   CardBody,
 } from "@nextui-org/react";
-import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
+import {
+  formatDateShort,
+  getActiveScheduledJumpDatesFromBookingWindow,
+} from "mydive/app/_shared-frontend/utils/booking";
 import type {
   BookingWindowPopulatedDto,
   WaitlistEntryPopulatedDto,
@@ -27,6 +30,8 @@ import {
 } from "mydive/app/_shared-types/type-validation";
 import { WaitlistEntryActionsDropdown } from "./waitlist-actions-dropdown";
 import { getBookingStatusIcon } from "mydive/app/_shared-frontend/components/statusIcons";
+import { useMemo, useState } from "react";
+import BookingRequestsTableFilters from "mydive/app/_shared-frontend/components/tables/manage-booking-requests/filters";
 
 export type BookingRequestTableRow = {
   type: "BOOKING_WINDOW" | "WAITLIST_ENTRY";
@@ -221,11 +226,13 @@ const MobileBookingCard = ({
 };
 
 export default function BookingRequestsTable({
-  tableData,
+  bookingWindows,
+  waitlistEntries,
   handleBookingWindowCancellationClick,
   handleWaitlistEntryCancellationClick,
 }: {
-  tableData: BookingRequestTableRow[];
+  bookingWindows: BookingWindowPopulatedDto[];
+  waitlistEntries: WaitlistEntryPopulatedDto[];
   handleBookingWindowCancellationClick: (
     booking: BookingWindowPopulatedDto,
   ) => void;
@@ -233,7 +240,118 @@ export default function BookingRequestsTable({
     waitlistEntry: WaitlistEntryPopulatedDto,
   ) => void;
 }) {
-  if (tableData.length === 0) {
+  const [showPast, setShowPast] = useState(false);
+  const [showCancelled, setShowCancelled] = useState(false);
+
+  const formattedTableData = useMemo(() => {
+    const formattedBookingWindowsData: BookingRequestTableRow[] =
+      bookingWindows.map((bookingWindow) => {
+        const { id, status, numJumpers, createdAt } = bookingWindow;
+        return {
+          type: "BOOKING_WINDOW",
+          id,
+          status,
+          numJumpers,
+          createdAt,
+          bookingWindowDates: {
+            start: bookingWindow.windowStartDate,
+            end: bookingWindow.windowEndDate,
+          },
+          requestedJumpDate: bookingWindow.idealizedJumpDate,
+          scheduledJumpDates:
+            getActiveScheduledJumpDatesFromBookingWindow(bookingWindow),
+          data: bookingWindow,
+        };
+      });
+
+    const formattedWaitlistEntries: BookingRequestTableRow[] =
+      //For now only display active ones
+      waitlistEntries
+        .filter((waitlistEntry) => {
+          return waitlistEntry.status;
+        })
+        .map((waitlistEntry) => {
+          const { id, status, createdAt, activePosition } = waitlistEntry;
+          return {
+            type: "WAITLIST_ENTRY",
+            id,
+            status,
+            numJumpers: 1,
+            activePosition,
+            createdAt,
+            requestedJumpDate: waitlistEntry.waitlist.day,
+            scheduledJumpDates:
+              waitlistEntry.status === "CONFIRMED"
+                ? [waitlistEntry.waitlist.day]
+                : [],
+            data: waitlistEntry,
+          };
+        });
+
+    const tableData: BookingRequestTableRow[] = [
+      ...formattedBookingWindowsData,
+      ...formattedWaitlistEntries,
+    ];
+    return tableData;
+  }, [bookingWindows, waitlistEntries]);
+
+  const filteredBookings = useMemo(() => {
+    let filtered = formattedTableData;
+
+    if (!showCancelled) {
+      filtered = filtered.filter((booking) => booking.status !== "CANCELED");
+    }
+    if (!showPast) {
+      filtered = filtered.filter((tableRow) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to start of today
+
+        if (tableRow.type === "BOOKING_WINDOW") {
+          if (isBookingWindowPopulatedDto(tableRow.data)) {
+            const bookingWindow = tableRow.data;
+            const windowEndDate = new Date(bookingWindow.windowEndDate);
+            windowEndDate.setHours(0, 0, 0, 0); // Set to start of that day
+            return windowEndDate >= today;
+          } else {
+            throw new Error("Issue with booking window");
+          }
+        } else {
+          if (isWaitlistEntryPopulatedDto(tableRow.data)) {
+            const waitlistEntryWaitlist = tableRow.data.waitlist;
+            const day = new Date(waitlistEntryWaitlist.day);
+            day.setHours(0, 0, 0, 0); // Set to start of that day
+            return day >= today;
+          } else {
+            throw new Error("Issue with waitlist entry");
+          }
+        }
+      });
+    }
+    // sort filtered by startDate
+    filtered.sort((a, b) => {
+      let dateA;
+      let dateB;
+
+      if (isBookingWindowPopulatedDto(a.data)) {
+        const bookingWindow = a.data;
+        dateA = bookingWindow.windowStartDate;
+      } else {
+        const waitlistEntry = a.data;
+        dateA = waitlistEntry.waitlist.day;
+      }
+      if (isBookingWindowPopulatedDto(b.data)) {
+        const bookingWindow = b.data;
+        dateB = bookingWindow.windowStartDate;
+      } else {
+        const waitlistEntry = b.data;
+        dateB = waitlistEntry.waitlist.day;
+      }
+      return dateA.getTime() - dateB.getTime();
+    });
+    return filtered;
+  }, [formattedTableData, showCancelled, showPast]);
+
+  if (filteredBookings.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <CalendarIcon className="mb-4 h-16 w-16 text-gray-300" />
@@ -249,9 +367,18 @@ export default function BookingRequestsTable({
 
   return (
     <>
+      <div className="sticky top-0 z-20 flex-shrink-0 overflow-hidden border-b border-slate-200 bg-white">
+        <BookingRequestsTableFilters
+          numVisibleRows={filteredBookings.length}
+          showCancelled={showCancelled}
+          setShowCancelled={setShowCancelled}
+          showPast={showPast}
+          setShowPast={setShowPast}
+        />
+      </div>
       {/* Mobile View - Cards */}
       <div className="block p-4 md:hidden">
-        {tableData.map((tableRow) => (
+        {filteredBookings.map((tableRow) => (
           <MobileBookingCard
             key={`${tableRow.id}-${tableRow.type}`}
             tableRow={tableRow}
@@ -296,7 +423,7 @@ export default function BookingRequestsTable({
             <TableColumn className="text-center">ACTIONS</TableColumn>
           </TableHeader>
           <TableBody emptyContent="No bookings found">
-            {tableData.map((tableRow) => {
+            {filteredBookings.map((tableRow) => {
               return (
                 <TableRow
                   key={`${tableRow.id}-${tableRow.type}`}

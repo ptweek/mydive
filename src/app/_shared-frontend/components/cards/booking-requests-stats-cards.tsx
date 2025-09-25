@@ -29,7 +29,7 @@ export default function BookingRequestsStatsCards({
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="mb-4 sm:mb-6 md:mb-8">
+    <div>
       {/* Mobile Compact View */}
       <div className="block lg:hidden">
         <Card className="bg-white/95 shadow-lg backdrop-blur-sm">
