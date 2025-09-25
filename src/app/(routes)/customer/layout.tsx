@@ -29,7 +29,7 @@ export default async function CustomerLayout({
       <div className="absolute inset-0 z-0 bg-black/40"></div>
 
       {/* Content with proper spacing for fixed header */}
-      <div className="relative z-10 pt-16">{children}</div>
+      <div className="relative z-10 pt-20">{children}</div>
     </main>
   );
 }

@@ -62,63 +62,32 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
   );
 
   return (
-    <div className="mb-4 sm:mb-6">
-      {/* Mobile Layout */}
-      <div className="flex flex-col gap-3 rounded-lg border bg-white p-3 shadow-sm sm:hidden">
-        {/* Current Month Title */}
-        <div className="text-center">
-          <h2 className="text-lg font-bold text-gray-900">
-            {moment(date).format("MMMM YYYY")}
-          </h2>
-        </div>
+    <div className="mb-2 sm:mb-6">
+      {/* Compact Mobile Layout */}
+      <div className="flex items-center justify-between gap-2 rounded-lg bg-white p-3 shadow-sm sm:hidden">
+        {/* Prev Button */}
+        <button
+          disabled={isFirstMonth}
+          onClick={handlePrevClick}
+          className={clsx(
+            "rounded px-3 py-2 text-sm font-medium transition-colors",
+            {
+              "cursor-not-allowed bg-gray-200 text-gray-400": isFirstMonth,
+              "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700":
+                !isFirstMonth,
+            },
+          )}
+        >
+          ←
+        </button>
 
-        {/* Navigation Row */}
-        <div className="flex items-center justify-between gap-2">
-          <button
-            disabled={isFirstMonth}
-            onClick={handlePrevClick}
-            className={clsx(
-              "flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-              {
-                "cursor-not-allowed bg-gray-300 text-gray-500": isFirstMonth,
-                "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700":
-                  !isFirstMonth,
-              },
-            )}
-          >
-            ← Prev
-          </button>
-
-          <button
-            onClick={handleTodayClick}
-            className="flex-1 rounded-md bg-gray-700 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800 active:bg-gray-900"
-          >
-            Today
-          </button>
-
-          <button
-            disabled={isLastMonth}
-            onClick={handleNextClick}
-            className={clsx(
-              "flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-              {
-                "cursor-not-allowed bg-gray-300 text-gray-500": isLastMonth,
-                "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700":
-                  !isLastMonth,
-              },
-            )}
-          >
-            Next →
-          </button>
-        </div>
-
-        {/* Custom Mobile Dropdown */}
-        <div className="relative">
+        {/* Current Month + Dropdown */}
+        <div className="relative flex-1">
           <button
             onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
-            className="flex w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="flex w-full items-center justify-center gap-1 rounded px-3 py-2 text-base font-medium text-gray-800 hover:bg-gray-50"
           >
-            <span>{currentDateOption?.label ?? dateOptions[0]?.label}</span>
+            <span>{moment(date).format("MMM YYYY")}</span>
             <svg
               className={`h-4 w-4 transition-transform duration-200 ${
                 isMobileDropdownOpen ? "rotate-180" : ""
@@ -143,13 +112,13 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
                 className="fixed inset-0 z-40 bg-black/20"
                 onClick={() => setIsMobileDropdownOpen(false)}
               />
-              <div className="absolute top-full right-0 left-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+              <div className="absolute top-full right-0 left-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
                 {dateOptions.map((option) => (
                   <button
                     key={option.key}
                     onClick={() => handleDateSelect(option.value)}
                     className={clsx(
-                      "w-full px-3 py-3 text-left text-sm hover:bg-gray-50 focus:bg-blue-50 focus:outline-none",
+                      "w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 focus:bg-blue-50 focus:outline-none",
                       {
                         "bg-blue-100 font-medium text-blue-900": moment(
                           option.value,
@@ -168,9 +137,33 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
             </>
           )}
         </div>
+
+        {/* Today Button */}
+        <button
+          onClick={handleTodayClick}
+          className="rounded bg-gray-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-700"
+        >
+          Today
+        </button>
+
+        {/* Next Button */}
+        <button
+          disabled={isLastMonth}
+          onClick={handleNextClick}
+          className={clsx(
+            "rounded px-3 py-2 text-sm font-medium transition-colors",
+            {
+              "cursor-not-allowed bg-gray-200 text-gray-400": isLastMonth,
+              "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700":
+                !isLastMonth,
+            },
+          )}
+        >
+          →
+        </button>
       </div>
 
-      {/* Desktop Layout */}
+      {/* Desktop Layout - unchanged */}
       <div className="hidden items-center justify-between gap-4 rounded-lg border bg-white p-4 shadow-sm sm:flex">
         {/* Navigation buttons */}
         <div className="flex items-center space-x-2">

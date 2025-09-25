@@ -18,7 +18,7 @@ export default function CustomerScheduledJumpsClientPage({
   }, [scheduledJumps]);
 
   return (
-    <div className="relative z-10 mt-16 h-[calc(100vh-4rem)] w-full px-4 py-6 sm:p-6 md:p-8">
+    <div className="relative z-10 w-full px-4 py-6 sm:p-6 md:p-8">
       <div className="mx-auto flex h-full max-w-7xl flex-col">
         {/* Header */}
         <PageHeader

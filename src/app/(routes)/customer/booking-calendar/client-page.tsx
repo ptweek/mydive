@@ -5,7 +5,6 @@ import { Calendar, momentLocalizer, type SlotInfo } from "react-big-calendar";
 import moment from "moment";
 import CalendarToolbar from "./components/calendar/components/toolbar";
 import EventComponent from "./components/calendar/components/event";
-import CalendarLegend from "./components/calendar/components/calendar-legend";
 import EventCreationModal from "./components/calendar/components/event-creation-modal";
 import type { CalendarEvent } from "./components/calendar/types";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -25,8 +24,7 @@ import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { api } from "mydive/trpc/react";
 import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_shared-frontend/utils/booking";
-import PageHeader from "mydive/app/_shared-frontend/components/headers/ClientPageHeader";
-
+import CalendarLegend from "./components/calendar/components/calendar-legend";
 const localizer = momentLocalizer(moment);
 
 export default function CalendarClientPage({ userId }: { userId: string }) {
@@ -312,19 +310,9 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
   );
 
   return (
-    <div className="w-full space-y-4 sm:space-y-6">
-      <PageHeader
-        title={"Booking Calendar"}
-        description={
-          "Book an isolated three day window, or hop on the waitlist."
-        }
-      />
-
-      <div className="px-2 sm:px-0">
-        <CalendarLegend />
-      </div>
-
-      <div className="mx-2 overflow-hidden rounded-lg bg-white p-2 text-black shadow-lg sm:mx-0 sm:p-4">
+    <>
+      <CalendarLegend />
+      <div className="overflow-hidden rounded-lg bg-white p-2 text-black shadow-lg">
         <div
           className="sm:h-[600px]"
           style={{ height: "450px", touchAction: "manipulation" }}
@@ -438,6 +426,6 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

@@ -14,12 +14,10 @@ export default async function ManageBookingsRequestsPage() {
     });
   return (
     <HydrateClient>
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-2 py-4 sm:px-4 sm:py-6 lg:px-6 lg:py-8">
-        <ManageBookingRequestsClient
-          loadedBookingWindows={bookingWindows}
-          loadedWaitlistEntries={waitlistEntries}
-        />
-      </div>
+      <ManageBookingRequestsClient
+        loadedBookingWindows={bookingWindows}
+        loadedWaitlistEntries={waitlistEntries}
+      />
     </HydrateClient>
   );
 }

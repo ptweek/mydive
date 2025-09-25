@@ -2,18 +2,21 @@ import { HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import CalendarClientPage from "./client-page";
-
+import PageHeader from "mydive/app/_shared-frontend/components/headers/ClientPageHeader";
 export default async function CalendarPage() {
   const user = await currentUser();
-
   if (!user) {
     redirect("/");
   }
-
   return (
     <HydrateClient>
-      {/* Content */}
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-2 py-4 sm:px-4 sm:py-6 lg:px-6 lg:py-8">
+      <div className="mx-auto flex w-3/4 flex-col space-y-3">
+        <PageHeader
+          title={"Booking Calendar"}
+          description={
+            "Book an isolated three day window, or hop on the waitlist."
+          }
+        />
         <CalendarClientPage userId={user.id} />
       </div>
     </HydrateClient>
