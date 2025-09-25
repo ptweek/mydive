@@ -83,11 +83,10 @@ const MobileScheduledJumpCard = ({
           <div className="text-center">
             <div className="rounded-lg bg-purple-50 px-3 py-2 text-purple-700">
               <div className="text-sm font-semibold capitalize">
-                {scheduledJump.jumpType?.toLowerCase().replace("_", " ") ||
-                  "Standard"}
+                {scheduledJump.bookingZone}
               </div>
             </div>
-            <div className="mt-1 text-xs text-slate-500">Jump Type</div>
+            <div className="mt-1 text-xs text-slate-500">Booking Zone</div>
           </div>
 
           {/* Created Date */}
@@ -102,10 +101,9 @@ const MobileScheduledJumpCard = ({
         </div>
 
         {/* Actions */}
-        {(isAdminView && scheduledJump.status === "SCHEDULED") ||
-        (!isAdminView &&
-          scheduledJump.status !== "CANCELED" &&
-          scheduledJump.status !== "COMPLETED") ? (
+        {!isAdminView &&
+        scheduledJump.status !== "CANCELED" &&
+        scheduledJump.status !== "COMPLETED" ? (
           <div className="mt-4 flex gap-2 border-t border-slate-100 pt-4">
             {isAdminView && (
               <button
