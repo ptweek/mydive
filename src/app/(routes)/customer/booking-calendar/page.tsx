@@ -2,7 +2,8 @@ import { HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import CalendarClientPage from "./client-page";
-import PageHeader from "mydive/app/_shared-frontend/components/headers/ClientPageHeader";
+import PageHeader from "mydive/app/_shared-frontend/components/headers/PageHeader";
+
 export default async function CalendarPage() {
   const user = await currentUser();
   if (!user) {
@@ -10,14 +11,22 @@ export default async function CalendarPage() {
   }
   return (
     <HydrateClient>
-      <div className="mx-auto flex h-screen w-[90%] flex-col space-y-3 sm:w-3/4">
+      {/* Account for pt-20 (80px) from customer layout */}
+      <div
+        className="mx-auto grid w-[90%] grid-rows-[auto_1fr] gap-3 sm:w-3/4"
+        style={{ height: "calc(100vh - 80px)" }}
+      >
         <PageHeader
           title={"Booking Calendar"}
           description={
             "Book an isolated three day window, or hop on the waitlist."
           }
         />
-        <CalendarClientPage userId={user.id} />
+        {/* This div will take all remaining space */}
+        <div className="mb-5 min-h-0">
+          {/* Important: allows shrinking */}
+          <CalendarClientPage userId={user.id} />
+        </div>
       </div>
     </HydrateClient>
   );

@@ -7,7 +7,7 @@ import type { UserDto } from "mydive/server/api/routers/types";
 import { useMemo } from "react";
 import ScheduledJumpsTable from "mydive/app/_shared-frontend/components/tables/scheduled-jump/table";
 import { Card, CardBody } from "@nextui-org/react";
-import PageHeader from "mydive/app/_shared-frontend/components/headers/ClientPageHeader";
+import PageHeader from "mydive/app/_shared-frontend/components/headers/PageHeader";
 
 export default function AdminScheduledJumpsClient({
   scheduledJumps,

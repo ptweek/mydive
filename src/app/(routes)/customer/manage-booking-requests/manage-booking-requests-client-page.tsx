@@ -20,7 +20,6 @@ import { calculateBookingRequestsStats } from "mydive/app/_shared-frontend/utils
 import { CancelWaitlistEntryConfirmationModal } from "mydive/app/_shared-frontend/components/modals/cancellation-confirmation/waitlist-entry";
 import BookingRequestsStatsCards from "mydive/app/_shared-frontend/components/cards/booking-requests-stats-cards";
 import { useRouter } from "next/navigation";
-import PageHeader from "mydive/app/_shared-frontend/components/headers/ClientPageHeader";
 
 export default function ManageBookingRequestsClient({
   loadedBookingWindows,
@@ -217,67 +216,60 @@ export default function ManageBookingRequestsClient({
   };
 
   return (
-    <div className="relative z-10 w-full px-4 py-6 sm:p-6 md:p-8">
-      <div className="flex h-full max-w-7xl flex-col">
-        {/* Header */}
-        <PageHeader
-          title={"Booking Requests Manager"}
-          description={"Manage and track all your requests"}
-        />
-        {/* Stats Cards */}
-        <div className="flex-shrink-0 sm:mb-4">
-          <BookingRequestsStatsCards stats={stats} />
-        </div>
-        {/* Table - Takes remaining space */}
-        <div className="mb-5 min-h-0 flex-1">
-          <Card className="h-full bg-white/95 shadow-2xl backdrop-blur-sm">
-            <CardBody className="flex h-full flex-col p-0">
-              <div className="flex-shrink-0">
-                <BookingRequestsTableFilters
-                  numVisibleRows={filteredBookings.length}
-                  showCancelled={showCancelled}
-                  setShowCancelled={setShowCancelled}
-                  showPast={showPast}
-                  setShowPast={setShowPast}
-                />
-              </div>
-              <div className="min-h-0 flex-1 overflow-auto">
-                <BookingRequestsTable
-                  tableData={filteredBookings}
-                  handleBookingWindowCancellationClick={
-                    handleCancelBookingWindowClick
-                  }
-                  handleWaitlistEntryCancellationClick={
-                    handleCancelWaitlistEntryClick
-                  }
-                />
-              </div>
-            </CardBody>
-          </Card>
-        </div>
-        {selectedBookingWindow && (
-          <CancelBookingWindowConfirmationModal
-            isOpen={cancelModalOpen}
-            onClose={() => {
-              setCancelModalOpen(false);
-              setSelectedBookingWindow(null);
-            }}
-            onConfirm={handleConfirmCancel}
-            bookingWindow={selectedBookingWindow}
-          />
-        )}
-        {selectedWaitlistEntry && (
-          <CancelWaitlistEntryConfirmationModal
-            isOpen={cancelWaitlistEntryCancellationModalOpen}
-            onClose={() => {
-              setWaitlistEntryCancellationModalOpen(false);
-              setSelectedWaitlistEntry(null);
-            }}
-            onConfirm={handleConfirmWaitlistEntryCancellation}
-            waitlistEntry={selectedWaitlistEntry}
-          />
-        )}
+    <>
+      {/* Stats Cards */}
+      <div className="flex-shrink-0 sm:mb-4">
+        <BookingRequestsStatsCards stats={stats} />
       </div>
-    </div>
+      {/* Table - Takes remaining space */}
+      <div className="mb-5 min-h-0 flex-1">
+        <Card className="h-full bg-white/95 shadow-2xl backdrop-blur-sm">
+          <CardBody className="flex h-full flex-col p-0">
+            <div className="flex-shrink-0">
+              <BookingRequestsTableFilters
+                numVisibleRows={filteredBookings.length}
+                showCancelled={showCancelled}
+                setShowCancelled={setShowCancelled}
+                showPast={showPast}
+                setShowPast={setShowPast}
+              />
+            </div>
+            <div className="min-h-0 flex-1 overflow-auto">
+              <BookingRequestsTable
+                tableData={filteredBookings}
+                handleBookingWindowCancellationClick={
+                  handleCancelBookingWindowClick
+                }
+                handleWaitlistEntryCancellationClick={
+                  handleCancelWaitlistEntryClick
+                }
+              />
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+      {selectedBookingWindow && (
+        <CancelBookingWindowConfirmationModal
+          isOpen={cancelModalOpen}
+          onClose={() => {
+            setCancelModalOpen(false);
+            setSelectedBookingWindow(null);
+          }}
+          onConfirm={handleConfirmCancel}
+          bookingWindow={selectedBookingWindow}
+        />
+      )}
+      {selectedWaitlistEntry && (
+        <CancelWaitlistEntryConfirmationModal
+          isOpen={cancelWaitlistEntryCancellationModalOpen}
+          onClose={() => {
+            setWaitlistEntryCancellationModalOpen(false);
+            setSelectedWaitlistEntry(null);
+          }}
+          onConfirm={handleConfirmWaitlistEntryCancellation}
+          waitlistEntry={selectedWaitlistEntry}
+        />
+      )}
+    </>
   );
 }

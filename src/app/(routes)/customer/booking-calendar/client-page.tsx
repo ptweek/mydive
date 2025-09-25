@@ -310,72 +310,74 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
   );
 
   return (
-    <>
+    <div className="flex h-full flex-col gap-3">
       <CalendarLegend />
-      <div className="mb-5 overflow-hidden rounded-lg bg-white p-2 text-black shadow-lg">
-        <div
-          className="sm:h-[450px]"
-          style={{ height: "450px", touchAction: "manipulation" }}
-        >
-          <Calendar
-            localizer={localizer}
-            longPressThreshold={1}
-            events={[]}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: "100%" }}
-            date={currentDate}
-            onNavigate={handleNavigate}
-            onSelectSlot={(slotInfo) => {
-              console.log("Slot selected:", slotInfo);
-              handleSelectSlot(slotInfo, userId);
-            }}
-            selectable={true}
-            dayPropGetter={dayPropGetter}
-            components={{
-              toolbar: CalendarToolbar,
-              event: EventComponent,
-            }}
-            views={["month"]}
-            step={60}
-            showMultiDayTimes
-          />
-        </div>
 
-        {/* Action Buttons - Mobile Optimized */}
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-end sm:space-y-0 sm:space-x-3">
-          <Button
-            size="lg"
-            variant="shadow"
-            disabled={!newEvent}
-            onPress={clearNewBooking}
-            className={clsx(
-              "w-full px-3 py-3 text-sm font-semibold tracking-wider uppercase transition-all duration-200 sm:w-auto sm:text-lg",
-              !newEvent
-                ? "cursor-not-allowed bg-gray-400 text-gray-200 shadow-none hover:bg-gray-400 hover:shadow-none"
-                : "bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30",
-            )}
-          >
-            Clear booking
-          </Button>
-          <Button
-            size="lg"
-            variant="shadow"
-            disabled={!newEvent}
-            onPress={handleBookNow}
-            className={clsx(
-              "w-full px-3 py-3 text-sm font-semibold tracking-wider uppercase transition-all duration-200 sm:w-auto sm:text-lg",
-              !newEvent
-                ? "cursor-not-allowed bg-gray-400 text-gray-200 shadow-none hover:bg-gray-400 hover:shadow-none"
-                : "bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30",
-            )}
-          >
-            Book Now
-          </Button>
+      {/* Calendar takes remaining space */}
+      <div className="min-h-0 flex-1 overflow-hidden rounded-lg bg-white p-2 text-black shadow-lg">
+        <div className="flex h-full flex-col">
+          {/* Calendar component takes available space */}
+          <div className="flex-1" style={{ touchAction: "manipulation" }}>
+            <Calendar
+              localizer={localizer}
+              longPressThreshold={1}
+              events={[]}
+              startAccessor="start"
+              endAccessor="end"
+              style={{ height: "100%" }}
+              date={currentDate}
+              onNavigate={handleNavigate}
+              onSelectSlot={(slotInfo) => {
+                console.log("Slot selected:", slotInfo);
+                handleSelectSlot(slotInfo, userId);
+              }}
+              selectable={true}
+              dayPropGetter={dayPropGetter}
+              components={{
+                toolbar: CalendarToolbar,
+                event: EventComponent,
+              }}
+              views={["month"]}
+              step={60}
+              showMultiDayTimes
+            />
+          </div>
+
+          {/* Fixed height buttons at bottom */}
+          <div className="mt-4 flex flex-shrink-0 flex-col gap-3 sm:flex-row sm:justify-end sm:space-y-0 sm:space-x-3">
+            <Button
+              size="lg"
+              variant="shadow"
+              disabled={!newEvent}
+              onPress={clearNewBooking}
+              className={clsx(
+                "w-full px-3 py-3 text-sm font-semibold tracking-wider uppercase transition-all duration-200 sm:w-auto sm:text-lg",
+                !newEvent
+                  ? "cursor-not-allowed bg-gray-400 text-gray-200 shadow-none hover:bg-gray-400 hover:shadow-none"
+                  : "bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30",
+              )}
+            >
+              Clear booking
+            </Button>
+            <Button
+              size="lg"
+              variant="shadow"
+              disabled={!newEvent}
+              onPress={handleBookNow}
+              className={clsx(
+                "w-full px-3 py-3 text-sm font-semibold tracking-wider uppercase transition-all duration-200 sm:w-auto sm:text-lg",
+                !newEvent
+                  ? "cursor-not-allowed bg-gray-400 text-gray-200 shadow-none hover:bg-gray-400 hover:shadow-none"
+                  : "bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30",
+              )}
+            >
+              Book Now
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Modals */}
+      {/* Modals remain the same */}
       {showEventForm && newEvent && (
         <EventCreationModal
           newEvent={newEvent}
@@ -398,7 +400,6 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
         />
       )}
 
-      {/* Success Alert */}
       {showSuccessAlert && (
         <div className="animate-in slide-in-from-right fixed top-20 right-4 z-[9999] duration-300">
           <div className="rounded-lg border border-green-400 bg-green-500 px-6 py-4 text-white shadow-2xl">
@@ -426,6 +427,6 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

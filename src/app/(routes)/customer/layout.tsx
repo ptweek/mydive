@@ -14,7 +14,6 @@ export default async function CustomerLayout({
 
   return (
     <main className="relative flex min-h-screen flex-col overflow-hidden text-white">
-      {/* Background Video */}
       <video
         autoPlay
         muted
@@ -25,10 +24,8 @@ export default async function CustomerLayout({
         <source src="/videos/skydiving-background.mp4" type="video/mp4" />
       </video>
 
-      {/* Dark overlay for better text readability */}
       <div className="absolute inset-0 z-0 bg-black/40"></div>
 
-      {/* Content with proper spacing for fixed header */}
       <div className="relative z-10 pt-20">{children}</div>
     </main>
   );
