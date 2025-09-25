@@ -20,6 +20,7 @@ import { calculateBookingRequestsStats } from "mydive/app/_shared-frontend/utils
 import { CancelWaitlistEntryConfirmationModal } from "mydive/app/_shared-frontend/components/modals/cancellation-confirmation/waitlist-entry";
 import BookingRequestsStatsCards from "mydive/app/_shared-frontend/components/cards/booking-requests-stats-cards";
 import { useRouter } from "next/navigation";
+import PageHeader from "mydive/app/_shared-frontend/components/headers/ClientPageHeader";
 
 export default function ManageBookingRequestsClient({
   loadedBookingWindows,
@@ -216,23 +217,17 @@ export default function ManageBookingRequestsClient({
   };
 
   return (
-    <div className="flex h-full flex-col px-2 pb-2 sm:px-4 sm:pb-4 md:px-6 md:pb-6">
-      <div className="flex h-full flex-col">
+    <div className="relative z-10 mt-16 h-[calc(100vh-4rem)] w-full px-4 py-6 sm:p-6 md:p-8">
+      <div className="flex h-full max-w-7xl flex-col">
         {/* Header */}
-        <div className="mb-3 flex-shrink-0 pt-2 text-center sm:mb-4 sm:pt-3 sm:text-left md:mb-6 md:pt-4">
-          <h1 className="mb-2 text-2xl font-bold text-white drop-shadow-lg sm:text-3xl md:text-4xl">
-            Booking Requests Manager
-          </h1>
-          <p className="text-sm text-gray-100 drop-shadow sm:text-base">
-            Manage and track all your requests
-          </p>
-        </div>
-
+        <PageHeader
+          title={"Booking Requests Manager"}
+          description={"Manage and track all your requests"}
+        />
         {/* Stats Cards */}
-        <div className="mb-3 flex-shrink-0 sm:mb-4">
+        <div className="flex-shrink-0 sm:mb-4">
           <BookingRequestsStatsCards stats={stats} />
         </div>
-
         {/* Table - Takes remaining space */}
         <div className="mb-5 min-h-0 flex-1">
           <Card className="h-full bg-white/95 shadow-2xl backdrop-blur-sm">
@@ -260,7 +255,6 @@ export default function ManageBookingRequestsClient({
             </CardBody>
           </Card>
         </div>
-
         {selectedBookingWindow && (
           <CancelBookingWindowConfirmationModal
             isOpen={cancelModalOpen}

@@ -28,10 +28,8 @@ export default async function CalendarPage() {
         <div className="absolute inset-0 z-0 bg-black/40"></div>
 
         {/* Content */}
-        <div className="relative z-10 w-full px-2 py-4 sm:px-4 sm:py-6 lg:px-6 lg:py-8">
-          <div className="mx-auto max-w-7xl">
-            <CalendarClientPage userId={user.id} />
-          </div>
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-2 py-4 sm:px-4 sm:py-6 lg:px-6 lg:py-8">
+          <CalendarClientPage userId={user.id} />
         </div>
       </main>
     </HydrateClient>

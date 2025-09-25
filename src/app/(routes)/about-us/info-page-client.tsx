@@ -1,7 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function InfoPage() {
+  const router = useRouter();
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
@@ -146,12 +148,22 @@ export default function InfoPage() {
             really means?`}
           </p>
           <div className="flex flex-col justify-center gap-6 sm:flex-row">
-            <button className="group relative overflow-hidden rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white transition-all duration-300 hover:from-blue-500 hover:to-purple-500 hover:shadow-xl hover:shadow-blue-500/25">
+            <button
+              onClick={() => {
+                router.push("customer/booking-calendar");
+              }}
+              className="group relative overflow-hidden rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white transition-all duration-300 hover:from-blue-500 hover:to-purple-500 hover:shadow-xl hover:shadow-blue-500/25"
+            >
               <span className="relative z-10">Book Your Adventure</span>
               <div className="absolute inset-0 translate-x-full bg-gradient-to-r from-white/0 to-white/20 transition-transform duration-500 group-hover:translate-x-0"></div>
             </button>
-            <button className="group relative overflow-hidden rounded-full border-2 border-white/30 px-8 py-4 text-lg font-semibold text-white transition-all duration-300 hover:border-white/50 hover:bg-white/10">
-              <span className="relative z-10">Learn More</span>
+            <button
+              onClick={() => {
+                router.push("faq");
+              }}
+              className="group relative overflow-hidden rounded-full border-2 border-white/30 px-8 py-4 text-lg font-semibold text-white transition-all duration-300 hover:border-white/50 hover:bg-white/10"
+            >
+              <span className="relative z-10">Frequently Asked Questions</span>
             </button>
           </div>
         </div>

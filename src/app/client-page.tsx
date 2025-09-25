@@ -47,7 +47,7 @@ export default function HomePageClient() {
           variant="shadow"
           className="min-h-[48px] w-full border-2 border-white bg-white/10 text-sm font-semibold tracking-wider text-white uppercase backdrop-blur-sm hover:bg-white/20 hover:shadow-xl hover:shadow-white/20 sm:min-h-[52px] sm:w-44 sm:text-base lg:w-48 lg:text-lg"
           onPress={() => {
-            window.location.href = "/info";
+            window.location.href = "/about-us";
           }}
         >
           Learn More

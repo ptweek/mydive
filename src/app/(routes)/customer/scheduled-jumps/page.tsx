@@ -27,6 +27,9 @@ export default async function ScheduledJumpsPage() {
           <source src="/videos/skydiving-background.mp4" type="video/mp4" />
         </video>
 
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 z-0 bg-black/40"></div>
+
         {/* Content */}
         <CustomerScheduledJumpsClient scheduledJumps={scheduledJumps} />
       </main>

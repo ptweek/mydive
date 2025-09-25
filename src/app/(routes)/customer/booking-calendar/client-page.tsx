@@ -25,6 +25,7 @@ import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { api } from "mydive/trpc/react";
 import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_shared-frontend/utils/booking";
+import PageHeader from "mydive/app/_shared-frontend/components/headers/ClientPageHeader";
 
 const localizer = momentLocalizer(moment);
 
@@ -312,20 +313,17 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
 
   return (
     <div className="w-full space-y-4 sm:space-y-6">
-      {/* Header - Mobile Optimized */}
-      <div className="px-2 sm:px-0">
-        <h1 className="text-2xl font-bold sm:text-3xl">Scheduling Calendar</h1>
-        <p className="mt-2 text-sm text-gray-200 sm:text-base">
-          Book an isolated three day window, or hop on the waitlist.
-        </p>
-      </div>
+      <PageHeader
+        title={"Booking Calendar"}
+        description={
+          "Book an isolated three day window, or hop on the waitlist."
+        }
+      />
 
-      {/* Calendar Legend - Mobile Optimized */}
       <div className="px-2 sm:px-0">
         <CalendarLegend />
       </div>
 
-      {/* Calendar Container - Mobile Optimized */}
       <div className="mx-2 overflow-hidden rounded-lg bg-white p-2 text-black shadow-lg sm:mx-0 sm:p-4">
         <div
           className="sm:h-[600px]"

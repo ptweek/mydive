@@ -6,6 +6,7 @@ import { computeScheduledJumpStats } from "mydive/app/_shared-frontend/utils/sta
 import { useMemo } from "react";
 import ScheduledJumpsTable from "mydive/app/_shared-frontend/components/tables/scheduled-jump/table";
 import { Card, CardBody } from "@nextui-org/react";
+import PageHeader from "mydive/app/_shared-frontend/components/headers/ClientPageHeader";
 
 export default function CustomerScheduledJumpsClientPage({
   scheduledJumps,
@@ -20,14 +21,10 @@ export default function CustomerScheduledJumpsClientPage({
     <div className="relative z-10 mt-16 h-[calc(100vh-4rem)] w-full px-4 py-6 sm:p-6 md:p-8">
       <div className="mx-auto flex h-full max-w-7xl flex-col">
         {/* Header */}
-        <div className="mb-6 flex-shrink-0 sm:mb-8">
-          <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl md:text-4xl lg:text-4xl">
-            Scheduled Jumps Manager
-          </h1>
-          <p className="text-sm text-gray-200 sm:text-base md:text-gray-600">
-            See all of your scheduled jumps in one place
-          </p>
-        </div>
+        <PageHeader
+          title={"Scheduled Jumps Manager"}
+          description={"See all of your scheduled jumps in one place"}
+        />
 
         {/* Stats Cards */}
         <div className="mb-6 flex-shrink-0 sm:mb-8">
