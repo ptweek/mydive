@@ -6,7 +6,6 @@ import { computeScheduledJumpStats } from "mydive/app/_shared-frontend/utils/sta
 import { useMemo } from "react";
 import ScheduledJumpsTable from "mydive/app/_shared-frontend/components/tables/scheduled-jump/table";
 import { Card, CardBody } from "@nextui-org/react";
-import PageHeader from "mydive/app/_shared-frontend/components/headers/PageHeader";
 
 export default function CustomerScheduledJumpsClientPage({
   scheduledJumps,
@@ -18,27 +17,23 @@ export default function CustomerScheduledJumpsClientPage({
   }, [scheduledJumps]);
 
   return (
-    <>
-      {/* Stats Cards */}
-      <div className="mb-6 flex-shrink-0 sm:mb-8">
+    <div className="flex h-full flex-col gap-3">
+      {/* Added this wrapper with flex container */}
+      <div className="flex-shrink-0">
         <ScheduledJumpsStatsCards stats={stats} />
       </div>
-
-      {/* Table Card */}
-      <div className="mb-[5px] min-h-0 flex-1">
+      <div className="mb-5 min-h-0 flex-1">
         <Card className="h-full bg-white/95 shadow-2xl backdrop-blur-sm">
           <CardBody className="flex h-full flex-col p-0">
-            <div className="min-h-0 flex-1 overflow-hidden">
-              <div className="h-full overflow-auto">
-                <ScheduledJumpsTable
-                  scheduledJumps={scheduledJumps}
-                  isAdminView={false}
-                />
-              </div>
+            <div className="h-full min-h-0 flex-1 overflow-auto">
+              <ScheduledJumpsTable
+                scheduledJumps={scheduledJumps}
+                isAdminView={false}
+              />
             </div>
           </CardBody>
         </Card>
       </div>
-    </>
+    </div>
   );
 }

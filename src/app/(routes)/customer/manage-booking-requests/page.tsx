@@ -1,7 +1,7 @@
 import { api, HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import ManageBookingRequestsClient from "./manage-booking-requests-client-page";
+import ManageBookingRequestsClient from "./client-page";
 import PageHeader from "mydive/app/_shared-frontend/components/headers/PageHeader";
 
 export default async function ManageBookingsRequestsPage() {
@@ -15,7 +15,10 @@ export default async function ManageBookingsRequestsPage() {
     });
   return (
     <HydrateClient>
-      <div className="mx-auto mb-5 flex h-screen w-[90%] flex-col space-y-3 sm:w-3/4">
+      <div
+        className="mx-auto grid w-[90%] grid-rows-[auto_1fr] gap-3 sm:w-3/4"
+        style={{ height: "calc(100vh - 80px)" }}
+      >
         <PageHeader
           title={"Booking Requests Manager"}
           description={"Manage and track all your requests"}

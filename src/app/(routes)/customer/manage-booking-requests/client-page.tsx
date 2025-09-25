@@ -217,11 +217,9 @@ export default function ManageBookingRequestsClient({
 
   return (
     <>
-      {/* Stats Cards */}
       <div className="flex-shrink-0 sm:mb-4">
         <BookingRequestsStatsCards stats={stats} />
       </div>
-      {/* Table - Takes remaining space */}
       <div className="mb-5 min-h-0 flex-1">
         <Card className="h-full bg-white/95 shadow-2xl backdrop-blur-sm">
           <CardBody className="flex h-full flex-col p-0">

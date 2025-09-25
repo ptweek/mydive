@@ -15,7 +15,10 @@ export default async function ScheduledJumpsPage() {
     });
   return (
     <HydrateClient>
-      <div className="mx-auto mb-5 flex h-screen w-[90%] flex-col space-y-3 sm:w-3/4">
+      <div
+        className="mx-auto grid w-[90%] grid-rows-[auto_1fr] gap-3 sm:w-3/4"
+        style={{ height: "calc(100vh - 80px)" }}
+      >
         <PageHeader
           title={"Scheduled Jumps Manager"}
           description={"See all of your scheduled jumps in one place"}

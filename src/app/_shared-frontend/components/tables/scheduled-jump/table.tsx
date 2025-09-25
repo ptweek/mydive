@@ -275,7 +275,7 @@ export default function ScheduledJumpsTable({
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col p-0">
       {/* Fixed Filters */}
       <div className="flex-shrink-0">
         <ScheduledJumpsTableFilters
