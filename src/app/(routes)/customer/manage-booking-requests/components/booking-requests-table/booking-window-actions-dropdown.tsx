@@ -1,5 +1,6 @@
 import type { BookingWindow } from "@prisma/client";
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 export const BookingWindowActionsDropdown = ({
   booking,
@@ -9,16 +10,19 @@ export const BookingWindowActionsDropdown = ({
   onCancel: (booking: BookingWindow) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const dropdown = dropdownRef.current;
+      const button = buttonRef.current;
       const target = event.target;
 
-      if (dropdown && target && target instanceof Node) {
-        if (!dropdown.contains(target)) {
+      if (dropdown && button && target && target instanceof Node) {
+        if (!dropdown.contains(target) && !button.contains(target)) {
           setIsOpen(false);
         }
       }
@@ -28,12 +32,35 @@ export const BookingWindowActionsDropdown = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Calculate dropdown position when opened
+  useEffect(() => {
+    if (isOpen && buttonRef.current) {
+      const buttonRect = buttonRef.current.getBoundingClientRect();
+      const dropdownWidth = 192; // w-48 = 12rem = 192px
+      const dropdownHeight = 100; // Approximate height
+
+      let top = buttonRect.bottom + window.scrollY + 8; // 8px gap (mt-2)
+      let left = buttonRect.right + window.scrollX - dropdownWidth; // Right-aligned
+
+      // Adjust if dropdown would go off-screen
+      if (left < 0) {
+        left = buttonRect.left + window.scrollX;
+      }
+
+      if (top + dropdownHeight > window.innerHeight + window.scrollY) {
+        top = buttonRect.top + window.scrollY - dropdownHeight - 8;
+      }
+
+      setDropdownPosition({ top, left });
+    }
+  }, [isOpen]);
+
   const getActions = () => {
     switch (booking.status) {
       case "PENDING":
         return [
           {
-            label: "Cancel Booking",
+            label: "Cancel booking window",
             icon: "❌",
             onClick: () => {
               onCancel(booking);
@@ -46,9 +73,10 @@ export const BookingWindowActionsDropdown = ({
       case "CONFIRMED":
         return [
           {
-            label: "Cancel Booking",
+            label: "Cancel booking window",
             icon: "❌",
             onClick: () => {
+              onCancel(booking);
               setIsOpen(false);
             },
             className: "text-red-600 hover:bg-red-50",
@@ -65,12 +93,45 @@ export const BookingWindowActionsDropdown = ({
 
   const actions = getActions();
 
+  // Render dropdown using portal for maximum z-index control
+  const renderDropdown = () => {
+    if (!isOpen) return null;
+
+    const dropdown = (
+      <div
+        ref={dropdownRef}
+        className="fixed w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-xl"
+        style={{
+          top: dropdownPosition.top,
+          left: dropdownPosition.left,
+          zIndex: 9999, // Maximum z-index
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", // Enhanced shadow
+        }}
+      >
+        {actions.map((action, index) => (
+          <button
+            key={index}
+            onClick={action.onClick}
+            className={`flex w-full items-center gap-3 px-4 py-2 text-left text-sm transition-colors duration-150 ${action.className}`}
+          >
+            <span className="text-base">{action.icon}</span>
+            {action.label}
+          </button>
+        ))}
+      </div>
+    );
+
+    // Use portal to render dropdown at document.body level
+    return createPortal(dropdown, document.body);
+  };
+
   return (
-    <div className="relative z-0" ref={dropdownRef}>
+    <>
       {/* Three dots button */}
       <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="rounded-full p-2 transition-colors duration-200 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none"
+        className="relative z-10 rounded-full p-2 transition-colors duration-200 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none"
         aria-label="More actions"
       >
         <svg
@@ -82,21 +143,8 @@ export const BookingWindowActionsDropdown = ({
         </svg>
       </button>
 
-      {/* Dropdown menu */}
-      {isOpen && (
-        <div className="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
-          {actions.map((action, index) => (
-            <button
-              key={index}
-              onClick={action.onClick}
-              className={`flex w-full items-center gap-3 px-4 py-2 text-left text-sm transition-colors duration-150 ${action.className}`}
-            >
-              <span className="text-base">{action.icon}</span>
-              {action.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+      {/* Dropdown menu rendered via portal */}
+      {renderDropdown()}
+    </>
   );
 };
