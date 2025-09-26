@@ -2,7 +2,6 @@ import { HydrateClient } from "mydive/trpc/server";
 import DashboardClient from "./dashboard-client";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { Card } from "@nextui-org/react";
 
 export default async function CustomerDashboardEntry() {
   const user = await currentUser();
