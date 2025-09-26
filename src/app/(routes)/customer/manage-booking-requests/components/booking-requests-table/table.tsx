@@ -175,7 +175,7 @@ const MobileBookingCard = ({
 
         {/* Expandable Details */}
         {isExpanded && (
-          <div className="border-t border-slate-100 p-4">
+          <div className="space-y-1 border-t border-slate-100 p-4">
             <div className="text-center">
               <div className="inline-flex items-center gap-2 rounded-lg bg-purple-50 px-3 py-2 text-purple-700">
                 <span className="font-semibold">
