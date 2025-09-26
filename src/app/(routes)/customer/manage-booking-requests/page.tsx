@@ -21,7 +21,7 @@ export default async function ManageBookingsRequestsPage() {
         style={{ height: "calc(100vh - 80px)" }}
       >
         <PageHeader
-          title={"Booking Requests Manager"}
+          title={"Booking Requests"}
           description={"Manage and track all your requests"}
         />
         <ManageBookingRequestsClient
