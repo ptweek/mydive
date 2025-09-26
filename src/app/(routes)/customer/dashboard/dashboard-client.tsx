@@ -6,7 +6,7 @@ import DashboardActionButton from "mydive/app/_shared-frontend/components/button
 export default function DashboardClient() {
   const router = useRouter();
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6">
+    <div className="mx-auto w-full max-w-4xl overflow-auto px-4 py-6 sm:px-6">
       {/* Mobile: 1 column, Tablet+: 2 columns */}
       <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
         {/* Book Now Card */}

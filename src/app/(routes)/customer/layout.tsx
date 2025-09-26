@@ -26,7 +26,7 @@ export default async function CustomerLayout({
 
       <div className="absolute inset-0 z-10 bg-black/40"></div>
 
-      <div className="relative z-20 pt-20">{children}</div>
+      <div className="relative z-20 pt-16">{children}</div>
     </main>
   );
 }
