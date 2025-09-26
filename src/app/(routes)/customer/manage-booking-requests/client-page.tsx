@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import { Card, CardBody } from "@nextui-org/react";
 import { api } from "mydive/trpc/react";
 
 import { CancelBookingWindowConfirmationModal } from "mydive/app/_shared-frontend/components/modals/cancellation-confirmation/booking-window";

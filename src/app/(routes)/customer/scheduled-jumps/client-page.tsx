@@ -5,7 +5,6 @@ import ScheduledJumpsStatsCards from "mydive/app/_shared-frontend/components/car
 import { computeScheduledJumpStats } from "mydive/app/_shared-frontend/utils/stats";
 import { useMemo } from "react";
 import ScheduledJumpsTable from "mydive/app/_shared-frontend/components/tables/scheduled-jump/table";
-import { Card, CardBody } from "@nextui-org/react";
 
 export default function CustomerScheduledJumpsClientPage({
   scheduledJumps,
