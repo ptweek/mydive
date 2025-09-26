@@ -13,7 +13,7 @@ export default async function CalendarPage() {
     <HydrateClient>
       <div
         className="mx-auto grid w-[90%] grid-rows-[auto_1fr] gap-3 pt-2 sm:w-3/4"
-        style={{ height: "calc(100vh - 100px)" }}
+        style={{ height: "calc(100vh - 120px)" }}
       >
         <PageHeader
           title={"Booking Calendar"}
