@@ -78,7 +78,7 @@ export default async function RootLayout({
               </SignedIn>
             </div>
           </header>
-          <div className="min-h-screen w-full">{children}</div>
+          {children}
         </Providers>
       </body>
     </html>

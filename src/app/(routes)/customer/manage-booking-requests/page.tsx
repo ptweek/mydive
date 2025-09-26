@@ -16,7 +16,8 @@ export default async function ManageBookingsRequestsPage() {
   return (
     <HydrateClient>
       <div
-        className="mx-auto grid w-[90%] grid-rows-[auto_1fr] gap-3 sm:w-3/4"
+        id="page-elements"
+        className="mx-auto w-[90%] space-y-5 sm:w-3/4"
         style={{ height: "calc(100vh - 80px)" }}
       >
         <PageHeader

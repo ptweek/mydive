@@ -97,25 +97,19 @@ export default function ManageBookingRequestsClient({
   };
 
   return (
-    <>
+    <div
+      className="flex flex-col space-y-5"
+      style={{ height: "calc(100vh - 200px)" }} // I don't love this but it works
+    >
       <BookingRequestsStatsCards stats={stats} />
-      <div className="mb-5 min-h-0 flex-1">
-        <Card className="h-full bg-white/95 shadow-2xl backdrop-blur-sm">
-          <CardBody className="flex h-full flex-col p-0">
-            <div className="min-h-0 flex-1 overflow-auto">
-              <BookingRequestsTable
-                bookingWindows={loadedBookingWindows}
-                waitlistEntries={loadedWaitlistEntries}
-                handleBookingWindowCancellationClick={
-                  handleCancelBookingWindowClick
-                }
-                handleWaitlistEntryCancellationClick={
-                  handleCancelWaitlistEntryClick
-                }
-              />
-            </div>
-          </CardBody>
-        </Card>
+
+      <div className="flex h-full max-h-full flex-1 flex-col overflow-auto bg-white/95 p-0 shadow-2xl backdrop-blur-sm">
+        <BookingRequestsTable
+          bookingWindows={loadedBookingWindows}
+          waitlistEntries={loadedWaitlistEntries}
+          handleBookingWindowCancellationClick={handleCancelBookingWindowClick}
+          handleWaitlistEntryCancellationClick={handleCancelWaitlistEntryClick}
+        />
       </div>
       {selectedBookingWindow && (
         <CancelBookingWindowConfirmationModal
@@ -139,6 +133,6 @@ export default function ManageBookingRequestsClient({
           waitlistEntry={selectedWaitlistEntry}
         />
       )}
-    </>
+    </div>
   );
 }

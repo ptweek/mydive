@@ -13,7 +13,7 @@ export default async function CustomerLayout({
   }
 
   return (
-    <main className="relative flex min-h-screen flex-col overflow-hidden text-white">
+    <main>
       <video
         autoPlay
         muted
@@ -24,9 +24,9 @@ export default async function CustomerLayout({
         <source src="/videos/skydiving-background.mp4" type="video/mp4" />
       </video>
 
-      <div className="absolute inset-0 z-0 bg-black/40"></div>
+      <div className="absolute inset-0 z-10 bg-black/40"></div>
 
-      <div className="relative z-10 pt-20">{children}</div>
+      <div className="relative z-20 pt-20">{children}</div>
     </main>
   );
 }
