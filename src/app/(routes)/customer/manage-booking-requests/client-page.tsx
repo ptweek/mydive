@@ -98,7 +98,7 @@ export default function ManageBookingRequestsClient({
   return (
     <div
       className="flex flex-col space-y-5"
-      style={{ height: "calc(100vh - 200px)" }} // I don't love this but it works
+      style={{ height: "calc(100vh - 250px)" }} // I don't love this but it works
     >
       <BookingRequestsStatsCards stats={stats} />
 
