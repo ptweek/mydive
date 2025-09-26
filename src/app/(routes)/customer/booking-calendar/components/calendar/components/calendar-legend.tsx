@@ -30,6 +30,7 @@ const CalendarLegend = () => {
       label: "Reserved",
       getStyle: () => ({
         backgroundColor: "#fecaca",
+        borderColor: "#d1d5db",
       }),
       description:
         "Days that have been reserved and do not have waitlist availability",
@@ -38,6 +39,7 @@ const CalendarLegend = () => {
       label: "Waitlist",
       getStyle: () => ({
         backgroundColor: "#fef3c7",
+        borderColor: "#d1d5db",
       }),
       description:
         "Days that have been booked as part of window but have waitlist availability",
@@ -130,7 +132,7 @@ const CalendarLegend = () => {
               <div key={index} className="flex min-w-0 items-center gap-3">
                 {/* Color indicator */}
                 <div
-                  className="relative h-6 w-6 flex-shrink-0 rounded border-2"
+                  className="relative h-6 w-6 flex-shrink-0 rounded"
                   style={item.getStyle()}
                 >
                   {item.showUserIcon && (
