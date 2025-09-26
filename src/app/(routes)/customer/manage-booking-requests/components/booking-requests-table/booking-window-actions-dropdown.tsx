@@ -66,7 +66,7 @@ export const BookingWindowActionsDropdown = ({
   const actions = getActions();
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative z-0" ref={dropdownRef}>
       {/* Three dots button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
