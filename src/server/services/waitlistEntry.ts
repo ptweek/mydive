@@ -7,6 +7,11 @@ const waitlistEntryIncludeConfig = {
 export class WaitlistEntryService {
   constructor(private db: PrismaClient) {}
 
+  async findAllPopulated(): Promise<WaitlistEntryWithPopulatedFields[]> {
+    return await this.db.waitlistEntry.findMany({
+      include: waitlistEntryIncludeConfig,
+    });
+  }
   async findManyByWaitlistId(waitlistId: number): Promise<WaitlistEntry[]> {
     return await this.db.waitlistEntry.findMany({
       where: {

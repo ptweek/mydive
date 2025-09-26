@@ -6,6 +6,7 @@ import { CancelBookingWindowConfirmationModal } from "mydive/app/_shared-fronten
 import type {
   BookingWindowPopulatedDto,
   WaitlistEntryPopulatedDto,
+  WaitlistEntryPopulatedWithBookingZoneDto,
 } from "mydive/server/api/routers/types";
 import BookingRequestsTable from "./components/booking-requests-table/table";
 import { calculateBookingRequestsStats } from "mydive/app/_shared-frontend/utils/stats";
@@ -18,7 +19,7 @@ export default function ManageBookingRequestsClient({
   loadedWaitlistEntries,
 }: {
   loadedBookingWindows: BookingWindowPopulatedDto[];
-  loadedWaitlistEntries: WaitlistEntryPopulatedDto[];
+  loadedWaitlistEntries: WaitlistEntryPopulatedWithBookingZoneDto[];
 }) {
   const router = useRouter();
 
@@ -33,7 +34,7 @@ export default function ManageBookingRequestsClient({
   const [selectedBookingWindow, setSelectedBookingWindow] =
     useState<BookingWindowPopulatedDto | null>(null);
   const [selectedWaitlistEntry, setSelectedWaitlistEntry] =
-    useState<WaitlistEntryPopulatedDto | null>(null);
+    useState<WaitlistEntryPopulatedWithBookingZoneDto | null>(null);
 
   // Statistics calculation
   const stats = useMemo(() => {
@@ -75,7 +76,7 @@ export default function ManageBookingRequestsClient({
     setCancelModalOpen(true);
   };
   const handleCancelWaitlistEntryClick = (
-    waitlistEntry: WaitlistEntryPopulatedDto,
+    waitlistEntry: WaitlistEntryPopulatedWithBookingZoneDto,
   ) => {
     setSelectedWaitlistEntry(waitlistEntry);
     setWaitlistEntryCancellationModalOpen(true);

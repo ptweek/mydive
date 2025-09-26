@@ -9,7 +9,7 @@ export default async function ManageBookingsRequestsPage() {
   if (!user) {
     redirect("/");
   }
-  const { bookingWindows, waitlistEntries } =
+  const { bookingWindows, waitlistEntriesWithBookingZone } =
     await api.customerBookingManager.getBookingRequestsByUser({
       bookedBy: user.id,
     });
@@ -26,7 +26,7 @@ export default async function ManageBookingsRequestsPage() {
         />
         <ManageBookingRequestsClient
           loadedBookingWindows={bookingWindows}
-          loadedWaitlistEntries={waitlistEntries}
+          loadedWaitlistEntries={waitlistEntriesWithBookingZone}
         />
       </div>
     </HydrateClient>

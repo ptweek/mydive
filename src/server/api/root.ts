@@ -4,6 +4,7 @@ import { adminBookingManagerRouter } from "./routers/adminBookingManager";
 import { customerBookingManagerRouter } from "./routers/customerBookingManager";
 import { adminScheduledJumpsManagerRouter } from "./routers/adminScheduledJumpsManager";
 import { customerScheduledJumpsManagerRouter } from "./routers/customerScheduledJumpsManager";
+import { waitlistEntryRouter } from "./routers/waitlistEntry";
 
 /**
  * This is the primary router for your server.
@@ -11,6 +12,7 @@ import { customerScheduledJumpsManagerRouter } from "./routers/customerScheduled
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  waitlistEntries: waitlistEntryRouter,
   bookingWindow: bookingWindowRouter,
   adminBookingManager: adminBookingManagerRouter,
   customerBookingManager: customerBookingManagerRouter,

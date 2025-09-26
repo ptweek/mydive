@@ -22,7 +22,41 @@ export const customerBookingManagerRouter = createTRPCRouter({
           await ctx.services.waitlistEntry.findAllByUserPopulated(
             input.bookedBy,
           );
-        return { bookingWindows, waitlistEntries };
+        const waitlistBookingWindowIds = Array.from(
+          new Set(
+            waitlistEntries.map((waitlistEntry) => {
+              return waitlistEntry.waitlist.associatedBookingId;
+            }),
+          ),
+        );
+        const waitlistEntriesBookingWindows =
+          await ctx.services.bookingWindow.findMany({
+            ids: waitlistBookingWindowIds,
+          });
+
+        const waitlistEntriesWithBookingZone = waitlistEntries.map(
+          (waitlistEntry) => {
+            const bookingZone = waitlistEntriesBookingWindows.find(
+              (bookingWindow) => {
+                return (
+                  bookingWindow.id ===
+                  waitlistEntry.waitlist.associatedBookingId
+                );
+              },
+            )?.bookingZone;
+            if (!bookingZone) {
+              throw new Error(
+                "Couldn't find booking zone for the waitlist entry!",
+              );
+            }
+            return {
+              ...waitlistEntry,
+              bookingZone,
+            };
+          },
+        );
+
+        return { bookingWindows, waitlistEntriesWithBookingZone };
       } catch (error) {
         console.error("Error fetching bookings by user:", error);
         throw new Error("Failed to fetch user bookings");

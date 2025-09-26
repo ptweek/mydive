@@ -29,6 +29,9 @@ export class BookingWindowService {
       include: bookingWindowIncludeConfig,
     });
   }
+  async findMany({ ids }: { ids: number[] }): Promise<BookingWindow[]> {
+    return await this.db.bookingWindow.findMany({ where: { id: { in: ids } } });
+  }
   async findById(id: number): Promise<BookingWindow | null> {
     return await this.db.bookingWindow.findUnique({
       where: {

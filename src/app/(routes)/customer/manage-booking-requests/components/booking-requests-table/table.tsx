@@ -23,6 +23,7 @@ import {
 import type {
   BookingWindowPopulatedDto,
   WaitlistEntryPopulatedDto,
+  WaitlistEntryPopulatedWithBookingZoneDto,
 } from "mydive/server/api/routers/types";
 import { BookingWindowActionsDropdown } from "./booking-window-actions-dropdown";
 import type { BookingStatus } from "@prisma/client";
@@ -46,7 +47,7 @@ export type BookingRequestTableRow = {
   requestedJumpDate: Date;
   scheduledJumpDates: Date[]; // Should only provide the ACTIVE scheduled jump date
   createdAt: Date;
-  data: BookingWindowPopulatedDto | WaitlistEntryPopulatedDto;
+  data: BookingWindowPopulatedDto | WaitlistEntryPopulatedWithBookingZoneDto;
 };
 
 const BookingWindowRequestSummaryInfo = ({
@@ -97,7 +98,7 @@ const MobileBookingCard = ({
     booking: BookingWindowPopulatedDto,
   ) => void;
   handleWaitlistEntryCancellationClick: (
-    waitlistEntry: WaitlistEntryPopulatedDto,
+    waitlistEntry: WaitlistEntryPopulatedWithBookingZoneDto,
   ) => void;
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -155,7 +156,7 @@ const MobileBookingCard = ({
                     waitlistEntry={tableRow.data}
                     onCancel={() =>
                       handleWaitlistEntryCancellationClick(
-                        tableRow.data as WaitlistEntryPopulatedDto,
+                        tableRow.data as WaitlistEntryPopulatedWithBookingZoneDto,
                       )
                     }
                   />
@@ -175,6 +176,14 @@ const MobileBookingCard = ({
         {/* Expandable Details */}
         {isExpanded && (
           <div className="border-t border-slate-100 p-4">
+            <div className="text-center">
+              <div className="inline-flex items-center gap-2 rounded-lg bg-purple-50 px-3 py-2 text-purple-700">
+                <span className="font-semibold">
+                  {tableRow.data.bookingZone}
+                </span>
+              </div>
+              <div className="mt-1 text-xs text-slate-500">Drop Zone</div>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               {/* Jumpers */}
               <div className="text-center">
@@ -248,12 +257,12 @@ export default function BookingRequestsTable({
   handleWaitlistEntryCancellationClick,
 }: {
   bookingWindows: BookingWindowPopulatedDto[];
-  waitlistEntries: WaitlistEntryPopulatedDto[];
+  waitlistEntries: WaitlistEntryPopulatedWithBookingZoneDto[];
   handleBookingWindowCancellationClick: (
     booking: BookingWindowPopulatedDto,
   ) => void;
   handleWaitlistEntryCancellationClick: (
-    waitlistEntry: WaitlistEntryPopulatedDto,
+    waitlistEntry: WaitlistEntryPopulatedWithBookingZoneDto,
   ) => void;
 }) {
   const [showPast, setShowPast] = useState(false);
@@ -262,12 +271,14 @@ export default function BookingRequestsTable({
   const formattedTableData = useMemo(() => {
     const formattedBookingWindowsData: BookingRequestTableRow[] =
       bookingWindows.map((bookingWindow) => {
-        const { id, status, numJumpers, createdAt } = bookingWindow;
+        const { id, status, numJumpers, createdAt, bookingZone } =
+          bookingWindow;
         return {
           type: "BOOKING_WINDOW",
           id,
           status,
           numJumpers,
+          bookingZone,
           createdAt,
           bookingWindowDates: {
             start: bookingWindow.windowStartDate,
@@ -287,13 +298,15 @@ export default function BookingRequestsTable({
           return waitlistEntry.status;
         })
         .map((waitlistEntry) => {
-          const { id, status, createdAt, activePosition } = waitlistEntry;
+          const { id, status, createdAt, activePosition, bookingZone } =
+            waitlistEntry;
           return {
             type: "WAITLIST_ENTRY",
             id,
             status,
             numJumpers: 1,
             activePosition,
+            bookingZone,
             createdAt,
             requestedJumpDate: waitlistEntry.waitlist.day,
             scheduledJumpDates:
