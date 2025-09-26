@@ -18,7 +18,7 @@ export default function CustomerScheduledJumpsClientPage({
   return (
     <div
       className="flex flex-col space-y-5"
-      style={{ height: "calc(100vh - 200px)" }} // I don't love this but it works
+      style={{ height: "calc(100vh - 250px)" }} // I don't love this but it works
     >
       <ScheduledJumpsStatsCards stats={stats} />
       <div className="flex h-full max-h-full flex-1 flex-col overflow-auto bg-white/95 p-0 shadow-2xl backdrop-blur-sm">
