@@ -15,12 +15,14 @@ const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
 );
 
-export default function Checkout({ onComplete }: { onComplete: () => void }) {
+export default function Checkout() {
   return (
     <div id="checkout">
       <EmbeddedCheckoutProvider
         stripe={stripePromise}
-        options={{ fetchClientSecret, onComplete }}
+        options={{
+          fetchClientSecret: () => fetchClientSecret(),
+        }}
       >
         <EmbeddedCheckout />
       </EmbeddedCheckoutProvider>

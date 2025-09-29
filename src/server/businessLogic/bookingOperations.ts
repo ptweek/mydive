@@ -131,7 +131,7 @@ export const cancelScheduledJump = protectedProcedure
       const remainingConfirmedJumps = await tx.scheduledJump.count({
         where: {
           associatedBookingId: scheduledJump.associatedBookingId,
-          status: "CONFIRMED",
+          status: "SCHEDULED",
           id: { not: scheduledJumpId },
         },
       });
@@ -140,7 +140,7 @@ export const cancelScheduledJump = protectedProcedure
         await tx.bookingWindow.update({
           where: { id: scheduledJump.associatedBookingId },
           data: {
-            status: "PENDING",
+            status: "UNSCHEDULED",
             updatedAt: new Date(),
           },
         });

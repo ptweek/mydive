@@ -208,9 +208,9 @@ export const ModifyScheduledJumpsModal = ({
               <span className="font-medium text-gray-700">Status:</span>
               <span
                 className={`ml-2 rounded-full px-2 py-1 text-xs font-medium ${
-                  booking.status === "CONFIRMED"
+                  booking.status === "SCHEDULED"
                     ? "bg-green-100 text-green-800"
-                    : booking.status === "PENDING"
+                    : booking.status === "UNSCHEDULED"
                       ? "bg-yellow-100 text-yellow-800"
                       : "bg-gray-100 text-gray-800"
                 }`}

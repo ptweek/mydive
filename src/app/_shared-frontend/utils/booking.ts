@@ -17,12 +17,13 @@ export function getActiveScheduledJumpDatesFromBookingWindow(bookingWindow: {
     .map((scheduledJumpDate) => scheduledJumpDate.jumpDate);
 }
 
+// Active is defined as scheduled, and has not happened yet.
 export const getActiveScheduledJumpFromPopulatedWaitlist = (
   waitlist: WaitlistPopulatedDto | WaitlistWithUsers,
 ) => {
   const scheduledJump = waitlist.associatedScheduledJumps.find(
     (scheduledJump) => {
-      return scheduledJump.status === "CONFIRMED";
+      return scheduledJump.status === "SCHEDULED";
     },
   );
   return scheduledJump;

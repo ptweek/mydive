@@ -12,10 +12,13 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-enum ScheduledJumpStatus {
-  CONFIRMED
+/* best lifecycle -> PENDING_DEPOSIT -> UNSCHEDULED -> SCHEDULED -> COMPLETED */
+enum BookingStatus {
+  PENDING_DEPOSIT // initial state until payment webhook from stripe updates the status.
+  UNSCHEDULED // no scheduled days
+  SCHEDULED // has some scheduled days
+  COMPLETED 
   CANCELED
-  COMPLETED
 }
 
 enum WaitlistStatus {
@@ -24,16 +27,20 @@ enum WaitlistStatus {
   CONFIRMED // this means that the booking is confirmed by the Admin
 }
 
-enum BookingStatus {
-  PENDING
-  CONFIRMED
+enum SchedulingMethod {
+  BOOKING_WINDOW 
+  WAITLIST
+}
+
+enum ScheduledJumpStatus {
+  SCHEDULED
   CANCELED
   COMPLETED
 }
 
 model BookingWindow {
     id Int @id @default(autoincrement())
-    status BookingStatus @default(PENDING) // when is a booking window 'complete'?
+    status BookingStatus @default(PENDING_DEPOSIT) 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
@@ -43,6 +50,9 @@ model BookingWindow {
     windowEndDate DateTime
     idealizedJumpDate DateTime
 
+    depositPaid Boolean?
+    depositConfirmedAt DateTime? // Set this field when the deposit is paid
+
     bookedBy String
 
     waitlists Waitlist[]
@@ -51,17 +61,12 @@ model BookingWindow {
     @@index([bookedBy])
 }
 
-enum SchedulingMethod {
-  BOOKING_WINDOW
-  WAITLIST
-}
-
 model ScheduledJump {
     id Int @id @default(autoincrement())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    status BookingStatus @default(CONFIRMED)
+    status ScheduledJumpStatus @default(SCHEDULED)
 
     jumpDate DateTime 
     bookingZone String
@@ -99,7 +104,7 @@ model Waitlist {
 model WaitlistEntry {
   id         Int      @id @default(autoincrement())
   
-  status BookingStatus @default(PENDING) // when we confirm a waitlist booking, we should confirm this and cancel all the others. 
+  status BookingStatus @default(UNSCHEDULED) // when we confirm a waitlist booking, we should confirm this and cancel all the others. 
   waitlistId Int
   waitlistedUserId     String   // clerkId of waitlisted user 
   latestPosition Int

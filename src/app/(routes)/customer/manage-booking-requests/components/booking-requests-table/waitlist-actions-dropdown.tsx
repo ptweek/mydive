@@ -57,8 +57,8 @@ export const WaitlistEntryActionsDropdown = ({
 
   const getActions = () => {
     switch (waitlistEntry.status) {
-      case "PENDING":
-      case "CONFIRMED":
+      case "UNSCHEDULED":
+      case "SCHEDULED":
         return [
           {
             label: "Leave waitlist",

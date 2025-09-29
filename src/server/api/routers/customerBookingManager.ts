@@ -218,15 +218,8 @@ export const customerBookingManagerRouter = createTRPCRouter({
             },
           },
         });
-        console.log("running this code here");
 
         // If no waitlist exists for this day or no users on the waitlist that was created
-        console.log(
-          "no cancelled waitlist entries",
-          waitlist?.entries.filter((entry) => {
-            return entry.status !== "CANCELED";
-          }),
-        );
         if (
           !waitlist ||
           waitlist?.entries.filter((entry) => {

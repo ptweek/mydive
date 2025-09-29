@@ -1,6 +1,10 @@
 import { UserIcon } from "@heroicons/react/24/outline";
 import { Button } from "@nextui-org/react";
-import type { BookingStatus, SchedulingMethod } from "@prisma/client";
+import type {
+  BookingStatus,
+  ScheduledJumpStatus,
+  SchedulingMethod,
+} from "@prisma/client";
 import type {
   ScheduledJumpDto,
   UserDto,
@@ -59,13 +63,13 @@ const AdminScheduledJumpInfoModal = ({
     });
   };
 
-  const getStatusBadge = (status: BookingStatus) => {
+  const getStatusBadge = (status: ScheduledJumpStatus) => {
     const baseClasses =
       "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium";
     switch (status) {
-      case "CONFIRMED":
+      case "COMPLETED":
         return `${baseClasses} bg-green-100 text-green-800`;
-      case "PENDING":
+      case "SCHEDULED":
         return `${baseClasses} bg-yellow-100 text-yellow-800`;
       case "CANCELED":
         return `${baseClasses} bg-red-100 text-red-800`;
@@ -251,15 +255,7 @@ const AdminScheduledJumpInfoModal = ({
           </div>
 
           {/* Action Buttons */}
-          {scheduledJump.status === "PENDING" && (
-            <div className="mb-6 flex justify-center gap-3">
-              <button className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700">
-                Cancel Jump
-              </button>
-            </div>
-          )}
-
-          {scheduledJump.status === "CONFIRMED" && (
+          {scheduledJump.status === "SCHEDULED" && (
             <div className="mb-6 flex justify-center">
               <button
                 className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"

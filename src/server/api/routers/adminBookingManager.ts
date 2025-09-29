@@ -205,7 +205,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
                   associatedBookingId: input.bookingId,
                   bookedBy: input.bookedBy,
                   confirmedBy: input.confirmedBy,
-                  status: "CONFIRMED",
+                  status: "SCHEDULED",
                   schedulingMethod: "BOOKING_WINDOW",
                 },
               });
@@ -235,14 +235,15 @@ export const adminBookingManagerRouter = createTRPCRouter({
             }),
           );
 
-          // 5. Update the booking status to CONFIRMED (if it has any confirmed dates)
+          // 5. Update the booking status to SCHEDULED (if it has any confirmed dates)
           const updatedBooking = await tx.bookingWindow.update({
             where: {
               id: input.bookingId,
               bookedBy: input.bookedBy,
             },
             data: {
-              status: uniqueDateStrings.length > 0 ? "CONFIRMED" : "PENDING",
+              status:
+                uniqueDateStrings.length > 0 ? "SCHEDULED" : "UNSCHEDULED",
             },
             include: {
               scheduledJumpDates: true,
@@ -261,9 +262,9 @@ export const adminBookingManagerRouter = createTRPCRouter({
 
         // Count confirmed (non-canceled) scheduled jumps
         const confirmedScheduledJumps =
-          result.updatedBooking.scheduledJumpDates.filter(
-            (jump) => jump.status === "CONFIRMED",
-          );
+          result.updatedBooking.scheduledJumpDates.filter((jump) => {
+            return jump.status === "SCHEDULED";
+          });
 
         return {
           success: true,
@@ -327,14 +328,14 @@ export const adminBookingManagerRouter = createTRPCRouter({
             associatedWaitlistId: waitlist.id,
             bookedBy: input.bookerId,
             confirmedBy: input.confirmedBy,
-            status: "CONFIRMED",
+            status: "SCHEDULED",
             schedulingMethod: "WAITLIST",
           },
         });
         await ctx.db.waitlistEntry.update({
           where: { id: input.waitlistEntryId },
           data: {
-            status: "CONFIRMED",
+            status: "SCHEDULED",
           },
         });
         await ctx.db.waitlist.update({

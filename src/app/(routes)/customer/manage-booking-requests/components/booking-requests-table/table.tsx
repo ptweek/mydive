@@ -310,7 +310,7 @@ export default function BookingRequestsTable({
             createdAt,
             requestedJumpDate: waitlistEntry.waitlist.day,
             scheduledJumpDates:
-              waitlistEntry.status === "CONFIRMED"
+              waitlistEntry.status === "SCHEDULED"
                 ? [waitlistEntry.waitlist.day]
                 : [],
             data: waitlistEntry,

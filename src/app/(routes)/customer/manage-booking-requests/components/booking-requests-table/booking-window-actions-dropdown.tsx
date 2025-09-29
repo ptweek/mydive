@@ -57,7 +57,7 @@ export const BookingWindowActionsDropdown = ({
 
   const getActions = () => {
     switch (booking.status) {
-      case "PENDING":
+      case "UNSCHEDULED":
         return [
           {
             label: "Cancel booking window",
@@ -70,7 +70,7 @@ export const BookingWindowActionsDropdown = ({
           },
         ];
 
-      case "CONFIRMED":
+      case "SCHEDULED":
         return [
           {
             label: "Cancel booking window",

@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "BookingWindow" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "status" TEXT NOT NULL DEFAULT 'PENDING_DEPOSIT',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "bookingZone" TEXT NOT NULL,
@@ -9,6 +9,8 @@ CREATE TABLE "BookingWindow" (
     "windowStartDate" DATETIME NOT NULL,
     "windowEndDate" DATETIME NOT NULL,
     "idealizedJumpDate" DATETIME NOT NULL,
+    "depositPaid" BOOLEAN,
+    "depositConfirmedAt" DATETIME,
     "bookedBy" TEXT NOT NULL
 );
 
@@ -17,7 +19,7 @@ CREATE TABLE "ScheduledJump" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'CONFIRMED',
+    "status" TEXT NOT NULL DEFAULT 'SCHEDULED',
     "jumpDate" DATETIME NOT NULL,
     "bookingZone" TEXT NOT NULL,
     "numJumpers" INTEGER NOT NULL,
@@ -42,7 +44,7 @@ CREATE TABLE "Waitlist" (
 -- CreateTable
 CREATE TABLE "WaitlistEntry" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "status" TEXT NOT NULL DEFAULT 'UNSCHEDULED',
     "waitlistId" INTEGER NOT NULL,
     "waitlistedUserId" TEXT NOT NULL,
     "latestPosition" INTEGER NOT NULL,

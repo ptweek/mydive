@@ -32,7 +32,7 @@ export const BookingActionsDropdown = ({
 
   const getActions = () => {
     switch (booking.status) {
-      case "PENDING":
+      case "UNSCHEDULED":
         return [
           {
             label: "Modify scheduled jumps",
@@ -54,7 +54,7 @@ export const BookingActionsDropdown = ({
           },
         ];
 
-      case "CONFIRMED":
+      case "SCHEDULED":
         return [
           {
             label: "Modify scheduled jumps",

@@ -6,8 +6,8 @@ import {
 import type { BookingStatus } from "@prisma/client";
 
 export const getBookingStatusIcon = (status: BookingStatus) => {
-  switch (status.toUpperCase()) {
-    case "CONFIRMED":
+  switch (status) {
+    case "SCHEDULED":
       return (
         <div className="flex items-center justify-center">
           <div className="rounded-full bg-green-100 p-2">
@@ -18,7 +18,7 @@ export const getBookingStatusIcon = (status: BookingStatus) => {
           </span>
         </div>
       );
-    case "PENDING":
+    case "UNSCHEDULED":
       return (
         <div className="flex items-center justify-center">
           <div className="rounded-full bg-yellow-100 p-2">

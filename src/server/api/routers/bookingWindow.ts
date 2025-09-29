@@ -12,7 +12,7 @@ export const bookingWindowRouter = createTRPCRouter({
         .object({
           status: z
             .object({
-              not: z.enum(["PENDING", "CONFIRMED", "CANCELED"]),
+              not: z.enum(["UNSCHEDULED", "SCHEDULED", "CANCELED"]),
             })
             .optional(),
         })
@@ -73,7 +73,7 @@ export const bookingWindowRouter = createTRPCRouter({
             windowEndDate: input.windowEndDate,
             idealizedJumpDate: input.idealizedJumpDay,
             bookedBy: input.createdById,
-            status: "PENDING", // new field
+            status: "PENDING_DEPOSIT", // new field
           },
         });
 

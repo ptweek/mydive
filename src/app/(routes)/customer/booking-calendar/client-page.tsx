@@ -97,29 +97,6 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
     setNewEvent(null);
   };
 
-  const handleBookNow = async () => {
-    if (!newEvent) return;
-    try {
-      if (!newEvent.start) {
-        throw new Error("Invalid new event");
-      }
-      const windowStartDay = new Date(newEvent.start);
-      const windowEndDate = new Date(windowStartDay);
-      windowEndDate.setDate(windowEndDate.getDate() + 2);
-
-      createBookingMutation.mutate({
-        numJumpers: newEvent.numJumpers,
-        windowStartDate: windowStartDay,
-        windowEndDate: windowEndDate,
-        idealizedJumpDay: new Date(newEvent.idealizedDay),
-        createdById: userId,
-      });
-    } catch (error) {
-      console.error("Error submitting booking:", error);
-      alert("Error submitting booking. Please try again.");
-    }
-  };
-
   const handleSelectSlot = (slotInfo: SlotInfo, userId: string) => {
     if (!!newEvent) {
       return;
@@ -155,6 +132,30 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
         numJumpers: 1,
       });
       setShowEventForm(true);
+    }
+  };
+  const handlePostPaymentCompletion = async (bookingWindow: CalendarEvent) => {
+    console.log("running post payment completion");
+    if (!bookingWindow) return;
+    try {
+      if (!bookingWindow.start) {
+        throw new Error("Invalid new event");
+      }
+      const windowStartDay = new Date(bookingWindow.start);
+      const windowEndDate = new Date(windowStartDay);
+      windowEndDate.setDate(windowEndDate.getDate() + 2);
+      createBookingMutation.mutate({
+        numJumpers: bookingWindow.numJumpers,
+        windowStartDate: windowStartDay,
+        windowEndDate: windowEndDate,
+        idealizedJumpDay: new Date(bookingWindow.idealizedDay),
+        createdById: userId,
+      });
+      console.log("created booking mutation");
+      setIsCheckoutModalOpen(false);
+    } catch (error) {
+      console.error("Error submitting booking:", error);
+      alert("Error submitting booking. Please try again.");
     }
   };
 
@@ -392,7 +393,14 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
           createEvent={createEvent}
         />
       )}
-
+      {isCheckoutModalOpen && newEvent && (
+        <CheckoutModal
+          bookingWindow={newEvent}
+          isOpen={isCheckoutModalOpen}
+          setIsOpen={setIsCheckoutModalOpen}
+          onComplete={() => handlePostPaymentCompletion(newEvent)}
+        />
+      )}
       {showWaitlistForm && selectedWaitlistDate && selectedBookingId && (
         <WaitlistModal
           day={selectedWaitlistDate}
@@ -405,8 +413,6 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
           }}
         />
       )}
-
-      {isCheckoutModalOpen && <CheckoutModal />}
 
       {showSuccessAlert && (
         <div className="animate-in slide-in-from-right fixed top-20 right-4 z-[9999] duration-300">

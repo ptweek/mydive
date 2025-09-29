@@ -107,10 +107,10 @@ export function computeScheduledJumpStats(
 
     // Count by status
     switch (jump.status) {
-      case "CONFIRMED":
+      case "SCHEDULED":
         confirmedJumps++;
         break;
-      case "PENDING":
+      case "UNSCHEDULED":
         pendingJumps++;
         break;
       case "COMPLETED":
