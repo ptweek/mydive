@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient } from "@prisma/client";
+import type { BookingStatus, Prisma, PrismaClient } from "@prisma/client";
 
 const bookingWindowIncludeConfig = {
   scheduledJumpDates: {
@@ -27,6 +27,27 @@ export class BookingWindowService {
   async findAllPopulated(): Promise<BookingWindowWithPopulatedFields[]> {
     return await this.db.bookingWindow.findMany({
       include: bookingWindowIncludeConfig,
+    });
+  }
+  async findOne({
+    id,
+    bookedBy,
+    status,
+  }: {
+    id?: number;
+    bookedBy?: string;
+    status?: BookingStatus;
+  }): Promise<BookingWindow | null> {
+    const whereQuery = {
+      ...(id !== undefined && { id }),
+      ...(bookedBy !== undefined && { bookedBy }),
+      ...(status !== undefined && { status }),
+    };
+    if (Object.keys(whereQuery).length === 0) {
+      throw new Error("At least one search parameter must be provided");
+    }
+    return await this.db.bookingWindow.findFirst({
+      where: whereQuery,
     });
   }
   async findMany({ ids }: { ids: number[] }): Promise<BookingWindow[]> {

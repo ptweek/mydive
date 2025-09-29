@@ -1,8 +1,7 @@
 import type { RouterOutputs } from "mydive/trpc/react";
 
 // BookingWindow
-export type BookingWindowDto =
-  RouterOutputs["adminBookingManager"]["getBookingReservationData"]["bookingWindows"][number];
+export type BookingWindowDto = RouterOutputs["bookingWindow"]["createBooking"];
 
 export type BookingWindowPopulatedDto =
   RouterOutputs["customerBookingManager"]["getBookingRequestsByUser"]["bookingWindows"][number];

@@ -5,6 +5,7 @@ import { customerBookingManagerRouter } from "./routers/customerBookingManager";
 import { adminScheduledJumpsManagerRouter } from "./routers/adminScheduledJumpsManager";
 import { customerScheduledJumpsManagerRouter } from "./routers/customerScheduledJumpsManager";
 import { waitlistEntryRouter } from "./routers/waitlistEntry";
+import { customerPaymentsRouter } from "./routers/customerPaymentsRouter";
 
 /**
  * This is the primary router for your server.
@@ -17,6 +18,7 @@ export const appRouter = createTRPCRouter({
   adminBookingManager: adminBookingManagerRouter,
   customerBookingManager: customerBookingManagerRouter,
   adminScheduledJumpsManager: adminScheduledJumpsManagerRouter,
+  customerPayments: customerPaymentsRouter,
   customerScheduledJumpsManager: customerScheduledJumpsManagerRouter,
 });
 

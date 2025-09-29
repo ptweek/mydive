@@ -12,7 +12,10 @@ export const bookingWindowRouter = createTRPCRouter({
         .object({
           status: z
             .object({
-              not: z.enum(["UNSCHEDULED", "SCHEDULED", "CANCELED"]),
+              notIn: z
+                .array(z.enum(["CANCELED", "PENDING_DEPOSIT"]))
+                .optional(),
+              not: z.enum(["CANCELED", "PENDING_DEPOSIT"]).optional(),
             })
             .optional(),
         })

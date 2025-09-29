@@ -25,14 +25,11 @@ import { useRouter } from "next/navigation";
 import { api } from "mydive/trpc/react";
 import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_shared-frontend/utils/booking";
 import CalendarLegend from "./components/calendar/components/calendar-legend";
-import Checkout from "mydive/app/_shared-frontend/components/payment/checkout";
-import CheckoutModal from "./components/calendar/components/checkout-modal";
 const localizer = momentLocalizer(moment);
 
 export default function CalendarClientPage({ userId }: { userId: string }) {
   const router = useRouter();
 
-  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [showEventForm, setShowEventForm] = useState(false);
   const [showWaitlistForm, setShowWaitlistForm] = useState(false);
   const [newEvent, setNewEvent] = useState<CalendarEvent | null>(null);
@@ -48,7 +45,7 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
 
   const { data, isLoading } = api.bookingWindow.getBookings.useQuery(
     {
-      status: { not: "CANCELED" },
+      status: { notIn: ["CANCELED", "PENDING_DEPOSIT"] },
     },
     {
       refetchOnMount: true,
@@ -61,9 +58,6 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
   const createBookingMutation = api.bookingWindow.createBooking.useMutation({
     onSuccess: () => {
       setShowSuccessAlert(true);
-      setTimeout(() => {
-        router.push("/customer/dashboard");
-      }, 2000);
     },
     onError: (error) => {
       console.error("Failed to create booking:", error);
@@ -134,8 +128,7 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
       setShowEventForm(true);
     }
   };
-  const handlePostPaymentCompletion = async (bookingWindow: CalendarEvent) => {
-    console.log("running post payment completion");
+  const handleCheckoutClick = async (bookingWindow: CalendarEvent) => {
     if (!bookingWindow) return;
     try {
       if (!bookingWindow.start) {
@@ -144,7 +137,7 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
       const windowStartDay = new Date(bookingWindow.start);
       const windowEndDate = new Date(windowStartDay);
       windowEndDate.setDate(windowEndDate.getDate() + 2);
-      createBookingMutation.mutate({
+      const result = await createBookingMutation.mutateAsync({
         numJumpers: bookingWindow.numJumpers,
         windowStartDate: windowStartDay,
         windowEndDate: windowEndDate,
@@ -152,7 +145,7 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
         createdById: userId,
       });
       console.log("created booking mutation");
-      setIsCheckoutModalOpen(false);
+      router.push(`/customer/payments/${result.id}`);
     } catch (error) {
       console.error("Error submitting booking:", error);
       alert("Error submitting booking. Please try again.");
@@ -368,8 +361,9 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
               size="lg"
               variant="shadow"
               disabled={!newEvent}
-              onPress={() => {
-                setIsCheckoutModalOpen(true);
+              onPress={async () => {
+                if (!newEvent) return;
+                await handleCheckoutClick(newEvent);
               }}
               className={clsx(
                 "w-full px-3 py-3 text-sm font-semibold tracking-wider uppercase transition-all duration-200 sm:w-auto sm:text-lg",
@@ -391,14 +385,6 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
           setNewEvent={setNewEvent}
           setShowEventForm={setShowEventForm}
           createEvent={createEvent}
-        />
-      )}
-      {isCheckoutModalOpen && newEvent && (
-        <CheckoutModal
-          bookingWindow={newEvent}
-          isOpen={isCheckoutModalOpen}
-          setIsOpen={setIsCheckoutModalOpen}
-          onComplete={() => handlePostPaymentCompletion(newEvent)}
         />
       )}
       {showWaitlistForm && selectedWaitlistDate && selectedBookingId && (

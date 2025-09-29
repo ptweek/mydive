@@ -5,6 +5,7 @@ import {
   EmbeddedCheckoutProvider,
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { useRouter } from "next/navigation";
 
 import { fetchClientSecret } from "src/server/businessLogic/stripe";
 
@@ -16,16 +17,25 @@ const stripePromise = loadStripe(
 );
 
 export default function Checkout() {
+  const router = useRouter();
   return (
-    <div id="checkout">
-      <EmbeddedCheckoutProvider
-        stripe={stripePromise}
-        options={{
-          fetchClientSecret: () => fetchClientSecret(),
+    <EmbeddedCheckoutProvider
+      stripe={stripePromise}
+      options={{
+        fetchClientSecret: () => fetchClientSecret(),
+        onComplete: () => {
+          router.push("/");
+        },
+      }}
+    >
+      <div
+        style={{
+          overflow: "auto",
+          position: "relative",
         }}
       >
         <EmbeddedCheckout />
-      </EmbeddedCheckoutProvider>
-    </div>
+      </div>
+    </EmbeddedCheckoutProvider>
   );
 }

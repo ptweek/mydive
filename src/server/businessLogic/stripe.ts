@@ -11,7 +11,7 @@ export async function fetchClientSecret() {
     ui_mode: "embedded",
     line_items: [
       {
-        price: "price_1SCiIdBJrcmu6pJs55ct2ipL",
+        price: "price_1SCqIqBJrcmu6pJsWRlp9nao",
         quantity: 1,
       },
     ],
