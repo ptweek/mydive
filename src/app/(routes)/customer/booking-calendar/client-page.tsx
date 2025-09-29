@@ -25,10 +25,14 @@ import { useRouter } from "next/navigation";
 import { api } from "mydive/trpc/react";
 import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_shared-frontend/utils/booking";
 import CalendarLegend from "./components/calendar/components/calendar-legend";
+import Checkout from "mydive/app/_shared-frontend/components/payment/checkout";
+import CheckoutModal from "./components/calendar/components/checkout-modal";
 const localizer = momentLocalizer(moment);
 
 export default function CalendarClientPage({ userId }: { userId: string }) {
   const router = useRouter();
+
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [showEventForm, setShowEventForm] = useState(false);
   const [showWaitlistForm, setShowWaitlistForm] = useState(false);
   const [newEvent, setNewEvent] = useState<CalendarEvent | null>(null);
@@ -363,7 +367,9 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
               size="lg"
               variant="shadow"
               disabled={!newEvent}
-              onPress={handleBookNow}
+              onPress={() => {
+                setIsCheckoutModalOpen(true);
+              }}
               className={clsx(
                 "w-full px-3 py-3 text-sm font-semibold tracking-wider uppercase transition-all duration-200 sm:w-auto sm:text-lg",
                 !newEvent
@@ -371,7 +377,7 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
                   : "bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-500 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/30",
               )}
             >
-              Book Now
+              Checkout
             </Button>
           </div>
         </div>
@@ -399,6 +405,8 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
           }}
         />
       )}
+
+      {isCheckoutModalOpen && <CheckoutModal />}
 
       {showSuccessAlert && (
         <div className="animate-in slide-in-from-right fixed top-20 right-4 z-[9999] duration-300">

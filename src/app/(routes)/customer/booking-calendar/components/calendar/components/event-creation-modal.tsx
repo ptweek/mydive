@@ -1,6 +1,7 @@
 import moment from "moment";
 import React, { useState, useEffect } from "react";
 import type { CalendarEvent } from "../types";
+import Checkout from "mydive/app/_shared-frontend/components/payment/checkout";
 
 const getIdealizedDate = (startDate: Date, dayNumber: number): Date => {
   const date = moment(startDate)
@@ -311,7 +312,7 @@ export default function EventCreationModal({
                 className="order-1 flex-1 cursor-pointer rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none active:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50 sm:order-2 sm:flex-initial sm:px-5 sm:text-base"
                 onClick={createEvent}
               >
-                Create Event
+                Create booking request
               </button>
             </div>
           </div>

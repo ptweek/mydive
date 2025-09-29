@@ -5,7 +5,6 @@ import { api } from "mydive/trpc/react";
 import { CancelBookingWindowConfirmationModal } from "mydive/app/_shared-frontend/components/modals/cancellation-confirmation/booking-window";
 import type {
   BookingWindowPopulatedDto,
-  WaitlistEntryPopulatedDto,
   WaitlistEntryPopulatedWithBookingZoneDto,
 } from "mydive/server/api/routers/types";
 import BookingRequestsTable from "./components/booking-requests-table/table";
