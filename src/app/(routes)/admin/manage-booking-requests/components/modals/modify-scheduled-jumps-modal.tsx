@@ -18,7 +18,7 @@ export const ModifyScheduledJumpsModal = ({
   adminUserId: string;
 }): React.ReactNode => {
   const router = useRouter();
-  const { scheduledJumps } = booking;
+  const { scheduledJumpDates } = booking;
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -54,13 +54,13 @@ export const ModifyScheduledJumpsModal = ({
 
   useEffect(() => {
     if (isOpen) {
-      const existingDates = getExistingConfirmedDates(scheduledJumps);
+      const existingDates = getExistingConfirmedDates(scheduledJumpDates);
       setSelectedDates(existingDates);
     } else {
       // Reset selection when modal closes
       setSelectedDates([]);
     }
-  }, [getExistingConfirmedDates, isOpen, scheduledJumps]);
+  }, [getExistingConfirmedDates, isOpen, scheduledJumpDates]);
 
   const getDateRange = () => {
     const dates: Date[] = [];
@@ -135,7 +135,8 @@ export const ModifyScheduledJumpsModal = ({
   const availableDates = getDateRange();
   const idealizedDate = new Date(booking.idealizedJumpDate);
   const hasExistingConfirmedDates =
-    scheduledJumps && getExistingConfirmedDates(scheduledJumps).length > 0;
+    scheduledJumpDates &&
+    getExistingConfirmedDates(scheduledJumpDates).length > 0;
   if (!isOpen) return null;
 
   return (

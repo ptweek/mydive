@@ -29,6 +29,7 @@ import type {
 } from "../../types";
 import type {
   BookingWindowDto,
+  BookingWindowPopulatedDto,
   ScheduledJumpDto,
   UserDto,
   WaitlistPopulatedDto,
@@ -50,7 +51,7 @@ const AdminBookingRequestsTable = ({
   scheduledJumps,
   adminUser,
 }: {
-  bookingWindows: BookingWindowDto[];
+  bookingWindows: BookingWindowPopulatedDto[];
   users: UserDto[];
   waitlists: WaitlistPopulatedDto[];
   scheduledJumps: ScheduledJumpDto[];
@@ -75,6 +76,7 @@ const AdminBookingRequestsTable = ({
   // Filter States
   const [showCancelled, setShowCancelled] = useState(false);
   const [showPast, setShowPast] = useState(false);
+  const [showPendingDeposit, setShowPendingDeposit] = useState(false);
 
   // Selections
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
@@ -137,7 +139,7 @@ const AdminBookingRequestsTable = ({
             user: userMap.get(entry.waitlistedUserId),
           })),
         })),
-      scheduledJumps: scheduledJumps.filter(
+      scheduledJumpDates: scheduledJumps.filter(
         (jump) => jump.associatedBookingId === bookingWindow.id,
       ),
     }));
@@ -179,6 +181,8 @@ const AdminBookingRequestsTable = ({
         setShowCancelled={setShowCancelled}
         showPast={showPast}
         setShowPast={setShowPast}
+        showPendingDeposit={showPendingDeposit}
+        setShowPendingDeposit={setShowPendingDeposit}
       />
       <Table
         aria-label="Booking table"
@@ -285,12 +289,12 @@ const AdminBookingRequestsTable = ({
                 <TableCell>
                   <div className="flex justify-center">
                     {getActiveScheduledJumps(
-                      booking.scheduledJumps,
+                      booking.scheduledJumpDates,
                       "BOOKING_WINDOW",
                     ).length > 0 ? (
                       <div className="space-y-1">
                         {getActiveScheduledJumps(
-                          booking.scheduledJumps,
+                          booking.scheduledJumpDates,
                           "BOOKING_WINDOW",
                         )
                           .sort(

@@ -22,7 +22,7 @@ export interface BookingWindowWithUser extends BookingWindowDto {
 // Formatted table data structure
 export interface BookingTableRow extends BookingWindowWithUser {
   waitlists: WaitlistWithUsers[];
-  scheduledJumps: ScheduledJumpDto[];
+  scheduledJumpDates: ScheduledJumpDto[];
 }
 
 export type BookingTableData = BookingTableRow[];

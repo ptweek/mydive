@@ -1,4 +1,8 @@
 import { Listbox, ListboxItem } from "@nextui-org/react";
+import type {
+  BookingTableData,
+  BookingTableRow,
+} from "mydive/app/(routes)/admin/manage-booking-requests/types";
 import {
   formatDateShort,
   getActiveScheduledJumpDatesFromBookingWindow,
@@ -11,7 +15,7 @@ export const CancelBookingWindowConfirmationModal = ({
   onClose,
   onConfirm,
 }: {
-  bookingWindow: BookingWindowPopulatedDto;
+  bookingWindow: BookingWindowPopulatedDto | BookingTableRow;
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;

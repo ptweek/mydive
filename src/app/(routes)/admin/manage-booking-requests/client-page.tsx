@@ -2,7 +2,7 @@
 import React, { useMemo } from "react";
 import { Card, CardBody } from "@nextui-org/react";
 import type {
-  BookingWindowDto,
+  BookingWindowPopulatedDto,
   ScheduledJumpDto,
   UserDto,
   WaitlistPopulatedDto,
@@ -19,7 +19,7 @@ export default function AdminBookingRequestsClient({
   loadedScheduledJumps,
   adminUser,
 }: {
-  loadedBookingWindows: BookingWindowDto[];
+  loadedBookingWindows: BookingWindowPopulatedDto[];
   loadedUsers: UserDto[];
   loadedWaitlists: WaitlistPopulatedDto[];
   loadedScheduledJumps: ScheduledJumpDto[];
