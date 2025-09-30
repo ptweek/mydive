@@ -120,7 +120,9 @@ export class BookingWindowService {
       */
       const existingBookingWindows = await this.db.bookingWindow.findMany({
         where: {
-          status: { not: BookingStatus.PENDING_DEPOSIT },
+          status: {
+            notIn: [BookingStatus.PENDING_DEPOSIT, BookingStatus.CANCELED],
+          },
           AND: [
             {
               windowStartDate: {

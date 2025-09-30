@@ -186,7 +186,9 @@ export const createBookingWindow = protectedProcedure
     try {
       const existingBookingWindows = await ctx.db.bookingWindow.findMany({
         where: {
-          status: { not: BookingStatus.PENDING_DEPOSIT },
+          status: {
+            notIn: [BookingStatus.PENDING_DEPOSIT, BookingStatus.CANCELED],
+          },
           AND: [
             {
               windowStartDate: {
@@ -201,6 +203,7 @@ export const createBookingWindow = protectedProcedure
           ],
         },
       });
+      console.log("existingBookingWindows", existingBookingWindows);
       if (existingBookingWindows.length > 0) {
         throw new Error(
           "Booking window overlaps with existing booking window!",
