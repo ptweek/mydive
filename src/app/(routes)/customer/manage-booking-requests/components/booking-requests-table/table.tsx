@@ -110,7 +110,7 @@ export default function BookingRequestsTable({
     waitlistEntry: WaitlistEntryPopulatedWithBookingZoneDto,
   ) => void;
 }) {
-  const [showPendingDeposit, setShowPendingDeposit] = useState(false);
+  const [showPendingDeposit, setShowPendingDeposit] = useState(true);
   const [showPast, setShowPast] = useState(false);
   const [showCancelled, setShowCancelled] = useState(false);
 
