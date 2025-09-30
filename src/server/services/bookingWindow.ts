@@ -110,23 +110,73 @@ export class BookingWindowService {
       const bookingWindow = await this.db.bookingWindow.findFirst({
         where: { id },
       });
+      if (!bookingWindow) {
+        throw new Error(`Booking window not found for ${id}`);
+      }
       /*
         Constraints
         1. Booking window cannot have overlap with any other confirmed booking window, and if it does, fail the process.
         2. Any *pending_deposit* booking windows that have ANY overlap with the booking window will be canceled.
       */
-      const existingBookingWindow = await this.db.bookingWindow.findFirst({
-        where: { id },
+      const existingBookingWindows = await this.db.bookingWindow.findMany({
+        where: {
+          status: { not: BookingStatus.PENDING_DEPOSIT },
+          AND: [
+            {
+              windowStartDate: {
+                lte: bookingWindow.windowEndDate, // booking starts before or when the range ends
+              },
+            },
+            {
+              windowEndDate: {
+                gte: bookingWindow.windowStartDate, // booking ends after or when the range starts
+              },
+            },
+          ],
+        },
       });
+      if (existingBookingWindows.length > 0) {
+        log.info(
+          { bookingWindowId: id },
+          `Booking window ${id}overlaps with existing booking window, and therefore cannot be confirmed`,
+        );
+        throw new Error(
+          "Booking window overlaps with existing booking window!",
+        );
+      }
+      /* update booking window to confirmed */
       const updated = await this.db.bookingWindow.update({
         where: { id },
         data: {
           status: BookingStatus.UNSCHEDULED,
           depositPaid: true,
-          depositConfirmedAt: new Date(),
+          depositPaidAt: new Date(),
         },
       });
-      log.info({ bookingWindowId: id }, "Booking window updated");
+
+      /* cancel any pending booking windows */
+      await this.db.bookingWindow.updateMany({
+        where: {
+          status: BookingStatus.PENDING_DEPOSIT,
+          AND: [
+            {
+              windowStartDate: {
+                lte: bookingWindow.windowEndDate, // booking starts before or when the range ends
+              },
+            },
+            {
+              windowEndDate: {
+                gte: bookingWindow.windowStartDate, // booking ends after or when the range starts
+              },
+            },
+          ],
+        },
+        data: {
+          status: BookingStatus.CANCELED,
+          cancellationReason: "Overlapping w/ confirmed booking window",
+        },
+      });
+      log.info({ bookingWindowId: id }, "Booking window confirmed");
       return updated;
     } catch (error) {
       log.error(

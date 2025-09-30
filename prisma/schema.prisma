@@ -51,8 +51,9 @@ model BookingWindow {
     idealizedJumpDate DateTime
 
     depositPaid Boolean?
-    depositConfirmedAt DateTime? // Set this field when the deposit is paid
+    depositPaidAt DateTime? // Set this field when the deposit is paid
 
+    cancellationReason String? // set when booking window is cancelled
     bookedBy String
 
     waitlists Waitlist[]

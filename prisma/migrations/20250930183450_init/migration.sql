@@ -10,7 +10,8 @@ CREATE TABLE "BookingWindow" (
     "windowEndDate" DATETIME NOT NULL,
     "idealizedJumpDate" DATETIME NOT NULL,
     "depositPaid" BOOLEAN,
-    "depositConfirmedAt" DATETIME,
+    "depositPaidAt" DATETIME,
+    "cancellationReason" TEXT,
     "bookedBy" TEXT NOT NULL
 );
 

@@ -1,6 +1,7 @@
 import z from "zod";
 import { protectedProcedure } from "../api/trpc";
 import { TRPCError } from "@trpc/server";
+import { BookingStatus } from "@prisma/client";
 
 export const cancelBookingWindow = protectedProcedure
   .input(
@@ -157,7 +158,6 @@ export const cancelScheduledJump = protectedProcedure
       };
     });
   });
-
 export const createBookingWindow = protectedProcedure
   .input(
     z.object({
@@ -169,20 +169,43 @@ export const createBookingWindow = protectedProcedure
     }),
   )
   .mutation(async ({ ctx, input }) => {
+    const { windowStartDate, windowEndDate, idealizedJumpDay } = input;
     // Validate that windowEndDate is after windowStartDay
-    if (input.windowEndDate <= input.windowStartDate) {
+    if (windowEndDate <= windowStartDate) {
       throw new Error("Window end date must be after start date");
     }
 
     // Validate that idealizedJumpDay is within the window
     if (
-      input.idealizedJumpDay < input.windowStartDate ||
-      input.idealizedJumpDay > input.windowEndDate
+      idealizedJumpDay < windowStartDate ||
+      idealizedJumpDay > windowEndDate
     ) {
       throw new Error("Idealized jump day must be within the booking window");
     }
 
     try {
+      const existingBookingWindows = await ctx.db.bookingWindow.findMany({
+        where: {
+          status: { not: BookingStatus.PENDING_DEPOSIT },
+          AND: [
+            {
+              windowStartDate: {
+                lte: windowEndDate, // booking starts before or when the range ends
+              },
+            },
+            {
+              windowEndDate: {
+                gte: windowStartDate, // booking ends after or when the range starts
+              },
+            },
+          ],
+        },
+      });
+      if (existingBookingWindows.length > 0) {
+        throw new Error(
+          "Booking window overlaps with existing booking window!",
+        );
+      }
       const newBooking = await ctx.db.bookingWindow.create({
         data: {
           bookingZone: "DEFAULT", // need to add booking zones in the future
