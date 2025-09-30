@@ -26,8 +26,6 @@ export default async function PaymentsPage({
   const { bookingWindowId } = params;
   const bookingWindowInput = parseIntSafe(bookingWindowId);
   const user = await currentUser();
-  console.log("user", user);
-  console.log("bookingWindowInput", bookingWindowInput);
   if (!user || !bookingWindowInput) {
     redirect("/");
   }

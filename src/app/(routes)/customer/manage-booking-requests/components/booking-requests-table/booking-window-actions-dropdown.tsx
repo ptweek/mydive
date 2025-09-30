@@ -76,7 +76,7 @@ export const BookingWindowActionsDropdown = ({
         return [
           {
             label: "Complete booking",
-            icon: "💳",
+            icon: "✅",
             onClick: () => {
               setIsOpen(false);
               router.push(`payments/${booking.id}`);
