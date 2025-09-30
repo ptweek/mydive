@@ -53,7 +53,7 @@ export async function handleCheckoutCompleted(
 
   try {
     const svc = new BookingWindowService(db);
-    const booking = await svc.updateDepositInfoFromStripeCheckout(id, log);
+    const booking = await svc.confirmBookingWindowFromStripeCheckout(id, log);
 
     log.info(
       {

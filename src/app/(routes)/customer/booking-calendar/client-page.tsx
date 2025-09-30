@@ -55,15 +55,16 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
     },
   );
 
-  const createBookingMutation = api.bookingWindow.createBooking.useMutation({
-    onSuccess: () => {
-      setShowSuccessAlert(true);
-    },
-    onError: (error) => {
-      console.error("Failed to create booking:", error);
-      alert("Error submitting booking. Please try again.");
-    },
-  });
+  const createBookingMutation =
+    api.customerBookingManager.createBookingWindow.useMutation({
+      onSuccess: () => {
+        setShowSuccessAlert(true);
+      },
+      onError: (error) => {
+        console.error("Failed to create booking:", error);
+        alert("Error submitting booking. Please try again.");
+      },
+    });
 
   useEffect(() => {
     if (data && !isLoading) {

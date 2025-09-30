@@ -98,12 +98,26 @@ export class BookingWindowService {
       },
     });
   }
-  async updateDepositInfoFromStripeCheckout(
+  async confirmBookingWindowFromStripeCheckout(
     id: number,
     log: Logger,
   ): Promise<BookingWindow> {
     log.info({ bookingWindowId: id }, "Updating booking window");
     try {
+      /* 
+        whenever I schedule a booking date, I need to look at
+      */
+      const bookingWindow = await this.db.bookingWindow.findFirst({
+        where: { id },
+      });
+      /*
+        Constraints
+        1. Booking window cannot have overlap with any other confirmed booking window, and if it does, fail the process.
+        2. Any *pending_deposit* booking windows that have ANY overlap with the booking window will be canceled.
+      */
+      const existingBookingWindow = await this.db.bookingWindow.findFirst({
+        where: { id },
+      });
       const updated = await this.db.bookingWindow.update({
         where: { id },
         data: {
@@ -112,7 +126,6 @@ export class BookingWindowService {
           depositConfirmedAt: new Date(),
         },
       });
-
       log.info({ bookingWindowId: id }, "Booking window updated");
       return updated;
     } catch (error) {

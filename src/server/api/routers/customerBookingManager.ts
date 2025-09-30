@@ -1,6 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "mydive/server/api/trpc";
 import {
   cancelBookingWindow,
+  createBookingWindow,
   removeWaitlistEntry,
 } from "mydive/server/businessLogic/bookingOperations";
 import z from "zod";
@@ -271,4 +272,5 @@ export const customerBookingManagerRouter = createTRPCRouter({
     }),
   removeWaitlistEntry,
   cancelBookingWindow,
+  createBookingWindow,
 });
