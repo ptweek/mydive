@@ -44,8 +44,8 @@ export default async function PaymentsPage({
         style={{ height: "calc(100vh - 80px)" }}
       >
         <PageHeader
-          title={"Review Pending Payment"}
-          description={"Put down deposit to confirm booking window"}
+          title={"Review and Pay"}
+          description={"Provide deposit to finalize booking window"}
         />
         {!bookingWindow ? (
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 text-center">

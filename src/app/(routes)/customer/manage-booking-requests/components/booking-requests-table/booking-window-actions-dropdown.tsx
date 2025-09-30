@@ -1,6 +1,7 @@
 import type { BookingWindow } from "@prisma/client";
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 
 export const BookingWindowActionsDropdown = ({
   booking,
@@ -9,6 +10,7 @@ export const BookingWindowActionsDropdown = ({
   booking: BookingWindow;
   onCancel: (booking: BookingWindow) => void;
 }) => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -70,19 +72,18 @@ export const BookingWindowActionsDropdown = ({
           },
         ];
 
-      case "SCHEDULED":
+      case "PENDING_DEPOSIT":
         return [
           {
-            label: "Cancel booking window",
-            icon: "❌",
+            label: "Complete booking",
+            icon: "💳",
             onClick: () => {
-              onCancel(booking);
               setIsOpen(false);
+              router.push(`payments/${booking.id}`);
             },
-            className: "text-red-600 hover:bg-red-50",
+            className: "text-slate-700 hover:bg-green-50",
           },
         ];
-
       case "COMPLETED":
         return [];
 

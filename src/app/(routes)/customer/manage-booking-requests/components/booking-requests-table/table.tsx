@@ -1,10 +1,9 @@
 import {
   CalendarIcon,
   CheckCircleIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
   ClockIcon,
   UsersIcon,
+  ExclamationCircleIcon,
 } from "@heroicons/react/24/outline";
 import {
   Table,
@@ -13,8 +12,6 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  Card,
-  CardBody,
 } from "@nextui-org/react";
 import {
   formatDateShort,
@@ -22,7 +19,6 @@ import {
 } from "mydive/app/_shared-frontend/utils/booking";
 import type {
   BookingWindowPopulatedDto,
-  WaitlistEntryPopulatedDto,
   WaitlistEntryPopulatedWithBookingZoneDto,
 } from "mydive/server/api/routers/types";
 import { BookingWindowActionsDropdown } from "./booking-window-actions-dropdown";
@@ -35,6 +31,7 @@ import { WaitlistEntryActionsDropdown } from "./waitlist-actions-dropdown";
 import { getBookingStatusIcon } from "mydive/app/_shared-frontend/components/statusIcons";
 import { useMemo, useState } from "react";
 import BookingRequestsTableFilters from "mydive/app/_shared-frontend/components/tables/manage-booking-requests/filters";
+import { MobileBookingCard } from "./mobile-booking-card";
 
 export type BookingRequestTableRow = {
   type: "BOOKING_WINDOW" | "WAITLIST_ENTRY";
@@ -53,17 +50,27 @@ export type BookingRequestTableRow = {
 const BookingWindowRequestSummaryInfo = ({
   start,
   end,
+  isAwaitingDeposit,
 }: {
   start: Date;
   end: Date;
+  isAwaitingDeposit?: boolean;
 }) => {
   return (
     <div className="flex flex-col space-y-1">
       <div className="mt-2 ml-2 sm:ml-5">
-        <div className="text-sm font-semibold text-slate-700">
+        <div
+          className={`text-sm font-semibold ${
+            isAwaitingDeposit ? "text-slate-600" : "text-slate-700"
+          }`}
+        >
           {formatDateShort(start)} - {formatDateShort(end)}
         </div>
-        <div className="mt-1 flex items-center gap-1 text-xs text-slate-500">
+        <div
+          className={`mt-1 flex items-center gap-1 text-xs ${
+            isAwaitingDeposit ? "text-slate-400" : "text-slate-500"
+          }`}
+        >
           <CalendarIcon className="h-3 w-3" />
           3-day booking window
         </div>
@@ -88,168 +95,6 @@ const WailistRequestSummaryInfo = ({ date }: { date: Date }) => {
   );
 };
 
-const MobileBookingCard = ({
-  tableRow,
-  handleBookingWindowCancellationClick,
-  handleWaitlistEntryCancellationClick,
-}: {
-  tableRow: BookingRequestTableRow;
-  handleBookingWindowCancellationClick: (
-    booking: BookingWindowPopulatedDto,
-  ) => void;
-  handleWaitlistEntryCancellationClick: (
-    waitlistEntry: WaitlistEntryPopulatedWithBookingZoneDto,
-  ) => void;
-}) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  return (
-    <Card className="mb-3 shadow-sm transition-shadow duration-200 hover:shadow-md">
-      <CardBody className="p-0">
-        {/* Compact Header - Always Visible */}
-        <div
-          className="flex cursor-pointer items-center justify-between p-4"
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          {/* Left side - Date and Type */}
-          <div className="flex-1">
-            <div className="flex items-center gap-3">
-              {/* Date */}
-              <div className="text-base font-semibold text-slate-800">
-                {isBookingWindowPopulatedDto(tableRow.data)
-                  ? `${formatDateShort(tableRow.data.windowStartDate)} - ${formatDateShort(tableRow.data.windowEndDate)}`
-                  : formatDateShort(tableRow.data.waitlist.day)}
-                <div
-                  className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${
-                    isBookingWindowPopulatedDto(tableRow.data)
-                      ? "bg-blue-100 text-blue-800"
-                      : "bg-orange-100 text-orange-800"
-                  }`}
-                >
-                  <CalendarIcon className="h-3 w-3" />
-                  {isBookingWindowPopulatedDto(tableRow.data)
-                    ? "Window"
-                    : "Waitlist"}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right side - Status, Actions, and Expand Icon */}
-          <div className="ml-4 flex items-center gap-2">
-            {/* Status */}
-            {getBookingStatusIcon(tableRow.status)}
-            {/* Actions Dropdown */}
-            {!(tableRow.status === "CANCELED") && (
-              <div onClick={(e) => e.stopPropagation()}>
-                {isBookingWindowPopulatedDto(tableRow.data) ? (
-                  <BookingWindowActionsDropdown
-                    booking={tableRow.data}
-                    onCancel={() =>
-                      handleBookingWindowCancellationClick(
-                        tableRow.data as BookingWindowPopulatedDto,
-                      )
-                    }
-                  />
-                ) : isWaitlistEntryPopulatedDto(tableRow.data) ? (
-                  <WaitlistEntryActionsDropdown
-                    waitlistEntry={tableRow.data}
-                    onCancel={() =>
-                      handleWaitlistEntryCancellationClick(
-                        tableRow.data as WaitlistEntryPopulatedWithBookingZoneDto,
-                      )
-                    }
-                  />
-                ) : null}
-              </div>
-            )}
-
-            {/* Expand/Collapse Icon */}
-            {isExpanded ? (
-              <ChevronUpIcon className="h-5 w-5 text-slate-400" />
-            ) : (
-              <ChevronDownIcon className="h-5 w-5 text-slate-400" />
-            )}
-          </div>
-        </div>
-
-        {/* Expandable Details */}
-        {isExpanded && (
-          <div className="space-y-1 border-t border-slate-100 p-4">
-            <div className="text-center">
-              <div className="inline-flex items-center gap-2 rounded-lg bg-purple-50 px-3 py-2 text-purple-700">
-                <span className="font-semibold">
-                  {tableRow.data.bookingZone}
-                </span>
-              </div>
-              <div className="mt-1 text-xs text-slate-500">Drop Zone</div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {/* Jumpers */}
-              <div className="text-center">
-                <div className="inline-flex items-center gap-2 rounded-lg bg-purple-50 px-3 py-2 text-purple-700">
-                  <UsersIcon className="h-4 w-4" />
-                  <span className="font-semibold">{tableRow.numJumpers}</span>
-                </div>
-                <div className="mt-1 text-xs text-slate-500">Jumpers</div>
-              </div>
-              {/* Position for waitlist */}
-              {isWaitlistEntryPopulatedDto(tableRow.data) &&
-                tableRow.data.activePosition && (
-                  <div className="text-center">
-                    <div className="inline-flex items-center gap-2 rounded-lg bg-purple-50 px-3 py-2 text-purple-700">
-                      <span>#{tableRow.data.activePosition}</span>
-                    </div>
-                    <div className="mt-1 text-xs text-slate-500">
-                      Position on Waitlist
-                    </div>
-                  </div>
-                )}
-              {/* Requested Date */}
-              {isBookingWindowPopulatedDto(tableRow.data) && (
-                <div className="text-center">
-                  <div className="rounded-lg bg-blue-50 px-3 py-2 text-blue-700">
-                    <div className="text-sm font-semibold">
-                      {formatDateShort(tableRow.requestedJumpDate)}
-                    </div>
-                  </div>
-                  <div className="mt-1 text-xs text-slate-500">Preferred</div>
-                </div>
-              )}
-              {/* Scheduled Dates */}
-              <div className="col-span-2">
-                <div className="mb-2 text-center text-xs text-slate-500">
-                  Scheduled Jump Dates
-                </div>
-                {tableRow.scheduledJumpDates.length > 0 ? (
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {tableRow.scheduledJumpDates.map((jumpDay, idx) => (
-                      <div
-                        key={`${idx}-${jumpDay.toISOString()}`}
-                        className="flex items-center gap-1 rounded-md bg-green-50 px-2 py-1 text-sm text-green-700"
-                      >
-                        <CheckCircleIcon className="h-3 w-3" />
-                        <span className="font-medium">
-                          {formatDateShort(jumpDay)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center gap-2 rounded-lg bg-gray-50 px-3 py-2 text-gray-500">
-                    <ClockIcon className="h-4 w-4" />
-                    <span className="text-sm">Pending confirmation</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </CardBody>
-    </Card>
-  );
-};
-
 export default function BookingRequestsTable({
   bookingWindows,
   waitlistEntries,
@@ -265,6 +110,7 @@ export default function BookingRequestsTable({
     waitlistEntry: WaitlistEntryPopulatedWithBookingZoneDto,
   ) => void;
 }) {
+  const [showPendingDeposit, setShowPendingDeposit] = useState(false);
   const [showPast, setShowPast] = useState(false);
   const [showCancelled, setShowCancelled] = useState(false);
 
@@ -327,6 +173,11 @@ export default function BookingRequestsTable({
   const filteredBookings = useMemo(() => {
     let filtered = formattedTableData;
 
+    if (!showPendingDeposit) {
+      filtered = filtered.filter(
+        (booking) => booking.status !== "PENDING_DEPOSIT",
+      );
+    }
     if (!showCancelled) {
       filtered = filtered.filter((booking) => booking.status !== "CANCELED");
     }
@@ -378,7 +229,7 @@ export default function BookingRequestsTable({
       return dateA.getTime() - dateB.getTime();
     });
     return filtered;
-  }, [formattedTableData, showCancelled, showPast]);
+  }, [formattedTableData, showCancelled, showPast, showPendingDeposit]);
 
   if (filteredBookings.length === 0) {
     return (
@@ -403,6 +254,8 @@ export default function BookingRequestsTable({
           setShowCancelled={setShowCancelled}
           showPast={showPast}
           setShowPast={setShowPast}
+          showPendingDeposit={showPendingDeposit}
+          setShowPendingDeposit={setShowPendingDeposit}
         />
       </div>
       {/* Mobile View - Cards */}
@@ -453,22 +306,36 @@ export default function BookingRequestsTable({
           </TableHeader>
           <TableBody emptyContent="No bookings found">
             {filteredBookings.map((tableRow) => {
+              const isAwaitingDeposit = tableRow.status === "PENDING_DEPOSIT";
+
               return (
                 <TableRow
                   key={`${tableRow.id}-${tableRow.type}`}
-                  className="group"
+                  className={`group transition-all duration-200 ${
+                    isAwaitingDeposit
+                      ? "border-l-4 border-l-amber-400 bg-gradient-to-r from-amber-50/30 to-transparent opacity-75"
+                      : ""
+                  }`}
                 >
                   <TableCell>
-                    {isBookingWindowPopulatedDto(tableRow.data) ? (
-                      <BookingWindowRequestSummaryInfo
-                        start={tableRow.data.windowStartDate}
-                        end={tableRow.data.windowEndDate}
-                      />
-                    ) : (
-                      <WailistRequestSummaryInfo
-                        date={tableRow.data.waitlist.day}
-                      />
-                    )}
+                    <div className="relative">
+                      {isAwaitingDeposit && (
+                        <div className="absolute top-1/2 -left-2 -translate-y-1/2">
+                          <ExclamationCircleIcon className="h-5 w-5 text-amber-500" />
+                        </div>
+                      )}
+                      {isBookingWindowPopulatedDto(tableRow.data) ? (
+                        <BookingWindowRequestSummaryInfo
+                          start={tableRow.data.windowStartDate}
+                          end={tableRow.data.windowEndDate}
+                          isAwaitingDeposit={isAwaitingDeposit}
+                        />
+                      ) : (
+                        <WailistRequestSummaryInfo
+                          date={tableRow.data.waitlist.day}
+                        />
+                      )}
+                    </div>
                   </TableCell>
 
                   <TableCell>{getBookingStatusIcon(tableRow.status)}</TableCell>
@@ -484,10 +351,28 @@ export default function BookingRequestsTable({
 
                   <TableCell>
                     <div className="flex items-center justify-center">
-                      <div className="rounded-full border border-purple-200 bg-gradient-to-r from-purple-100 to-pink-100 p-3">
+                      <div
+                        className={`rounded-full border p-3 ${
+                          isAwaitingDeposit
+                            ? "border-purple-100 bg-gradient-to-r from-purple-50/60 to-pink-50/60 opacity-80"
+                            : "border-purple-200 bg-gradient-to-r from-purple-100 to-pink-100"
+                        }`}
+                      >
                         <div className="flex items-center gap-2">
-                          <UsersIcon className="h-4 w-4 text-purple-600" />
-                          <span className="text-lg font-bold text-purple-800">
+                          <UsersIcon
+                            className={`h-4 w-4 ${
+                              isAwaitingDeposit
+                                ? "text-purple-500"
+                                : "text-purple-600"
+                            }`}
+                          />
+                          <span
+                            className={`text-lg font-bold ${
+                              isAwaitingDeposit
+                                ? "text-purple-700"
+                                : "text-purple-800"
+                            }`}
+                          >
                             {tableRow.numJumpers}
                           </span>
                         </div>
@@ -497,11 +382,31 @@ export default function BookingRequestsTable({
 
                   <TableCell>
                     <div className="flex justify-center">
-                      <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-center">
-                        <div className="text-sm font-semibold text-blue-900">
+                      <div
+                        className={`rounded-lg border px-3 py-2 text-center ${
+                          isAwaitingDeposit
+                            ? "border-blue-100 bg-blue-50/60"
+                            : "border-blue-200 bg-blue-50"
+                        }`}
+                      >
+                        <div
+                          className={`text-sm font-semibold ${
+                            isAwaitingDeposit
+                              ? "text-blue-800"
+                              : "text-blue-900"
+                          }`}
+                        >
                           {formatDateShort(tableRow.requestedJumpDate)}
                         </div>
-                        <div className="text-xs text-blue-600">Preferred</div>
+                        <div
+                          className={`text-xs ${
+                            isAwaitingDeposit
+                              ? "text-blue-500"
+                              : "text-blue-600"
+                          }`}
+                        >
+                          Preferred
+                        </div>
                       </div>
                     </div>
                   </TableCell>
@@ -523,15 +428,43 @@ export default function BookingRequestsTable({
                           ))}
                         </div>
                       ) : (
-                        <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">
+                        <div
+                          className={`rounded-lg border px-3 py-2 text-center ${
+                            isAwaitingDeposit
+                              ? "border-gray-200 bg-gray-50"
+                              : "border-amber-200 bg-amber-50"
+                          }`}
+                        >
                           <div className="flex items-center justify-center gap-2">
-                            <ClockIcon className="h-4 w-4 text-gray-400" />
-                            <span className="text-sm font-medium text-gray-500">
-                              Pending
+                            {!isAwaitingDeposit ? (
+                              <ClockIcon className={`h-4 w-4 text-amber-500`} />
+                            ) : (
+                              <ExclamationCircleIcon
+                                className={`h-4 w-4 text-gray-500`}
+                              />
+                            )}
+                            <span
+                              className={`text-sm font-medium ${
+                                isAwaitingDeposit
+                                  ? "text-gray-500"
+                                  : "text-amber-700"
+                              }`}
+                            >
+                              {isAwaitingDeposit
+                                ? "Awaiting deposit"
+                                : "Pending"}
                             </span>
                           </div>
-                          <div className="mt-1 text-xs text-gray-400">
-                            Awaiting confirmation
+                          <div
+                            className={`mt-1 text-xs ${
+                              isAwaitingDeposit
+                                ? "text-gray-400"
+                                : "text-amber-600"
+                            }`}
+                          >
+                            {isAwaitingDeposit
+                              ? "Must submit deposit"
+                              : "Awaiting jump day confirmation"}
                           </div>
                         </div>
                       )}
@@ -541,10 +474,22 @@ export default function BookingRequestsTable({
                   <TableCell>
                     <div className="flex justify-center">
                       <div className="text-center">
-                        <div className="text-sm font-medium text-slate-700">
+                        <div
+                          className={`text-sm font-medium ${
+                            isAwaitingDeposit
+                              ? "text-slate-600"
+                              : "text-slate-700"
+                          }`}
+                        >
                           {formatDateShort(tableRow.createdAt)}
                         </div>
-                        <div className="text-xs text-slate-500">
+                        <div
+                          className={`text-xs ${
+                            isAwaitingDeposit
+                              ? "text-slate-400"
+                              : "text-slate-500"
+                          }`}
+                        >
                           {new Date(tableRow.createdAt).toLocaleDateString(
                             "en-US",
                             {
@@ -560,7 +505,7 @@ export default function BookingRequestsTable({
                     {!(tableRow.status === "CANCELED") &&
                     isBookingWindowPopulatedDto(tableRow.data) ? (
                       (() => {
-                        const bookingData = tableRow.data; // TypeScript now knows this is BookingWindowPopulatedDto
+                        const bookingData = tableRow.data;
                         return (
                           <div className="flex justify-center">
                             <BookingWindowActionsDropdown
@@ -576,7 +521,7 @@ export default function BookingRequestsTable({
                       })()
                     ) : isWaitlistEntryPopulatedDto(tableRow.data) ? (
                       (() => {
-                        const waitlistEntry = tableRow.data; // TypeScript now knows this is BookingWindowPopulatedDto
+                        const waitlistEntry = tableRow.data;
                         return (
                           <div className="flex justify-center">
                             <WaitlistEntryActionsDropdown

@@ -14,7 +14,7 @@ export const getBookingStatusIcon = (status: BookingStatus) => {
             <CheckCircleIcon className="h-5 w-5 text-green-600" />
           </div>
           <span className="ml-2 text-sm font-medium text-green-700">
-            Confirmed
+            Jump days scheduled
           </span>
         </div>
       );
@@ -25,7 +25,7 @@ export const getBookingStatusIcon = (status: BookingStatus) => {
             <ClockIcon className="h-5 w-5 text-yellow-600" />
           </div>
           <span className="ml-2 text-sm font-medium text-yellow-700">
-            Pending
+            Finalizing jump days
           </span>
         </div>
       );
@@ -37,6 +37,18 @@ export const getBookingStatusIcon = (status: BookingStatus) => {
           </div>
           <span className="ml-2 text-sm font-medium text-red-700">
             Canceled
+          </span>
+        </div>
+      );
+
+    case "PENDING_DEPOSIT":
+      return (
+        <div className="flex items-center justify-center">
+          <div className="rounded-full bg-slate-100 p-2">
+            <ClockIcon className="h-5 w-5 text-slate-600" />
+          </div>
+          <span className="ml-2 text-sm font-medium text-slate-700">
+            Incomplete booking
           </span>
         </div>
       );

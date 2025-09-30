@@ -4,12 +4,16 @@ export default function BookingRequestsTableFilters({
   setShowCancelled,
   showPast,
   setShowPast,
+  showPendingDeposit,
+  setShowPendingDeposit,
 }: {
   numVisibleRows: number;
   showCancelled: boolean;
   setShowCancelled: (input: boolean) => void;
   showPast: boolean;
   setShowPast: (input: boolean) => void;
+  showPendingDeposit: boolean;
+  setShowPendingDeposit: (input: boolean) => void;
 }) {
   return (
     <div className="border-b border-gray-200 bg-gray-50 px-3 py-3 sm:px-6 sm:py-4">
@@ -44,6 +48,17 @@ export default function BookingRequestsTableFilters({
               type="checkbox"
               checked={showPast}
               onChange={(e) => setShowPast(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">
+              Show unfinalized booking windows
+            </span>
+            <input
+              type="checkbox"
+              checked={showPendingDeposit}
+              onChange={(e) => setShowPendingDeposit(e.target.checked)}
               className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
           </div>
@@ -85,6 +100,18 @@ export default function BookingRequestsTableFilters({
                 Show past bookings
               </span>
             </label>
+
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                checked={showPendingDeposit}
+                onChange={(e) => setShowPendingDeposit(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                Show unfinalized booking windows
+              </span>
+            </label>
           </div>
         </div>
       </div>
@@ -118,7 +145,19 @@ export default function BookingRequestsTableFilters({
               className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span className="text-sm font-medium text-gray-700">
-              Show past bookings windows
+              Show past booking windows
+            </span>
+          </label>
+
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="checkbox"
+              checked={showPendingDeposit}
+              onChange={(e) => setShowPendingDeposit(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              Show unfinalized booking windows
             </span>
           </label>
         </div>
