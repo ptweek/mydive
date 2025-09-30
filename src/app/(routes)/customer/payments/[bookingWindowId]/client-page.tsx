@@ -106,7 +106,7 @@ export default function PaymentClient({
         </div>
       </div>
 
-      <Checkout />
+      <Checkout bookingWindowId={bookingWindow.id} />
     </div>
   );
 }
