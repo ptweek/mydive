@@ -1,4 +1,5 @@
-import type { BookingStatus, Prisma, PrismaClient } from "@prisma/client";
+import { BookingStatus, type Prisma, type PrismaClient } from "@prisma/client";
+import type { Logger } from "pino";
 
 const bookingWindowIncludeConfig = {
   scheduledJumpDates: {
@@ -96,5 +97,33 @@ export class BookingWindowService {
         status: "CANCELED",
       },
     });
+  }
+  async updateDepositInfoFromStripeCheckout(
+    id: number,
+    log: Logger,
+  ): Promise<BookingWindow> {
+    log.info({ bookingWindowId: id }, "Updating booking window");
+    try {
+      const updated = await this.db.bookingWindow.update({
+        where: { id },
+        data: {
+          status: BookingStatus.UNSCHEDULED,
+          depositPaid: true,
+          depositConfirmedAt: new Date(),
+        },
+      });
+
+      log.info({ bookingWindowId: id }, "Booking window updated");
+      return updated;
+    } catch (error) {
+      log.error(
+        {
+          bookingWindowId: id,
+          error: error instanceof Error ? error.message : String(error),
+        },
+        "Failed to update booking window",
+      );
+      throw error;
+    }
   }
 }

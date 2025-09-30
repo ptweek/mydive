@@ -16,13 +16,17 @@ const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
 );
 
-export default function Checkout() {
+export default function Checkout({
+  bookingWindowId,
+}: {
+  bookingWindowId: number;
+}) {
   const router = useRouter();
   return (
     <EmbeddedCheckoutProvider
       stripe={stripePromise}
       options={{
-        fetchClientSecret: () => fetchClientSecret(),
+        fetchClientSecret: () => fetchClientSecret({ bookingWindowId }),
         onComplete: () => {
           router.push("/");
         },

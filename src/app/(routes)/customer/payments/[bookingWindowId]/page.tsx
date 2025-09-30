@@ -4,16 +4,13 @@ import { redirect } from "next/navigation";
 import PageHeader from "mydive/app/_shared-frontend/components/headers/PageHeader";
 import PaymentClient from "./client-page";
 
-function parseIntSafe(value: string): number | null {
+export function parseIntSafe(value: string): number | null {
   const parsed = parseInt(value, 10);
 
-  // Check if it's a valid integer
   if (isNaN(parsed)) {
     return null;
   }
 
-  // Optional: Check if the original string matches the parsed value
-  // This catches cases like "123abc" which parseInt would parse as 123
   if (parsed.toString() !== value.trim()) {
     return null;
   }

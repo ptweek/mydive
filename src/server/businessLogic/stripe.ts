@@ -3,7 +3,11 @@
 import { headers } from "next/headers";
 import { stripe } from "../../lib/stripe";
 
-export async function fetchClientSecret() {
+export async function fetchClientSecret({
+  bookingWindowId,
+}: {
+  bookingWindowId: number;
+}) {
   const origin = (await headers()).get("origin");
 
   // Create Checkout Sessions from body params.
@@ -15,6 +19,7 @@ export async function fetchClientSecret() {
         quantity: 1,
       },
     ],
+    metadata: { bookingWindowId },
     mode: "payment",
     return_url: `${origin}`,
   });
