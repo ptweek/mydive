@@ -33,12 +33,19 @@ export async function POST(req: Request) {
 
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-  } catch {
-    log.error(
-      { errorType: "configuration" },
-      "Webhook signature verification failed",
+  } catch (err) {
+    log.error({
+      requestId,
+      message: "Webhook signature verification failed",
+      error: err instanceof Error ? err.message : String(err),
+      errorType: err instanceof Error ? err.constructor.name : typeof err,
+    });
+    return NextResponse.json(
+      {
+        error: `Webhook Error: ${err instanceof Error ? err.message : "Unknown"}`,
+      },
+      { status: 400 },
     );
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
   // Handle the checkout.session.completed event
