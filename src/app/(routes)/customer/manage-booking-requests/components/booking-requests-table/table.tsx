@@ -4,6 +4,7 @@ import {
   ClockIcon,
   UsersIcon,
   ExclamationCircleIcon,
+  XCircleIcon,
 } from "@heroicons/react/24/outline";
 import {
   Table,
@@ -413,7 +414,16 @@ export default function BookingRequestsTable({
 
                   <TableCell>
                     <div className="flex justify-center">
-                      {tableRow.scheduledJumpDates.length > 0 ? (
+                      {tableRow.status === "CANCELED" ? (
+                        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <XCircleIcon className="h-4 w-4 text-red-500" />
+                            <span className="text-sm font-medium text-red-700">
+                              Cancelled
+                            </span>
+                          </div>
+                        </div>
+                      ) : tableRow.scheduledJumpDates.length > 0 ? (
                         <div className="space-y-1">
                           {tableRow.scheduledJumpDates.map((jumpDay, idx) => (
                             <div
@@ -436,12 +446,10 @@ export default function BookingRequestsTable({
                           }`}
                         >
                           <div className="flex items-center justify-center gap-2">
-                            {!isAwaitingDeposit ? (
-                              <ClockIcon className={`h-4 w-4 text-amber-500`} />
+                            {isAwaitingDeposit ? (
+                              <ExclamationCircleIcon className="h-4 w-4 text-gray-500" />
                             ) : (
-                              <ExclamationCircleIcon
-                                className={`h-4 w-4 text-gray-500`}
-                              />
+                              <ClockIcon className="h-4 w-4 text-amber-500" />
                             )}
                             <span
                               className={`text-sm font-medium ${
