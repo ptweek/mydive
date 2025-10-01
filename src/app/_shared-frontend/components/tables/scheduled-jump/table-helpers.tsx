@@ -186,7 +186,7 @@ export const getTableCells = (
               Complete
             </button>
           )}
-        {scheduledJump.status !== "CANCELED" ? (
+        {scheduledJump.status === "SCHEDULED" ? (
           <button
             onClick={() => handleJumpCancellationClick(scheduledJump)}
             className="rounded bg-red-500 px-3 py-1 text-xs text-white hover:bg-red-600"
