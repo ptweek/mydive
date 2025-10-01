@@ -18,7 +18,10 @@ import { useRouter } from "next/navigation";
 import { CompleteScheduleJumpConfirmationModal } from "../../modals/complete-confirmation/scheduled-jump";
 import { CalendarIcon, UserIcon } from "@heroicons/react/24/outline";
 import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
-import { getBookingStatusIcon } from "mydive/app/_shared-frontend/components/statusIcons";
+import {
+  getBookingStatusIcon,
+  getScheduledJumpStatusIcon,
+} from "mydive/app/_shared-frontend/components/statusIcons";
 
 // Mobile Card Component
 const MobileScheduledJumpCard = ({
@@ -52,7 +55,7 @@ const MobileScheduledJumpCard = ({
           </div>
 
           <div className="ml-4 flex items-center gap-3">
-            {getBookingStatusIcon(scheduledJump.status)}
+            {getScheduledJumpStatusIcon(scheduledJump.status)}
           </div>
         </div>
 

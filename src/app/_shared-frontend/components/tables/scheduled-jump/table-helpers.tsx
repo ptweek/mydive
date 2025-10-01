@@ -5,7 +5,7 @@ import type {
   ScheduledJumpDto,
   UserDto,
 } from "mydive/server/api/routers/types";
-import { getBookingStatusIcon } from "../../statusIcons";
+import { getScheduledJumpStatusIcon } from "../../statusIcons";
 import { isDateTodayOrPast } from "mydive/app/_shared-frontend/utils/dates";
 
 export const getColumns = (isAdminView: boolean) => {
@@ -103,7 +103,7 @@ export const getTableCells = (
     // Status cell
     <TableCell key="status">
       <div className="flex justify-center">
-        {getBookingStatusIcon(scheduledJump.status)}
+        {getScheduledJumpStatusIcon(scheduledJump.status)}
       </div>
     </TableCell>,
 
