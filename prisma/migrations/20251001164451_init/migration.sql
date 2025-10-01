@@ -45,7 +45,7 @@ CREATE TABLE "Waitlist" (
 -- CreateTable
 CREATE TABLE "WaitlistEntry" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "status" TEXT NOT NULL DEFAULT 'UNSCHEDULED',
+    "status" TEXT NOT NULL DEFAULT 'WAITING',
     "waitlistId" INTEGER NOT NULL,
     "waitlistedUserId" TEXT NOT NULL,
     "latestPosition" INTEGER NOT NULL,

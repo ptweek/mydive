@@ -23,13 +23,16 @@ import type {
   WaitlistEntryPopulatedWithBookingZoneDto,
 } from "mydive/server/api/routers/types";
 import { BookingWindowActionsDropdown } from "./booking-window-actions-dropdown";
-import type { BookingStatus } from "@prisma/client";
+import type { BookingStatus, WaitlistEntryStatus } from "@prisma/client";
 import {
   isBookingWindowPopulatedDto,
   isWaitlistEntryPopulatedDto,
 } from "mydive/app/_shared-types/type-validation";
 import { WaitlistEntryActionsDropdown } from "./waitlist-actions-dropdown";
-import { getBookingStatusIcon } from "mydive/app/_shared-frontend/components/statusIcons";
+import {
+  getBookingStatusIcon,
+  getWaitlistEntryStatusIcon,
+} from "mydive/app/_shared-frontend/components/statusIcons";
 import { useMemo, useState } from "react";
 import BookingRequestsTableFilters from "mydive/app/_shared-frontend/components/tables/manage-booking-requests/filters";
 import { MobileBookingCard } from "./mobile-booking-card";
@@ -38,9 +41,9 @@ export type BookingRequestTableRow = {
   type: "BOOKING_WINDOW" | "WAITLIST_ENTRY";
   id: number;
   bookingWindowDates?: { start: Date; end: Date }; // exists if BOOKING_WINDOW type
-  waitlistDate?: Date; // exists if WAITLIST type
-  position?: number; // exists only on waitlist type
-  status: BookingStatus;
+  waitlistDate?: Date;
+  position?: number;
+  status: BookingStatus | WaitlistEntryStatus;
   numJumpers: number;
   requestedJumpDate: Date;
   scheduledJumpDates: Date[]; // Should only provide the ACTIVE scheduled jump date
@@ -339,7 +342,11 @@ export default function BookingRequestsTable({
                     </div>
                   </TableCell>
 
-                  <TableCell>{getBookingStatusIcon(tableRow.status)}</TableCell>
+                  <TableCell>
+                    {isBookingWindowPopulatedDto(tableRow.data)
+                      ? getBookingStatusIcon(tableRow.data.status)
+                      : getWaitlistEntryStatusIcon(tableRow.data.status)}
+                  </TableCell>
 
                   <TableCell>
                     <div className="flex justify-center text-black">
@@ -415,7 +422,7 @@ export default function BookingRequestsTable({
                   <TableCell>
                     <div className="flex justify-center">
                       {tableRow.status === "CANCELED" ? (
-                        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-center">
+                        <div className="rounded-lg border-red-200 bg-red-50 px-3 py-2 text-center">
                           <div className="flex items-center justify-center gap-2">
                             <XCircleIcon className="h-4 w-4 text-red-500" />
                             <span className="text-sm font-medium text-red-700">
@@ -439,23 +446,21 @@ export default function BookingRequestsTable({
                         </div>
                       ) : (
                         <div
-                          className={`rounded-lg border px-3 py-2 text-center ${
-                            isAwaitingDeposit
-                              ? "border-gray-200 bg-gray-50"
-                              : "border-amber-200 bg-amber-50"
+                          className={`rounded-lg px-3 py-2 text-center ${
+                            isAwaitingDeposit ? "bg-gray-50" : "bg-yellow-100"
                           }`}
                         >
                           <div className="flex items-center justify-center gap-2">
                             {isAwaitingDeposit ? (
                               <ExclamationCircleIcon className="h-4 w-4 text-gray-500" />
                             ) : (
-                              <ClockIcon className="h-4 w-4 text-amber-500" />
+                              <ClockIcon className="h-4 w-4 text-yellow-700" />
                             )}
                             <span
                               className={`text-sm font-medium ${
                                 isAwaitingDeposit
                                   ? "text-gray-500"
-                                  : "text-amber-700"
+                                  : "text-yellow-700"
                               }`}
                             >
                               {isAwaitingDeposit
@@ -467,12 +472,10 @@ export default function BookingRequestsTable({
                             className={`mt-1 text-xs ${
                               isAwaitingDeposit
                                 ? "text-gray-400"
-                                : "text-amber-600"
+                                : "text-yellow-700"
                             }`}
                           >
-                            {isAwaitingDeposit
-                              ? "Must submit deposit"
-                              : "Awaiting jump day confirmation"}
+                            {isAwaitingDeposit ? "Must submit deposit" : ""}
                           </div>
                         </div>
                       )}

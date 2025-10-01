@@ -19,7 +19,10 @@ import {
   UsersIcon,
   ExclamationCircleIcon,
 } from "@heroicons/react/24/outline";
-import { getBookingStatusIcon } from "mydive/app/_shared-frontend/components/statusIcons";
+import {
+  getBookingStatusIcon,
+  getWaitlistEntryStatusIcon,
+} from "mydive/app/_shared-frontend/components/statusIcons";
 import { BookingWindowActionsDropdown } from "./booking-window-actions-dropdown";
 import { WaitlistEntryActionsDropdown } from "./waitlist-actions-dropdown";
 
@@ -88,7 +91,9 @@ export const MobileBookingCard = ({
           {/* Right side - Status, Actions, and Expand Icon */}
           <div className="ml-4 flex items-center gap-2">
             {/* Status */}
-            {getBookingStatusIcon(tableRow.status)}
+            {isBookingWindowPopulatedDto(tableRow.data)
+              ? getBookingStatusIcon(tableRow.data.status)
+              : getWaitlistEntryStatusIcon(tableRow.data.status)}
             {/* Actions Dropdown */}
             {!(tableRow.status === "CANCELED") && (
               <div onClick={(e) => e.stopPropagation()}>

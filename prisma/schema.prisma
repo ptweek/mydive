@@ -27,6 +27,12 @@ enum WaitlistStatus {
   CONFIRMED // this means that the booking is confirmed by the Admin
 }
 
+enum WaitlistEntryStatus {
+  WAITING
+  SCHEDULED
+  CANCELED
+}
+
 enum SchedulingMethod {
   BOOKING_WINDOW 
   WAITLIST
@@ -105,7 +111,7 @@ model Waitlist {
 model WaitlistEntry {
   id         Int      @id @default(autoincrement())
   
-  status BookingStatus @default(UNSCHEDULED) // when we confirm a waitlist booking, we should confirm this and cancel all the others. 
+  status WaitlistEntryStatus @default(WAITING) // when we confirm a waitlist booking, we should confirm this and cancel all the others. 
   waitlistId Int
   waitlistedUserId     String   // clerkId of waitlisted user 
   latestPosition Int
