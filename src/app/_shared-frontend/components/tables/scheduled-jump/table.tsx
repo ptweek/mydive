@@ -22,6 +22,7 @@ import {
   getBookingStatusIcon,
   getScheduledJumpStatusIcon,
 } from "mydive/app/_shared-frontend/components/statusIcons";
+import { isDateInPast } from "mydive/app/(routes)/customer/booking-calendar/components/calendar/helpers";
 
 // Mobile Card Component
 const MobileScheduledJumpCard = ({
@@ -105,17 +106,9 @@ const MobileScheduledJumpCard = ({
 
         {/* Actions */}
         {!isAdminView &&
-        scheduledJump.status !== "CANCELED" &&
-        scheduledJump.status !== "COMPLETED" ? (
+        scheduledJump.status === "SCHEDULED" &&
+        !isDateInPast(scheduledJump.jumpDate) ? (
           <div className="mt-4 flex gap-2 border-t border-slate-100 pt-4">
-            {isAdminView && (
-              <button
-                onClick={() => handleJumpCompletionClick(scheduledJump)}
-                className="flex-1 rounded-md bg-green-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
-              >
-                Mark Complete
-              </button>
-            )}
             <button
               onClick={() => handleJumpCancellationClick(scheduledJump)}
               className={`${isAdminView ? "flex-1" : "w-full"} rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700`}
