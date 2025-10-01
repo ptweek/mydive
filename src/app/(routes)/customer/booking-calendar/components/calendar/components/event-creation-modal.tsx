@@ -163,7 +163,7 @@ export default function EventCreationModal({
             {/* Number of Jumpers - Custom Dropdown */}
             <div className="custom-dropdown mb-4 sm:mb-5">
               <label className="mb-2 block text-sm font-bold text-gray-800 sm:text-base">
-                Number of Jumpers
+                Number of Jumpers (1 to 10)
               </label>
               <div className="relative">
                 <button

@@ -5,8 +5,6 @@ import {
   EmbeddedCheckoutProvider,
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import { useRouter } from "next/navigation";
-
 import { fetchClientSecret } from "src/server/businessLogic/stripe";
 
 if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
@@ -21,15 +19,11 @@ export default function Checkout({
 }: {
   bookingWindowId: number;
 }) {
-  const router = useRouter();
   return (
     <EmbeddedCheckoutProvider
       stripe={stripePromise}
       options={{
         fetchClientSecret: () => fetchClientSecret({ bookingWindowId }),
-        onComplete: () => {
-          router.push("/");
-        },
       }}
     >
       <div

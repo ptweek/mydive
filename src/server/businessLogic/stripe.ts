@@ -21,7 +21,7 @@ export async function fetchClientSecret({
     ],
     metadata: { bookingWindowId },
     mode: "payment",
-    return_url: `${origin}`,
+    return_url: `${origin}/customer/manage-booking-requests`,
   });
   if (!session.client_secret) {
     throw new Error("Client secret fetch has failed");
