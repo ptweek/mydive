@@ -37,6 +37,31 @@ import { useMemo, useState } from "react";
 import BookingRequestsTableFilters from "mydive/app/_shared-frontend/components/tables/manage-booking-requests/filters";
 import { MobileBookingCard } from "./mobile-booking-card";
 
+export const getActiveBookingWindowJumpDatesForBookedUser = (
+  bookingWindow: BookingWindowPopulatedDto,
+) => {
+  return bookingWindow.scheduledJumpDates
+    .filter((jumpDate) => {
+      return jumpDate.bookedBy === bookingWindow.bookedBy;
+    })
+    .map((res) => {
+      return res.jumpDate;
+    });
+};
+
+export const getActiveScheduledJumpDatesForWaitlistTableRow = (
+  tableRow: BookingRequestTableRow,
+) => {
+  const { waitlistDate, type } = tableRow;
+  if (type !== "WAITLIST_ENTRY" && !waitlistDate) {
+    throw new Error("Giving wrong information to get scheduled jump info");
+  }
+  const date = tableRow.scheduledJumpDates.find((scheduledJumpDate) => {
+    return scheduledJumpDate === waitlistDate;
+  });
+  return date ? [date] : []; // a bit hacky but it's ok
+};
+
 export type BookingRequestTableRow = {
   type: "BOOKING_WINDOW" | "WAITLIST_ENTRY";
   id: number;
@@ -159,6 +184,7 @@ export default function BookingRequestsTable({
             bookingZone,
             createdAt,
             requestedJumpDate: waitlistEntry.waitlist.day,
+            waitlistDate: waitlistEntry.waitlist.day,
             scheduledJumpDates:
               waitlistEntry.status === "SCHEDULED"
                 ? [waitlistEntry.waitlist.day]
@@ -311,6 +337,11 @@ export default function BookingRequestsTable({
           <TableBody emptyContent="No bookings found">
             {filteredBookings.map((tableRow) => {
               const isAwaitingDeposit = tableRow.status === "PENDING_DEPOSIT";
+              const activeScheduledJumps = isBookingWindowPopulatedDto(
+                tableRow.data,
+              )
+                ? getActiveBookingWindowJumpDatesForBookedUser(tableRow.data)
+                : getActiveScheduledJumpDatesForWaitlistTableRow(tableRow);
 
               return (
                 <TableRow
@@ -430,9 +461,9 @@ export default function BookingRequestsTable({
                             </span>
                           </div>
                         </div>
-                      ) : tableRow.scheduledJumpDates.length > 0 ? (
+                      ) : activeScheduledJumps.length > 0 ? (
                         <div className="space-y-1">
-                          {tableRow.scheduledJumpDates.map((jumpDay, idx) => (
+                          {activeScheduledJumps.map((jumpDay, idx) => (
                             <div
                               key={`${idx}-${jumpDay.toISOString()}`}
                               className="flex items-center gap-2 rounded-md bg-green-50 px-2 py-1 text-sm"

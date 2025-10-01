@@ -2,7 +2,11 @@ import type {
   BookingWindowPopulatedDto,
   WaitlistEntryPopulatedWithBookingZoneDto,
 } from "mydive/server/api/routers/types";
-import type { BookingRequestTableRow } from "./table";
+import {
+  getActiveBookingWindowJumpDatesForBookedUser,
+  getActiveScheduledJumpDatesForWaitlistTableRow,
+  type BookingRequestTableRow,
+} from "./table";
 import { useState } from "react";
 import { Card, CardBody } from "@nextui-org/react";
 import {
@@ -41,6 +45,10 @@ export const MobileBookingCard = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isAwaitingDeposit = tableRow.status === "PENDING_DEPOSIT";
+
+  const activeScheduledJumps = isBookingWindowPopulatedDto(tableRow.data)
+    ? getActiveBookingWindowJumpDatesForBookedUser(tableRow.data)
+    : getActiveScheduledJumpDatesForWaitlistTableRow(tableRow);
 
   return (
     <Card
@@ -216,9 +224,9 @@ export const MobileBookingCard = ({
                 <div className="mb-2 text-center text-xs text-slate-500">
                   Scheduled Jump Dates
                 </div>
-                {tableRow.scheduledJumpDates.length > 0 ? (
+                {activeScheduledJumps.length > 0 ? (
                   <div className="flex flex-wrap justify-center gap-2">
-                    {tableRow.scheduledJumpDates.map((jumpDay, idx) => (
+                    {activeScheduledJumps.map((jumpDay, idx) => (
                       <div
                         key={`${idx}-${jumpDay.toISOString()}`}
                         className="flex items-center gap-1 rounded-md bg-green-50 px-2 py-1 text-sm text-green-700"
