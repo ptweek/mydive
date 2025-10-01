@@ -1,5 +1,7 @@
 import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
 import type { ScheduledJumpDto } from "mydive/server/api/routers/types";
+import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
 
 export const CancelScheduleJumpConfirmationModal = ({
   isOpen,
@@ -12,11 +14,17 @@ export const CancelScheduleJumpConfirmationModal = ({
   onConfirm: () => void;
   scheduledJump: ScheduledJumpDto;
 }) => {
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
 
-  return (
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
+
+  const modalContent = (
     <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
-      <div className="mx-4 max-w-md rounded-lg bg-white p-6">
+      <div className="mx-4 max-w-sm rounded-lg bg-white p-6">
         <h3 className="mb-4 text-lg font-semibold text-gray-900">
           Cancel Scheduled Jump
         </h3>
@@ -42,4 +50,6 @@ export const CancelScheduleJumpConfirmationModal = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
