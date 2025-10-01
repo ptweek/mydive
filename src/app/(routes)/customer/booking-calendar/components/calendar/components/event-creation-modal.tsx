@@ -195,7 +195,10 @@ export default function EventCreationModal({
 
                 {jumpersDropdownOpen && (
                   <div className="absolute z-20 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-xl">
-                    <div className="max-h-60 overflow-auto py-1">
+                    <div
+                      className="overflow-auto py-1"
+                      style={{ maxHeight: "calc(2 * 2.75rem)" }}
+                    >
                       {jumpersOptions.map((num) => (
                         <button
                           key={num}
@@ -260,7 +263,10 @@ export default function EventCreationModal({
 
                 {dayDropdownOpen && (
                   <div className="absolute z-20 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-xl">
-                    <div className="py-1">
+                    <div
+                      className="overflow-auto py-1"
+                      style={{ maxHeight: "calc(2 * 2.75rem)" }}
+                    >
                       {dayOptions.map((dayNum) => {
                         const date = getIdealizedDate(newEvent.start!, dayNum);
                         const isSelected =

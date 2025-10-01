@@ -421,7 +421,7 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
               <div>
                 <h4 className="font-semibold">Booking Submitted!</h4>
                 <p className="text-sm text-green-100">
-                  Redirecting to dashboard...
+                  Redirecting to booking review and payment
                 </p>
               </div>
             </div>
