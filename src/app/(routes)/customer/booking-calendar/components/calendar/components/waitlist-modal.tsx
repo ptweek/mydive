@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { api } from "mydive/trpc/react";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@nextui-org/react";
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -18,6 +20,7 @@ export default function WaitlistModal({
   associatedBookingId,
   onSuccess,
 }: WaitlistModalProps) {
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
@@ -118,7 +121,7 @@ export default function WaitlistModal({
   };
 
   const handleClose = () => {
-    if (!isSubmitting && !isLoadingWaitlistInfo && !showSuccess) {
+    if (!isSubmitting && !isLoadingWaitlistInfo) {
       setError("");
       setSuccessMessage("");
       setShowSuccess(false);
@@ -205,7 +208,7 @@ export default function WaitlistModal({
             <button
               type="button"
               onClick={handleClose}
-              disabled={isSubmitting || isLoadingWaitlistInfo || showSuccess}
+              disabled={isSubmitting || isLoadingWaitlistInfo}
               className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <svg
@@ -256,12 +259,14 @@ export default function WaitlistModal({
                     {`We'll notify you if a spot opens up on`}{" "}
                     <strong>{formatDate(day)}</strong>. You can monitor your
                     waitlist in the{" "}
-                    <Link
+                    <span
                       className="text-blue-600 underline"
-                      href={"/customer/manage-booking-requests"}
+                      onClick={() => {
+                        router.push("/customer/manage-booking-requests");
+                      }}
                     >
-                      Manage Booking Requests
-                    </Link>{" "}
+                      Booking Requests
+                    </span>{" "}
                     page
                   </p>
                 </div>
