@@ -131,7 +131,7 @@ export const customerBookingManagerRouter = createTRPCRouter({
         const maxPosition =
           activeWaitlistEntries.length > 0
             ? Math.max(
-                ...waitlist.entries.map((entry) => {
+                ...activeWaitlistEntries.map((entry) => {
                   if (!entry.activePosition) {
                     throw new Error(
                       "Active entry does not have active position!",
@@ -219,13 +219,15 @@ export const customerBookingManagerRouter = createTRPCRouter({
             },
           },
         });
+        const activeWaitlistEntries = waitlist?.entries.filter((entry) => {
+          return entry.status !== "CANCELED";
+        });
 
         // If no waitlist exists for this day or no users on the waitlist that was created
         if (
           !waitlist ||
-          waitlist?.entries.filter((entry) => {
-            return entry.status !== "CANCELED";
-          }).length < 1
+          !activeWaitlistEntries ||
+          activeWaitlistEntries?.length < 1
         ) {
           return {
             exists: false,
@@ -239,26 +241,30 @@ export const customerBookingManagerRouter = createTRPCRouter({
         }
 
         // Find the user's position on the waitlist
-        const userEntry = waitlist.entries.find(
+        const userEntry = activeWaitlistEntries.find(
           (entry) => entry.waitlistedUserId === input.userId,
         );
         const userPosition = userEntry ? userEntry.activePosition : null;
         const isUserOnWaitlist = userEntry !== undefined;
 
         // Get basic info about other users on the waitlist (without sensitive data)
-        const entriesInfo = waitlist.entries.map((entry) => ({
-          id: entry.id,
-          activePosition: entry.activePosition,
-          latestPosition: entry.latestPosition,
-          createdAt: entry.createdAt,
-          isCurrentUser: entry.waitlistedUserId === input.userId,
-          // Note: We don't expose other users' userIds for privacy
-        }));
+        const entriesInfo = waitlist.entries
+          .filter((entry) => {
+            return entry.status !== "CANCELED";
+          })
+          .map((entry) => ({
+            id: entry.id,
+            activePosition: entry.activePosition,
+            latestPosition: entry.latestPosition,
+            createdAt: entry.createdAt,
+            isCurrentUser: entry.waitlistedUserId === input.userId,
+            // Note: We don't expose other users' userIds for privacy
+          }));
 
         return {
           exists: true,
           waitlistId: waitlist.id,
-          totalCount: waitlist.entries.length,
+          totalCount: activeWaitlistEntries.length,
           userPosition: userPosition,
           isUserOnWaitlist: isUserOnWaitlist,
           associatedBooking: waitlist.associatedBooking,
