@@ -2,6 +2,7 @@
 import { getActiveScheduledJumpDates } from "mydive/app/_shared-frontend/utils/booking";
 import { api } from "mydive/trpc/react";
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import type { ScheduledJump } from "@prisma/client";
 import type { BookingTableRow } from "../../types";
 import { useRouter } from "next/navigation";
@@ -137,11 +138,12 @@ export const ModifyScheduledJumpsModal = ({
   const hasExistingConfirmedDates =
     scheduledJumpDates &&
     getExistingConfirmedDates(scheduledJumpDates).length > 0;
+
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <div
-      className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black"
+      className="bg-opacity-50 fixed inset-0 z-[9999] flex items-center justify-center bg-black"
       onClick={handleBackdropClick}
     >
       <div className="mx-4 max-h-[90vh] max-w-lg overflow-y-auto rounded-lg bg-white p-6">
@@ -326,4 +328,6 @@ export const ModifyScheduledJumpsModal = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
