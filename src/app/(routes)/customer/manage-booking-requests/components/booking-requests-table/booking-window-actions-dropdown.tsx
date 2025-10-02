@@ -63,7 +63,21 @@ export const BookingWindowActionsDropdown = ({
         return [
           {
             label: "Cancel booking window",
-            icon: "❌",
+            icon: (
+              <svg
+                className="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            ),
             onClick: () => {
               onCancel(booking);
               setIsOpen(false);
@@ -75,7 +89,21 @@ export const BookingWindowActionsDropdown = ({
         return [
           {
             label: "Cancel booking window",
-            icon: "❌",
+            icon: (
+              <svg
+                className="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            ),
             onClick: () => {
               onCancel(booking);
               setIsOpen(false);
@@ -88,7 +116,21 @@ export const BookingWindowActionsDropdown = ({
         return [
           {
             label: "Complete booking",
-            icon: "✅",
+            icon: (
+              <svg
+                className="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            ),
             onClick: () => {
               setIsOpen(false);
               router.push(`payments/${booking.id}`);
@@ -97,7 +139,21 @@ export const BookingWindowActionsDropdown = ({
           },
           {
             label: "Cancel booking window",
-            icon: "❌",
+            icon: (
+              <svg
+                className="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            ),
             onClick: () => {
               onCancel(booking);
               setIsOpen(false);
@@ -134,9 +190,9 @@ export const BookingWindowActionsDropdown = ({
           <button
             key={index}
             onClick={action.onClick}
-            className={`flex w-full items-center gap-3 px-4 py-2 text-left text-sm transition-colors duration-150 ${action.className}`}
+            className={`flex w-full items-center gap-2 px-2.5 py-1 text-left text-xs transition-colors duration-150 ${action.className}`}
           >
-            <span className="text-base">{action.icon}</span>
+            <span className="flex-shrink-0">{action.icon}</span>
             {action.label}
           </button>
         ))}
