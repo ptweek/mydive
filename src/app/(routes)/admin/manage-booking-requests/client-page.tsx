@@ -1,6 +1,5 @@
 "use client";
 import React, { useMemo } from "react";
-import { Card, CardBody } from "@nextui-org/react";
 import type {
   BookingWindowPopulatedDto,
   ScheduledJumpDto,
@@ -10,7 +9,6 @@ import type {
 import { calculateBookingRequestsStats } from "mydive/app/_shared-frontend/utils/stats";
 import BookingRequestsStatsCards from "mydive/app/_shared-frontend/components/cards/booking-requests-stats-cards";
 import AdminBookingRequestsTable from "./components/booking-requests-table/table";
-import PageHeader from "mydive/app/_shared-frontend/components/headers/PageHeader";
 
 export default function AdminBookingRequestsClient({
   loadedBookingWindows,
