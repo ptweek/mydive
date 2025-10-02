@@ -25,7 +25,7 @@ export const CancelWaitlistEntryConfirmationModal = ({
         </h3>
         <p className="mb-6 text-gray-600">
           {waitlistEntry.status === WaitlistEntryStatus.WAITING
-            ? `Are you sure you want to leave your waitlist position for on{" "}
+            ? `Are you sure you want to leave your waitlist position on
           ${formatDateShort(waitlistEntry.waitlist.day)}?`
             : `Are you sure you want to cancel your jump day on
           ${formatDateShort(waitlistEntry.waitlist.day)}?`}

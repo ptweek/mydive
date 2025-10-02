@@ -95,6 +95,15 @@ export const BookingWindowActionsDropdown = ({
             },
             className: "text-slate-700 hover:bg-green-50",
           },
+          {
+            label: "Cancel booking window",
+            icon: "❌",
+            onClick: () => {
+              onCancel(booking);
+              setIsOpen(false);
+            },
+            className: "text-red-600 hover:bg-red-50",
+          },
         ];
       case "COMPLETED":
         return [];
