@@ -36,7 +36,21 @@ export const BookingActionsDropdown = ({
         return [
           {
             label: "Modify scheduled jumps",
-            icon: "✏️",
+            icon: (
+              <svg
+                className="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                />
+              </svg>
+            ),
             onClick: () => {
               onModifyBookingWindowClick(booking);
               setIsOpen(false);
@@ -45,7 +59,21 @@ export const BookingActionsDropdown = ({
           },
           {
             label: "Cancel Booking",
-            icon: "❌",
+            icon: (
+              <svg
+                className="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            ),
             onClick: () => {
               onCancelBookingWindowClick(booking);
               setIsOpen(false);
@@ -53,12 +81,25 @@ export const BookingActionsDropdown = ({
             className: "text-red-600 hover:bg-red-50",
           },
         ];
-
       case "SCHEDULED":
         return [
           {
             label: "Modify scheduled jumps",
-            icon: "✏️",
+            icon: (
+              <svg
+                className="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                />
+              </svg>
+            ),
             onClick: () => {
               onModifyBookingWindowClick(booking);
               setIsOpen(false);
@@ -67,7 +108,47 @@ export const BookingActionsDropdown = ({
           },
           {
             label: "Cancel Booking",
-            icon: "❌",
+            icon: (
+              <svg
+                className="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            ),
+            onClick: () => {
+              onCancelBookingWindowClick(booking);
+              setIsOpen(false);
+            },
+            className: "text-red-600 hover:bg-red-50",
+          },
+        ];
+      case "PENDING_DEPOSIT":
+        return [
+          {
+            label: "Cancel Booking",
+            icon: (
+              <svg
+                className="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            ),
             onClick: () => {
               onCancelBookingWindowClick(booking);
               setIsOpen(false);
@@ -107,9 +188,9 @@ export const BookingActionsDropdown = ({
             <button
               key={index}
               onClick={action.onClick}
-              className={`flex w-full items-center gap-3 px-4 py-2 text-left text-sm transition-colors duration-150 ${action.className}`}
+              className={`flex w-full items-center gap-2 px-2.5 py-1 text-left text-xs transition-colors duration-150 ${action.className}`}
             >
-              <span className="text-base">{action.icon}</span>
+              <span className="flex-shrink-0">{action.icon}</span>
               {action.label}
             </button>
           ))}
