@@ -30,30 +30,19 @@ export default function AdminBookingRequestsClient({
   }, [loadedBookingWindows]);
 
   return (
-    <div className="z-0 p-4 md:p-8">
-      <div className="mx-auto max-w-7xl">
-        {/* Header */}
-        <PageHeader
-          title={"Admin Booking Requests Manager"}
-          description={"Manage and track all your requests"}
+    <div
+      className="flex flex-col space-y-5"
+      style={{ height: "calc(100vh - 250px)" }} // I don't love this but it works
+    >
+      <BookingRequestsStatsCards stats={stats} />
+      <div className="flex h-full max-h-full flex-1 flex-col overflow-auto bg-white/95 p-0 shadow-2xl backdrop-blur-sm">
+        <AdminBookingRequestsTable
+          bookingWindows={loadedBookingWindows}
+          users={loadedUsers}
+          waitlists={loadedWaitlists}
+          scheduledJumps={loadedScheduledJumps}
+          adminUser={adminUser}
         />
-        {/* Stats Cards: TO DO! */}
-        <BookingRequestsStatsCards stats={stats} />
-        {/* Main Content */}
-        <Card className="shadow-2xl">
-          <CardBody className="bg-white p-0">
-            {/* Fixed Height Table Container with Scroll */}
-            <div className="max-h-[400px] overflow-auto">
-              <AdminBookingRequestsTable
-                bookingWindows={loadedBookingWindows}
-                users={loadedUsers}
-                waitlists={loadedWaitlists}
-                scheduledJumps={loadedScheduledJumps}
-                adminUser={adminUser}
-              />
-            </div>
-          </CardBody>
-        </Card>
       </div>
     </div>
   );
