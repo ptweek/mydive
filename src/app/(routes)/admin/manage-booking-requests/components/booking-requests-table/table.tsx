@@ -147,6 +147,11 @@ const AdminBookingRequestsTable = ({
 
   const filteredBookings = useMemo(() => {
     let filtered = tableData;
+    if (!showPendingDeposit) {
+      filtered = filtered.filter(
+        (booking) => booking.status !== "PENDING_DEPOSIT",
+      );
+    }
     if (!showCancelled) {
       filtered = filtered.filter((booking) => booking.status !== "CANCELED");
     }
@@ -162,7 +167,7 @@ const AdminBookingRequestsTable = ({
       return dateA.getTime() - dateB.getTime();
     });
     return filtered;
-  }, [showCancelled, showPast, tableData]);
+  }, [showCancelled, showPast, showPendingDeposit, tableData]);
 
   const hasWaitlistsWithActiveEntries = (waitlists: WaitlistPopulatedDto[]) => {
     return !!waitlists.find((waitlist) => {
