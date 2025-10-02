@@ -34,6 +34,14 @@ export class WaitlistService {
       include: waitlistIncludeConfig,
     });
   }
+  async openById(id: number): Promise<void> {
+    await this.db.waitlist.update({
+      where: {
+        id,
+      },
+      data: { status: "OPENED" },
+    });
+  }
   async closeById(id: number): Promise<void> {
     await this.db.waitlist.update({
       where: {

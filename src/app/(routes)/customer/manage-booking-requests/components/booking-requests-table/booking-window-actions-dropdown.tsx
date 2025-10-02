@@ -71,6 +71,18 @@ export const BookingWindowActionsDropdown = ({
             className: "text-red-600 hover:bg-red-50",
           },
         ];
+      case "SCHEDULED":
+        return [
+          {
+            label: "Cancel booking window",
+            icon: "❌",
+            onClick: () => {
+              onCancel(booking);
+              setIsOpen(false);
+            },
+            className: "text-red-600 hover:bg-red-50",
+          },
+        ];
 
       case "PENDING_DEPOSIT":
         return [

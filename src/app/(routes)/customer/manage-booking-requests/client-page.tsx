@@ -56,7 +56,7 @@ export default function ManageBookingRequestsClient({
       },
     });
   const cancelWaitlistEntry =
-    api.customerBookingManager.removeWaitlistEntry.useMutation({
+    api.customerBookingManager.cancelWaitlistEntry.useMutation({
       onSuccess: async () => {
         setWaitlistEntryCancellationModalOpen(false);
         setSelectedWaitlistEntry(null);

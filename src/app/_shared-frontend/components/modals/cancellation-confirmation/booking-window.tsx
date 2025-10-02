@@ -1,8 +1,5 @@
 import { Listbox, ListboxItem } from "@nextui-org/react";
-import type {
-  BookingTableData,
-  BookingTableRow,
-} from "mydive/app/(routes)/admin/manage-booking-requests/types";
+import type { BookingTableRow } from "mydive/app/(routes)/admin/manage-booking-requests/types";
 import {
   formatDateShort,
   getActiveScheduledJumpDatesFromBookingWindow,
@@ -37,8 +34,10 @@ export const CancelBookingWindowConfirmationModal = ({
           {formatDateShort(bookingWindow.windowStartDate)}?
         </p>
         {activeScheduledJumpDates.length > 0 && (
-          <p className="mb-6 text-center text-gray-600">
-            <strong>The following dates would be canceled</strong>
+          <div className="mb-6 text-center text-gray-600">
+            <p className="mb-2">
+              <strong>The following dates would be canceled</strong>
+            </p>
             <Listbox>
               {activeScheduledJumpDates.map((scheduledJump) => {
                 return (
@@ -48,7 +47,7 @@ export const CancelBookingWindowConfirmationModal = ({
                 );
               })}
             </Listbox>
-          </p>
+          </div>
         )}
 
         <div className="flex justify-end gap-3">

@@ -44,8 +44,8 @@ const AdminWaitlistInfoModal = ({
         );
       },
     });
-  const removeWaitlistEntry =
-    api.adminBookingManager.removeWaitlistEntry.useMutation({
+  const cancelWaitlistEntry =
+    api.adminBookingManager.cancelWaitlistEntry.useMutation({
       onSuccess: async () => {
         router.refresh();
         onClose();
@@ -118,7 +118,7 @@ const AdminWaitlistInfoModal = ({
     if (!selectedEntry) return;
     setIsSubmitting(true);
     try {
-      await removeWaitlistEntry.mutateAsync({
+      await cancelWaitlistEntry.mutateAsync({
         waitlistEntryId: selectedEntry.id,
       });
       onClose();

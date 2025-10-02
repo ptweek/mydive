@@ -70,7 +70,17 @@ export const WaitlistEntryActionsDropdown = ({
           },
         ];
       case "SCHEDULED":
-        return [];
+        return [
+          {
+            label: "Cancel jump",
+            icon: "❌",
+            onClick: () => {
+              onCancel();
+              setIsOpen(false);
+            },
+            className: "text-red-600 hover:bg-red-50",
+          },
+        ];
       case "CANCELED":
         return [];
       default:

@@ -1,3 +1,4 @@
+import { WaitlistEntryStatus } from "@prisma/client";
 import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
 import type { WaitlistEntryPopulatedDto } from "mydive/server/api/routers/types";
 
@@ -18,24 +19,33 @@ export const CancelWaitlistEntryConfirmationModal = ({
     <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
       <div className="mx-4 max-w-md rounded-lg bg-white p-6">
         <h3 className="mb-4 text-lg font-semibold text-gray-900">
-          Leave waitlist
+          {waitlistEntry.status === WaitlistEntryStatus.WAITING
+            ? `Leave waitlist`
+            : `Cancel jump`}
         </h3>
         <p className="mb-6 text-gray-600">
-          Are you sure you want to leave your waitlist position for on{" "}
-          {formatDateShort(waitlistEntry.waitlist.day)}?
+          {waitlistEntry.status === WaitlistEntryStatus.WAITING
+            ? `Are you sure you want to leave your waitlist position for on{" "}
+          ${formatDateShort(waitlistEntry.waitlist.day)}?`
+            : `Are you sure you want to cancel your jump day on
+          ${formatDateShort(waitlistEntry.waitlist.day)}?`}
         </p>
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
             className="rounded-md bg-gray-100 px-4 py-2 text-gray-600 hover:bg-gray-200"
           >
-            Stay on waitlist
+            {waitlistEntry.status === WaitlistEntryStatus.WAITING
+              ? `Stay on waitlist`
+              : `Keep scheduled jump`}
           </button>
           <button
             onClick={onConfirm}
             className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
           >
-            Leave waitlist
+            {waitlistEntry.status === WaitlistEntryStatus.WAITING
+              ? `Leave waitlist`
+              : `Cancel Jump`}
           </button>
         </div>
       </div>

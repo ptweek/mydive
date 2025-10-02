@@ -3,7 +3,7 @@ import { createTRPCRouter, protectedProcedure } from "mydive/server/api/trpc";
 import {
   cancelBookingWindow,
   cancelScheduledJump,
-  removeWaitlistEntry,
+  cancelWaitlistEntry,
 } from "mydive/server/businessLogic/bookingOperations";
 import z from "zod";
 
@@ -357,5 +357,5 @@ export const adminBookingManagerRouter = createTRPCRouter({
     }),
   cancelScheduledJump,
   cancelBookingWindow,
-  removeWaitlistEntry,
+  cancelWaitlistEntry,
 });

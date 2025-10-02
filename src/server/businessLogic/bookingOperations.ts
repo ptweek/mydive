@@ -1,7 +1,7 @@
 import z from "zod";
 import { protectedProcedure } from "../api/trpc";
 import { TRPCError } from "@trpc/server";
-import { BookingStatus } from "@prisma/client";
+import { BookingStatus, WaitlistEntryStatus } from "@prisma/client";
 
 export const cancelBookingWindow = protectedProcedure
   .input(
@@ -44,7 +44,15 @@ export const cancelBookingWindow = protectedProcedure
     }
   });
 
-export const removeWaitlistEntry = protectedProcedure
+/*
+Handles two circumstances for cancelling a waitlist entry.
+1. Where the waitlist entry is just a normal entry on the waitlist, waiting 
+to be scheduled by the admin (status === "WAITING")
+2. Where the waitlist entry has been scheduled and is the scheduled jump associated with
+the waitlist.
+*/
+
+export const cancelWaitlistEntry = protectedProcedure
   .input(
     z.object({
       waitlistEntryId: z.number(),
@@ -53,6 +61,44 @@ export const removeWaitlistEntry = protectedProcedure
   .mutation(async ({ ctx, input }) => {
     try {
       console.log(`Trying to remove waitlist entry ${input.waitlistEntryId}`);
+      const waitlistEntry = await ctx.services.waitlistEntry.findByIdPopulated(
+        input.waitlistEntryId,
+      );
+      if (!waitlistEntry) {
+        throw new Error("Failed to find waitlist entry");
+      }
+      const waitlist = await ctx.services.waitlist.findByIdPopulated(
+        waitlistEntry.waitlistId,
+      );
+      if (!waitlist) {
+        throw new Error(
+          "Could not find populated waitlist for the waitlist id associated with the waitlist entry",
+        );
+      }
+      /* 
+        logic to cancel the scheduled jump and reopen the waitlist 
+        if the waitlist entry is currently the scheduled jump from the
+        waitlist.
+      */
+      if (waitlistEntry?.status === WaitlistEntryStatus.SCHEDULED) {
+        const scheduledJump = waitlist?.associatedScheduledJumps.find(
+          (scheduledJump) => {
+            return scheduledJump.status === "SCHEDULED";
+          },
+        );
+        if (!scheduledJump) {
+          throw new Error(
+            "Could not find appropriate scheduled jump for scheduled waitlist entry",
+          );
+        }
+        if (scheduledJump.bookedBy !== waitlistEntry.waitlistedUserId) {
+          throw new Error(
+            "The user for the waitlist entry and the scheduled jump do not match",
+          );
+        }
+        await ctx.services.scheduledJump.cancelById(scheduledJump.id);
+        await ctx.services.waitlist.openById(waitlist.id);
+      }
       await ctx.services.waitlistEntry.cancelEntryAndReorder(
         input.waitlistEntryId,
       );

@@ -133,7 +133,7 @@ export default function BookingRequestsTableFilters({
               className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
             />
             <span className="text-sm font-medium text-gray-700">
-              Show cancelled booking windows
+              Show cancelled
             </span>
           </label>
 
@@ -144,9 +144,7 @@ export default function BookingRequestsTableFilters({
               onChange={(e) => setShowPast(e.target.checked)}
               className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
-            <span className="text-sm font-medium text-gray-700">
-              Show past booking windows
-            </span>
+            <span className="text-sm font-medium text-gray-700">Show past</span>
           </label>
 
           <label className="flex cursor-pointer items-center gap-2">

@@ -2,7 +2,7 @@ import { createTRPCRouter, protectedProcedure } from "mydive/server/api/trpc";
 import {
   cancelBookingWindow,
   createBookingWindow,
-  removeWaitlistEntry,
+  cancelWaitlistEntry,
 } from "mydive/server/businessLogic/bookingOperations";
 import z from "zod";
 
@@ -270,7 +270,7 @@ export const customerBookingManagerRouter = createTRPCRouter({
         throw new Error("Failed to fetch waitlist information");
       }
     }),
-  removeWaitlistEntry,
+  cancelWaitlistEntry,
   cancelBookingWindow,
   createBookingWindow,
 });
