@@ -117,24 +117,61 @@ export const cancelScheduledJump = protectedProcedure
   .mutation(async ({ ctx, input }) => {
     const { scheduledJumpId } = input;
 
-    return await ctx.db.$transaction(async (tx) => {
-      // 1. Find the scheduled jump to cancel
-      const scheduledJump = await tx.scheduledJump.findUnique({
-        where: { id: scheduledJumpId },
-        include: {
-          associatedBooking: true,
-          associatedWaitlist: true,
-        },
-      });
+    // 1. Find and validate the scheduled jump (outside transaction)
+    const scheduledJump = await ctx.db.scheduledJump.findUnique({
+      where: { id: scheduledJumpId },
+      include: {
+        associatedBooking: true,
+        associatedWaitlist: true,
+      },
+    });
 
-      if (!scheduledJump) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Scheduled jump not found",
-        });
+    if (!scheduledJump) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Scheduled jump not found",
+      });
+    }
+
+    // 2. Validate waitlist scheduling method requirements
+    if (scheduledJump.schedulingMethod === "WAITLIST") {
+      if (!scheduledJump.associatedWaitlistId) {
+        throw new Error(
+          "Scheduling method was from waitlist, but there is no associated waitlist on scheduledJump",
+        );
       }
 
-      // 2. Cancel the scheduled jump
+      const waitlist = await ctx.services.waitlist.findByIdPopulated(
+        scheduledJump.associatedWaitlistId,
+      );
+
+      if (!waitlist) {
+        throw new Error(
+          `Could not find waitlist for ${scheduledJump.associatedWaitlistId}`,
+        );
+      }
+
+      const scheduledWaitlistEntry = waitlist.entries.find(
+        (entry) =>
+          entry.status === "SCHEDULED" &&
+          entry.waitlistedUserId === scheduledJump.bookedBy,
+      );
+
+      if (!scheduledWaitlistEntry) {
+        throw new Error(
+          "Problem finding the associated waitlist entry for the jump day!",
+        );
+      }
+
+      // Cancel the waitlist entry (this likely has its own logic/transaction)
+      await ctx.services.waitlistEntry.cancelEntryAndReorder(
+        scheduledWaitlistEntry.id,
+      );
+    }
+
+    // 3. Now do the simple database updates in a focused transaction
+    await ctx.db.$transaction(async (tx) => {
+      // Cancel the scheduled jump
       await tx.scheduledJump.update({
         where: { id: scheduledJumpId },
         data: {
@@ -143,38 +180,29 @@ export const cancelScheduledJump = protectedProcedure
         },
       });
 
-      // 3. Handle waitlist logic based on scheduling method
+      // Handle waitlist reopening
       if (scheduledJump.schedulingMethod === "BOOKING_WINDOW") {
-        // If this was from a booking window, check if there's a closed waitlist for this day
         const waitlistForDay = await tx.waitlist.findFirst({
           where: {
             day: scheduledJump.jumpDate,
-            status: "CLOSED", // Only reopen if it was closed
+            status: "CLOSED",
           },
         });
 
         if (waitlistForDay) {
           await tx.waitlist.update({
             where: { id: waitlistForDay.id },
-            data: {
-              status: "OPENED",
-            },
+            data: { status: "OPENED" },
           });
         }
       } else if (scheduledJump.schedulingMethod === "WAITLIST") {
-        // If this was from a waitlist, reopen that specific waitlist
-        if (scheduledJump.associatedWaitlistId) {
-          await tx.waitlist.update({
-            where: { id: scheduledJump.associatedWaitlistId },
-            data: {
-              status: "OPENED",
-            },
-          });
-        }
+        await tx.waitlist.update({
+          where: { id: scheduledJump.associatedWaitlistId! },
+          data: { status: "OPENED" },
+        });
       }
 
-      // 4. Check if we need to update the booking window status
-      // If there are no more confirmed jumps for this booking, set it back to PENDING
+      // Update booking window status if needed
       const remainingConfirmedJumps = await tx.scheduledJump.count({
         where: {
           associatedBookingId: scheduledJump.associatedBookingId,
@@ -192,18 +220,19 @@ export const cancelScheduledJump = protectedProcedure
           },
         });
       }
-
-      return {
-        success: true,
-        message: "Jump canceled successfully",
-        canceledJumpId: scheduledJumpId,
-        waitlistReopened:
-          scheduledJump.schedulingMethod === "WAITLIST"
-            ? scheduledJump.associatedWaitlistId
-            : null,
-      };
     });
+
+    return {
+      success: true,
+      message: "Jump canceled successfully",
+      canceledJumpId: scheduledJumpId,
+      waitlistReopened:
+        scheduledJump.schedulingMethod === "WAITLIST"
+          ? scheduledJump.associatedWaitlistId
+          : null,
+    };
   });
+
 export const createBookingWindow = protectedProcedure
   .input(
     z.object({

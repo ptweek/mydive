@@ -125,7 +125,6 @@ export const customerBookingManagerRouter = createTRPCRouter({
         const activeWaitlistEntries = waitlist.entries.filter((entry) => {
           return entry.status !== "CANCELED";
         });
-        console.log("activeWaitlistEntries", activeWaitlistEntries);
 
         // Determine the next position number
         const maxPosition =
@@ -141,7 +140,6 @@ export const customerBookingManagerRouter = createTRPCRouter({
                 }),
               )
             : 0;
-        console.log("maxPosition", maxPosition);
         const nextPosition = maxPosition + 1;
 
         // Create the waitlist entry

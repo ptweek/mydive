@@ -114,7 +114,6 @@ export const adminBookingManagerRouter = createTRPCRouter({
           existingBooking.scheduledJumpDates.filter((scheduledJumpDate) => {
             return scheduledJumpDate.status !== "CANCELED";
           });
-        console.log("existingScheduledJumps", existingScheduledJumps);
 
         // Convert confirmed dates to ISO strings for comparison
         const confirmedDateISOStrings = uniqueDateStrings.map((dateStr) =>
