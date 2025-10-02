@@ -29,6 +29,7 @@ import {
 } from "mydive/app/_shared-frontend/components/statusIcons";
 import { BookingWindowActionsDropdown } from "./booking-window-actions-dropdown";
 import { WaitlistEntryActionsDropdown } from "./waitlist-actions-dropdown";
+import { convertBookingZoneEnumToDisplayString } from "mydive/app/_shared-types/defaults";
 
 export const MobileBookingCard = ({
   tableRow,

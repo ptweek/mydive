@@ -7,6 +7,7 @@ import type {
 } from "mydive/server/api/routers/types";
 import { getScheduledJumpStatusIcon } from "../../statusIcons";
 import { isDateTodayOrPast } from "mydive/app/_shared-frontend/utils/dates";
+import { convertBookingZoneEnumToDisplayString } from "mydive/app/_shared-types/defaults";
 
 export const getColumns = (isAdminView: boolean) => {
   return [
@@ -66,7 +67,9 @@ export const getTableCells = (
 
     // Booking Zone cell
     <TableCell key="zone" className="text-sm font-semibold text-slate-700">
-      <div className="flex justify-center">{scheduledJump.bookingZone}</div>
+      <div className="flex justify-center">
+        {convertBookingZoneEnumToDisplayString(scheduledJump.bookingZone)}
+      </div>
     </TableCell>,
 
     // Conditionally include Booked By cell only for admin view
