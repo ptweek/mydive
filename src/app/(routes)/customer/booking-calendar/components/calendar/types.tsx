@@ -1,3 +1,4 @@
+import type { BookingZone } from "@prisma/client";
 import { type Event } from "react-big-calendar";
 
 export type CalendarEvent = Event & {
@@ -5,4 +6,5 @@ export type CalendarEvent = Event & {
   numJumpers: number;
   bookedBy?: string;
   confirmedJumpDays?: Date[];
+  bookingZone: BookingZone;
 };

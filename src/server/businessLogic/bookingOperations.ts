@@ -1,7 +1,11 @@
 import z from "zod";
 import { protectedProcedure } from "../api/trpc";
 import { TRPCError } from "@trpc/server";
-import { BookingStatus, WaitlistEntryStatus } from "@prisma/client";
+import {
+  BookingStatus,
+  BookingZone,
+  WaitlistEntryStatus,
+} from "@prisma/client";
 
 export const cancelBookingWindow = protectedProcedure
   .input(
@@ -241,6 +245,7 @@ export const createBookingWindow = protectedProcedure
       windowEndDate: z.date(),
       idealizedJumpDay: z.date(),
       createdById: z.string(),
+      bookingZone: z.nativeEnum(BookingZone),
     }),
   )
   .mutation(async ({ ctx, input }) => {
@@ -286,7 +291,7 @@ export const createBookingWindow = protectedProcedure
       }
       const newBooking = await ctx.db.bookingWindow.create({
         data: {
-          bookingZone: "DEFAULT", // need to add booking zones in the future
+          bookingZone: input.bookingZone,
           numJumpers: input.numJumpers,
           windowStartDate: input.windowStartDate,
           windowEndDate: input.windowEndDate,

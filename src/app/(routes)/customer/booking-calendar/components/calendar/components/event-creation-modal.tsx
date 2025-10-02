@@ -1,7 +1,13 @@
 import moment from "moment";
 import React, { useState, useEffect } from "react";
 import type { CalendarEvent } from "../types";
-import Checkout from "mydive/app/_shared-frontend/components/payment/checkout";
+import {
+  BookingZoneString,
+  convertBookingZoneDisplayStringToBookingZoneEnum,
+  convertBookingZoneEnumToDisplayString,
+} from "mydive/app/_shared-types/defaults";
+import { DropZoneDropdown } from "mydive/app/_shared-frontend/components/dropdowns/BookingZoneDropdown";
+import { BookingZone } from "@prisma/client";
 
 const getIdealizedDate = (startDate: Date, dayNumber: number): Date => {
   const date = moment(startDate)
@@ -305,6 +311,31 @@ export default function EventCreationModal({
                 )}
               </div>
             </div>
+
+            <DropZoneDropdown
+              value={
+                (newEvent.bookingZone
+                  ? convertBookingZoneEnumToDisplayString(newEvent.bookingZone)
+                  : undefined) ??
+                convertBookingZoneEnumToDisplayString(BookingZone.DEFAULT)
+              }
+              onChange={(value) => {
+                const bookingZone =
+                  convertBookingZoneDisplayStringToBookingZoneEnum(
+                    value as BookingZoneString,
+                  );
+                if (!bookingZone) {
+                  throw new Error("Booking Zone could not be parsed!");
+                }
+                return setNewEvent({
+                  ...newEvent,
+                  bookingZone: bookingZone,
+                });
+              }}
+              options={Object.values(BookingZoneString)}
+              label="Select Drop Zone"
+              placeholder="Choose a drop zone"
+            />
 
             {/* Action Buttons - Mobile optimized */}
             <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:gap-3 sm:pt-4">

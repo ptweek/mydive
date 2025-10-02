@@ -25,6 +25,8 @@ import { useRouter } from "next/navigation";
 import { api } from "mydive/trpc/react";
 import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_shared-frontend/utils/booking";
 import CalendarLegend from "./components/calendar/components/calendar-legend";
+import { BookingZone } from "@prisma/client";
+
 const localizer = momentLocalizer(moment);
 
 export default function CalendarClientPage({ userId }: { userId: string }) {
@@ -33,6 +35,7 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
   const [showEventForm, setShowEventForm] = useState(false);
   const [showWaitlistForm, setShowWaitlistForm] = useState(false);
   const [newEvent, setNewEvent] = useState<CalendarEvent | null>(null);
+  console.log("newEvent", newEvent);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
@@ -79,6 +82,7 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
             idealizedDay: new Date(booking.idealizedJumpDate),
             numJumpers: booking.numJumpers,
             bookedBy: booking.bookedBy,
+            bookingZone: booking.bookingZone,
             resource: "custom-3day",
             confirmedJumpDays: confirmedJumpDates,
           };
@@ -125,6 +129,7 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
         start: slotInfo.start,
         idealizedDay: slotInfo.start,
         numJumpers: 1,
+        bookingZone: BookingZone.DEFAULT,
       });
       setShowEventForm(true);
     }
@@ -144,6 +149,7 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
         windowEndDate: windowEndDate,
         idealizedJumpDay: new Date(bookingWindow.idealizedDay),
         createdById: userId,
+        bookingZone: bookingWindow.bookingZone,
       });
       console.log("created booking mutation");
       router.push(`/customer/payments/${result.id}`);
