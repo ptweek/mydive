@@ -23,6 +23,7 @@ import {
   getScheduledJumpStatusIcon,
 } from "mydive/app/_shared-frontend/components/statusIcons";
 import { isDateInPast } from "mydive/app/(routes)/customer/booking-calendar/components/calendar/helpers";
+import { convertBookingZoneEnumToDisplayString } from "mydive/app/_shared-types/defaults";
 
 // Mobile Card Component
 const MobileScheduledJumpCard = ({
@@ -87,7 +88,9 @@ const MobileScheduledJumpCard = ({
           <div className="text-center">
             <div className="rounded-lg bg-purple-50 px-3 py-2 text-purple-700">
               <div className="text-sm font-semibold capitalize">
-                {scheduledJump.bookingZone}
+                {convertBookingZoneEnumToDisplayString(
+                  scheduledJump.bookingZone,
+                )}
               </div>
             </div>
             <div className="mt-1 text-xs text-slate-500">Booking Zone</div>

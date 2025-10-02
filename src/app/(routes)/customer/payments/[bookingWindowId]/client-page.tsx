@@ -4,6 +4,7 @@ import React from "react";
 import Checkout from "mydive/app/_shared-frontend/components/payment/checkout";
 import type { BookingWindowDto } from "mydive/server/api/routers/types";
 import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
+import { convertBookingZoneEnumToDisplayString } from "mydive/app/_shared-types/defaults";
 
 export default function PaymentClient({
   bookingWindow,
@@ -40,7 +41,9 @@ export default function PaymentClient({
                 />
               </svg>
               <span className="font-semibold text-blue-900">
-                {bookingWindow.bookingZone}
+                {convertBookingZoneEnumToDisplayString(
+                  bookingWindow.bookingZone,
+                )}
               </span>
             </div>
 

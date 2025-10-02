@@ -5,6 +5,7 @@ import type {
   ScheduledJumpStatus,
   SchedulingMethod,
 } from "@prisma/client";
+import { convertBookingZoneEnumToDisplayString } from "mydive/app/_shared-types/defaults";
 import type {
   ScheduledJumpDto,
   UserDto,
@@ -173,7 +174,9 @@ const AdminScheduledJumpInfoModal = ({
               <div className="rounded-lg bg-gray-50 p-3">
                 <h4 className="mb-1 font-medium text-gray-900">Booking Zone</h4>
                 <p className="text-sm font-medium text-gray-700">
-                  {scheduledJump.bookingZone}
+                  {convertBookingZoneEnumToDisplayString(
+                    scheduledJump.bookingZone,
+                  )}
                 </p>
               </div>
 

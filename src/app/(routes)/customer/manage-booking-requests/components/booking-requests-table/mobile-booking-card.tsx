@@ -170,7 +170,9 @@ export const MobileBookingCard = ({
                 }`}
               >
                 <span className="font-semibold">
-                  {tableRow.data.bookingZone}
+                  {convertBookingZoneEnumToDisplayString(
+                    tableRow.data.bookingZone,
+                  )}
                 </span>
               </div>
               <div className="mt-1 text-xs text-slate-500">Drop Zone</div>
