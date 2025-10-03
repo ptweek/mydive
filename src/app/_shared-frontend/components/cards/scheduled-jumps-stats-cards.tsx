@@ -30,7 +30,7 @@ export default function ScheduledJumpsStatsCards({
             >
               <div className="flex items-center space-x-6">
                 <div className="text-center">
-                  <div className="text-lg font-bold text-blue-600">
+                  <div className="text-lg font-bold text-purple-600">
                     {stats.total}
                   </div>
                   <div className="text-xs text-gray-600">Total</div>
@@ -47,8 +47,6 @@ export default function ScheduledJumpsStatsCards({
                   </div>
                   <div className="text-xs text-gray-600">Completed</div>
                 </div>
-              </div>
-              <div className="flex items-center space-x-2">
                 {stats.canceledJumps > 0 && (
                   <div className="text-center">
                     <div className="text-lg font-bold text-red-600">
@@ -57,6 +55,8 @@ export default function ScheduledJumpsStatsCards({
                     <div className="text-xs text-gray-600">Canceled</div>
                   </div>
                 )}
+              </div>
+              <div className="flex items-center space-x-2">
                 {isExpanded ? (
                   <ChevronUpIcon className="h-5 w-5 text-gray-400" />
                 ) : (
@@ -68,7 +68,7 @@ export default function ScheduledJumpsStatsCards({
             {/* Expanded Details */}
             {isExpanded && (
               <div className="mt-4 grid grid-cols-2 gap-3 border-t border-gray-200 pt-4">
-                <div className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 p-3 text-white">
+                <div className="rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 p-3 text-white">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-blue-100">Total Jumps</p>
@@ -119,7 +119,7 @@ export default function ScheduledJumpsStatsCards({
 
       {/* Desktop Full View */}
       <div className="hidden grid-cols-5 gap-4 lg:grid">
-        <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transition-shadow duration-200 hover:shadow-xl">
+        <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg transition-shadow duration-200 hover:shadow-xl">
           <CardBody className="p-4">
             <div className="flex items-center justify-between">
               <div>

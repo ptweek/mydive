@@ -19,7 +19,7 @@ export const getBookingStatusIcon = (status: BookingStatus) => {
             <CheckCircleIcon className="h-5 w-5 text-green-600" />
           </div>
           <span className="ml-2 text-sm font-medium text-green-700">
-            Jump days scheduled
+            Scheduled
           </span>
         </div>
       );
@@ -91,7 +91,7 @@ export const getWaitlistEntryStatusIcon = (status: WaitlistEntryStatus) => {
             <CheckCircleIcon className="h-5 w-5 text-green-600" />
           </div>
           <span className="ml-2 text-sm font-medium text-green-700">
-            Scheduled from waitlist
+            Scheduled
           </span>
         </div>
       );
@@ -136,10 +136,10 @@ export const getScheduledJumpStatusIcon = (status: ScheduledJumpStatus) => {
     case "COMPLETED":
       return (
         <div className="flex items-center justify-center">
-          <div className="rounded-full bg-green-100 p-2">
-            <CheckCircleIcon className="h-5 w-5 text-green-600" />
+          <div className="rounded-full bg-yellow-100 p-2">
+            <CheckCircleIcon className="h-5 w-5 text-yellow-600" />
           </div>
-          <span className="ml-2 text-sm font-medium text-green-700">
+          <span className="ml-2 text-sm font-medium text-yellow-700">
             Completed
           </span>
         </div>
