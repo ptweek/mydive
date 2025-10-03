@@ -57,13 +57,9 @@ export type ScheduledJumpData = {
 // Stats interface that matches the component
 export type ScheduledJumpStats = {
   total: number;
-  confirmedJumps: number;
-  pendingJumps: number;
+  scheduledJumps: number;
   completedJumps: number;
-  cancelledJumps: number;
-  totalJumpers: number;
-  bookingWindowJumps: number;
-  waitlistJumps: number;
+  canceledJumps: number;
 };
 
 /**
@@ -75,39 +71,21 @@ export function computeScheduledJumpStats(
   scheduledJumps: ScheduledJumpData[],
 ): ScheduledJumpStats {
   // Initialize counters
-  let confirmedJumps = 0;
-  let pendingJumps = 0;
-  let completedJumps = 0;
-  let cancelledJumps = 0;
-  let totalJumpers = 0;
-  let bookingWindowJumps = 0;
-  let waitlistJumps = 0;
-
+  let scheduled = 0;
+  let canceled = 0;
+  let completed = 0;
   // Process each scheduled jump
   for (const jump of scheduledJumps) {
-    // Count total jumpers across all jumps
-    totalJumpers += jump.numJumpers;
-
-    // Count by scheduling method
-    if (jump.schedulingMethod === "BOOKING_WINDOW") {
-      bookingWindowJumps++;
-    } else if (jump.schedulingMethod === "WAITLIST") {
-      waitlistJumps++;
-    }
-
     // Count by status
     switch (jump.status) {
       case "SCHEDULED":
-        confirmedJumps++;
-        break;
-      case "UNSCHEDULED":
-        pendingJumps++;
+        scheduled++;
         break;
       case "COMPLETED":
-        completedJumps++;
+        completed++;
         break;
       case "CANCELED":
-        cancelledJumps++;
+        canceled++;
         break;
       // Handle any other status values that might exist
       default:
@@ -117,12 +95,8 @@ export function computeScheduledJumpStats(
 
   return {
     total: scheduledJumps.length,
-    confirmedJumps,
-    pendingJumps,
-    completedJumps,
-    cancelledJumps,
-    totalJumpers,
-    bookingWindowJumps,
-    waitlistJumps,
+    scheduledJumps: scheduled,
+    completedJumps: completed,
+    canceledJumps: canceled,
   };
 }

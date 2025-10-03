@@ -2,27 +2,18 @@ import {
   CalendarIcon,
   CheckCircleIcon,
   ClockIcon,
-  UsersIcon,
   XCircleIcon,
   ChevronDownIcon,
   ChevronUpIcon,
 } from "@heroicons/react/24/outline";
-import { Badge, Card, CardBody } from "@nextui-org/react";
+import { Card, CardBody } from "@nextui-org/react";
 import { useState } from "react";
+import type { ScheduledJumpStats } from "../../utils/stats";
 
 export default function ScheduledJumpsStatsCards({
   stats,
 }: {
-  stats: {
-    total: number;
-    confirmedJumps: number;
-    pendingJumps: number;
-    completedJumps: number;
-    cancelledJumps: number;
-    totalJumpers: number;
-    bookingWindowJumps: number;
-    waitlistJumps: number;
-  };
+  stats: ScheduledJumpStats;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -46,28 +37,22 @@ export default function ScheduledJumpsStatsCards({
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-bold text-green-600">
-                    {stats.confirmedJumps}
+                    {stats.scheduledJumps}
                   </div>
-                  <div className="text-xs text-gray-600">Confirmed</div>
+                  <div className="text-xs text-gray-600">Scheduled</div>
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-bold text-yellow-600">
-                    {stats.pendingJumps}
-                  </div>
-                  <div className="text-xs text-gray-600">Pending</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold text-purple-600">
                     {stats.completedJumps}
                   </div>
-                  <div className="text-xs text-gray-600">Done</div>
+                  <div className="text-xs text-gray-600">Completed</div>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                {stats.cancelledJumps > 0 && (
+                {stats.canceledJumps > 0 && (
                   <div className="text-center">
                     <div className="text-lg font-bold text-red-600">
-                      {stats.cancelledJumps}
+                      {stats.canceledJumps}
                     </div>
                     <div className="text-xs text-gray-600">Canceled</div>
                   </div>
@@ -96,13 +81,9 @@ export default function ScheduledJumpsStatsCards({
                 <div className="rounded-lg bg-gradient-to-r from-green-500 to-green-600 p-3 text-white">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-green-100">Confirmed</p>
+                      <p className="text-xs text-green-100">Scheduled</p>
                       <p className="text-xl font-bold">
-                        {stats.confirmedJumps}
-                      </p>
-                      <p className="text-xs leading-tight text-green-100">
-                        {stats.bookingWindowJumps} windows,{" "}
-                        {stats.waitlistJumps} waitlist
+                        {stats.scheduledJumps}
                       </p>
                     </div>
                     <CheckCircleIcon className="h-6 w-6 text-green-200" />
@@ -112,8 +93,10 @@ export default function ScheduledJumpsStatsCards({
                 <div className="rounded-lg bg-gradient-to-r from-yellow-500 to-yellow-600 p-3 text-white">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-yellow-100">Pending</p>
-                      <p className="text-xl font-bold">{stats.pendingJumps}</p>
+                      <p className="text-xs text-yellow-100">Completed</p>
+                      <p className="text-xl font-bold">
+                        {stats.completedJumps}
+                      </p>
                     </div>
                     <ClockIcon className="h-6 w-6 text-yellow-200" />
                   </div>
@@ -123,36 +106,9 @@ export default function ScheduledJumpsStatsCards({
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-red-100">Canceled</p>
-                      <p className="text-xl font-bold">
-                        {stats.cancelledJumps}
-                      </p>
+                      <p className="text-xl font-bold">{stats.canceledJumps}</p>
                     </div>
                     <XCircleIcon className="h-6 w-6 text-red-200" />
-                  </div>
-                </div>
-
-                <div className="col-span-2 rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 p-3 text-white">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-purple-100">Completed</p>
-                      <p className="text-xl font-bold">
-                        {stats.completedJumps}
-                      </p>
-                    </div>
-                    <div>
-                      {stats.totalJumpers > 0 ? (
-                        <Badge
-                          content={stats.totalJumpers}
-                          color="warning"
-                          className="text-xs"
-                          placement="top-right"
-                        >
-                          <UsersIcon className="h-6 w-6 text-purple-200" />
-                        </Badge>
-                      ) : (
-                        <UsersIcon className="h-6 w-6 text-purple-200" />
-                      )}
-                    </div>
                   </div>
                 </div>
               </div>
@@ -179,12 +135,8 @@ export default function ScheduledJumpsStatsCards({
           <CardBody className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-green-100">Confirmed</p>
-                <p className="text-2xl font-bold">{stats.confirmedJumps}</p>
-                <p className="text-sm text-green-100">
-                  {stats.bookingWindowJumps} windows, {stats.waitlistJumps}{" "}
-                  waitlist
-                </p>
+                <p className="text-sm text-green-100">Scheduled</p>
+                <p className="text-2xl font-bold">{stats.scheduledJumps}</p>
               </div>
               <CheckCircleIcon className="h-8 w-8 text-green-200" />
             </div>
@@ -195,8 +147,8 @@ export default function ScheduledJumpsStatsCards({
           <CardBody className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-yellow-100">Waiting Confirmation</p>
-                <p className="text-2xl font-bold">{stats.pendingJumps}</p>
+                <p className="text-sm text-yellow-100">Completed</p>
+                <p className="text-2xl font-bold">{stats.completedJumps}</p>
               </div>
               <ClockIcon className="h-8 w-8 text-yellow-200" />
             </div>
@@ -208,34 +160,9 @@ export default function ScheduledJumpsStatsCards({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-red-100">Canceled</p>
-                <p className="text-2xl font-bold">{stats.cancelledJumps}</p>
+                <p className="text-2xl font-bold">{stats.canceledJumps}</p>
               </div>
               <XCircleIcon className="h-8 w-8 text-red-200" />
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg transition-shadow duration-200 hover:shadow-xl">
-          <CardBody className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-purple-100">Completed</p>
-                <p className="text-2xl font-bold">{stats.completedJumps}</p>
-              </div>
-              <div>
-                {stats.totalJumpers > 0 ? (
-                  <Badge
-                    content={stats.totalJumpers}
-                    color="warning"
-                    className="text-xs"
-                    placement="top-right"
-                  >
-                    <UsersIcon className="h-8 w-8 text-purple-200" />
-                  </Badge>
-                ) : (
-                  <UsersIcon className="h-8 w-8 text-purple-200" />
-                )}
-              </div>
             </div>
           </CardBody>
         </Card>
