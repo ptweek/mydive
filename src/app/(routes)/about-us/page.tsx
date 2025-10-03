@@ -4,7 +4,7 @@ import InfoPageClient from "./info-page-client";
 export default async function AboutUsPage() {
   return (
     <HydrateClient>
-      <main className="relative min-h-screen">
+      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-white">
         <video
           autoPlay
           muted
@@ -28,7 +28,7 @@ export default async function AboutUsPage() {
         />
 
         {/* Content */}
-        <div className="z-20">
+        <div className="z-20 text-white">
           <InfoPageClient />
         </div>
       </main>
