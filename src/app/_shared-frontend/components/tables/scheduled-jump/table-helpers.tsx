@@ -181,7 +181,7 @@ export const getTableCells = (
         {isDateTodayOrPast(scheduledJump.jumpDate) &&
           isAdminView &&
           handleJumpCompletionClick &&
-          scheduledJump.status !== "CANCELED" && (
+          scheduledJump.status === "SCHEDULED" && (
             <button
               onClick={() => handleJumpCompletionClick(scheduledJump)}
               className="rounded bg-green-500 px-3 py-1 text-xs text-white hover:bg-green-600"
