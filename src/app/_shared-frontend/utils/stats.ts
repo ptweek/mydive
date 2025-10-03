@@ -16,6 +16,8 @@ export function calculateCustomerBookingRequestsStats(
   bookingWindows: BookingWindowPopulatedDto[],
   waitlistEntries: WaitlistEntryWithPopulatedFields[],
 ): CustomerBookingWindowRequestStats {
+  console.log("waitlistEntries", waitlistEntries);
+  console.log("bookingWindows", bookingWindows);
   let pendingDeposit = 0;
   let scheduledBWandWLE = 0;
   let unscheduledBWandWLE = 0;
@@ -25,12 +27,16 @@ export function calculateCustomerBookingRequestsStats(
     switch (bookingWindow.status) {
       case BookingStatus.PENDING_DEPOSIT:
         pendingDeposit++;
+        break;
       case BookingStatus.SCHEDULED:
         scheduledBWandWLE++;
+        break;
       case BookingStatus.UNSCHEDULED:
         unscheduledBWandWLE++;
+        break;
       case BookingStatus.CANCELED:
         canceledBWandWLE++;
+        break;
       default:
         return;
     }
@@ -40,12 +46,15 @@ export function calculateCustomerBookingRequestsStats(
     switch (waitlistEntry.status) {
       case WaitlistEntryStatus.SCHEDULED:
         scheduledBWandWLE++;
+        break;
       case WaitlistEntryStatus.WAITING:
         unscheduledBWandWLE++;
+        break;
       case WaitlistEntryStatus.CANCELED:
         canceledBWandWLE++;
+        break;
       default:
-        return;
+        break;
     }
   });
 

@@ -8,12 +8,8 @@ import type {
   WaitlistEntryPopulatedWithBookingZoneDto,
 } from "mydive/server/api/routers/types";
 import BookingRequestsTable from "./components/booking-requests-table/table";
-import {
-  calculateAdminBookingRequestsStats,
-  calculateCustomerBookingRequestsStats,
-} from "mydive/app/_shared-frontend/utils/stats";
+import { calculateCustomerBookingRequestsStats } from "mydive/app/_shared-frontend/utils/stats";
 import { CancelWaitlistEntryConfirmationModal } from "mydive/app/_shared-frontend/components/modals/cancellation-confirmation/waitlist-entry";
-import BookingRequestsStatsCards from "mydive/app/(routes)/admin/manage-booking-requests/components/admin-booking-requests-stats-cards";
 import { useRouter } from "next/navigation";
 import CustomerBookingRequestsStats from "./components/customer-booking-request-stats";
 
@@ -41,8 +37,11 @@ export default function ManageBookingRequestsClient({
 
   // Statistics calculation
   const stats = useMemo(() => {
-    return calculateCustomerBookingRequestsStats(loadedBookingWindows, []);
-  }, [loadedBookingWindows]);
+    return calculateCustomerBookingRequestsStats(
+      loadedBookingWindows,
+      loadedWaitlistEntries,
+    );
+  }, [loadedBookingWindows, loadedWaitlistEntries]);
 
   // Mutations
   const cancelBookingMutation =
