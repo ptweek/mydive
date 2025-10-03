@@ -1,24 +1,31 @@
 import { HydrateClient } from "mydive/trpc/server";
 import InfoPageClient from "./info-page-client";
 
-export default async function InfoPage() {
+export default async function AboutUsPage() {
   return (
     <HydrateClient>
-      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-white">
-        {/* Background Video */}
+      <main className="relative min-h-screen">
         <video
           autoPlay
           muted
           loop
           playsInline
-          className="absolute inset-0 z-0 h-full w-full object-cover"
+          className="absolute inset-0 z-0 object-cover"
+          style={{
+            width: "100%",
+            height: "110vh",
+            minHeight: "-webkit-fill-available",
+          }}
         >
           <source src="/videos/skydiving-background.mp4" type="video/mp4" />
-
-          {/* Fallback gradient background */}
         </video>
-        {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div
+          className="absolute inset-0 z-10 bg-black/40"
+          style={{
+            height: "110vh",
+            minHeight: "-webkit-fill-available",
+          }}
+        />
 
         {/* Content */}
         <div className="z-20">
