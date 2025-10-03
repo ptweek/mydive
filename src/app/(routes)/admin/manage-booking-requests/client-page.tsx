@@ -6,9 +6,10 @@ import type {
   UserDto,
   WaitlistPopulatedDto,
 } from "mydive/server/api/routers/types";
-import { calculateBookingRequestsStats } from "mydive/app/_shared-frontend/utils/stats";
+import { calculateAdminBookingRequestsStats } from "mydive/app/_shared-frontend/utils/stats";
 import BookingRequestsStatsCards from "mydive/app/_shared-frontend/components/cards/booking-requests-stats-cards";
 import AdminBookingRequestsTable from "./components/booking-requests-table/table";
+import _ from "lodash";
 
 export default function AdminBookingRequestsClient({
   loadedBookingWindows,
@@ -24,8 +25,11 @@ export default function AdminBookingRequestsClient({
   adminUser: UserDto;
 }) {
   const stats = useMemo(() => {
-    return calculateBookingRequestsStats(loadedBookingWindows, []); // for now, not sure what we want to do with this info.
-  }, [loadedBookingWindows]);
+    return calculateAdminBookingRequestsStats(
+      loadedBookingWindows,
+      loadedWaitlists,
+    ); // for now, not sure what we want to do with this info.
+  }, [loadedBookingWindows, loadedWaitlists]);
 
   return (
     <div

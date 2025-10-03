@@ -1,47 +1,37 @@
 import type {
   BookingWindowPopulatedDto,
-  WaitlistEntryPopulatedDto,
+  WaitlistPopulatedDto,
 } from "mydive/server/api/routers/types";
-import type { BookingStatus } from "@prisma/client";
+import { BookingStatus } from "@prisma/client";
 
-export function calculateBookingRequestsStats(
+export type BookingWindowRequestStats = {
+  pendingDeposit: number;
+  scheduledBookingWindows: number;
+  unscheduledBookingWindows: number;
+  openWaitlists: number;
+  canceledBookingWindows: number;
+};
+
+export function calculateAdminBookingRequestsStats(
   bookingWindows: BookingWindowPopulatedDto[],
-  waitlistEntries: WaitlistEntryPopulatedDto[],
-) {
-  const statusCounts: {
-    bws: Record<string, number>;
-    wles: Record<string, number>;
-  } = {
-    bws: {},
-    wles: {},
-  };
-
-  let totalJumpers = 0;
-
-  // Count booking windows
-  bookingWindows.forEach((b) => {
-    statusCounts.bws[b.status] = (statusCounts.bws[b.status] ?? 0) + 1;
-    totalJumpers += b.numJumpers;
-  });
-
-  // Count waitlist entries
-  waitlistEntries.forEach((w) => {
-    statusCounts.wles[w.status] = (statusCounts.wles[w.status] ?? 0) + 1;
-  });
-
-  totalJumpers += waitlistEntries.length;
-
+  waitlists: WaitlistPopulatedDto[],
+): BookingWindowRequestStats {
   return {
-    total: bookingWindows.length + waitlistEntries.length,
-    confirmedBws: statusCounts.bws.CONFIRMED ?? 0,
-    confirmedWles: statusCounts.wles.CONFIRMED ?? 0,
-    cancelledBws: statusCounts.bws.CANCELED ?? 0,
-    cancelledWles: statusCounts.wles.CANCELED ?? 0,
-    completedBws: statusCounts.bws.COMPLETED ?? 0,
-    completedWles: statusCounts.wles.COMPLETED ?? 0,
-    pendingBws: statusCounts.bws.PENDING ?? 0,
-    pendingWles: statusCounts.wles.PENDING ?? 0,
-    totalJumpers,
+    pendingDeposit: bookingWindows.filter((bw) => {
+      return bw.status === BookingStatus.PENDING_DEPOSIT;
+    }).length,
+    scheduledBookingWindows: bookingWindows.filter((bw) => {
+      return bw.status === BookingStatus.SCHEDULED;
+    }).length,
+    unscheduledBookingWindows: bookingWindows.filter((bw) => {
+      return bw.status === BookingStatus.UNSCHEDULED;
+    }).length,
+    openWaitlists: waitlists.filter((wl) => {
+      return wl.status === "OPENED";
+    }).length,
+    canceledBookingWindows: bookingWindows.filter((bw) => {
+      return bw.status === BookingStatus.CANCELED;
+    }).length,
   };
 }
 

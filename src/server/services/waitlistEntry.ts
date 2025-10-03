@@ -15,6 +15,9 @@ export class WaitlistEntryService {
       include: waitlistEntryIncludeConfig,
     });
   }
+  async findAll(): Promise<WaitlistEntry[]> {
+    return await this.db.waitlistEntry.findMany();
+  }
   async findAllPopulated(): Promise<WaitlistEntryWithPopulatedFields[]> {
     return await this.db.waitlistEntry.findMany({
       include: waitlistEntryIncludeConfig,

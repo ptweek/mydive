@@ -8,7 +8,7 @@ import type {
   WaitlistEntryPopulatedWithBookingZoneDto,
 } from "mydive/server/api/routers/types";
 import BookingRequestsTable from "./components/booking-requests-table/table";
-import { calculateBookingRequestsStats } from "mydive/app/_shared-frontend/utils/stats";
+import { calculateAdminBookingRequestsStats } from "mydive/app/_shared-frontend/utils/stats";
 import { CancelWaitlistEntryConfirmationModal } from "mydive/app/_shared-frontend/components/modals/cancellation-confirmation/waitlist-entry";
 import BookingRequestsStatsCards from "mydive/app/_shared-frontend/components/cards/booking-requests-stats-cards";
 import { useRouter } from "next/navigation";
@@ -37,11 +37,8 @@ export default function ManageBookingRequestsClient({
 
   // Statistics calculation
   const stats = useMemo(() => {
-    return calculateBookingRequestsStats(
-      loadedBookingWindows,
-      loadedWaitlistEntries,
-    );
-  }, [loadedBookingWindows, loadedWaitlistEntries]);
+    return calculateAdminBookingRequestsStats(loadedBookingWindows, []);
+  }, [loadedBookingWindows]);
 
   // Mutations
   const cancelBookingMutation =

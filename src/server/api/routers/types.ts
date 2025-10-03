@@ -11,10 +11,12 @@ export type BookingWindowPopulatedDto =
 export type WaitlistPopulatedDto =
   RouterOutputs["adminBookingManager"]["getBookingReservationData"]["waitlists"][number];
 
-// Waitlist Entry Dto
+// Waitlist Entry Dtos
+export type WaitlistEntryDto =
+  RouterOutputs["waitlistEntries"]["getAllWaitlistEntries"]["waitlistEntries"][number];
+
 export type WaitlistEntryPopulatedDto =
   RouterOutputs["waitlistEntries"]["getAllWaitlistEntriesPopulated"]["waitlistEntries"][number];
-//
 
 export type WaitlistEntryPopulatedWithBookingZoneDto =
   RouterOutputs["customerBookingManager"]["getBookingRequestsByUser"]["waitlistEntriesWithBookingZone"][number];
