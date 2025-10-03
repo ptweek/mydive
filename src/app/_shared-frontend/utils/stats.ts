@@ -2,9 +2,62 @@ import type {
   BookingWindowPopulatedDto,
   WaitlistPopulatedDto,
 } from "mydive/server/api/routers/types";
-import { BookingStatus } from "@prisma/client";
+import { BookingStatus, WaitlistEntryStatus } from "@prisma/client";
+import type { WaitlistEntryWithPopulatedFields } from "mydive/server/services/waitlistEntry";
 
-export type BookingWindowRequestStats = {
+export type CustomerBookingWindowRequestStats = {
+  pendingDeposit: number;
+  scheduledBWandWLE: number;
+  unscheduledBWandWLE: number;
+  canceledBWandWLE: number;
+};
+
+export function calculateCustomerBookingRequestsStats(
+  bookingWindows: BookingWindowPopulatedDto[],
+  waitlistEntries: WaitlistEntryWithPopulatedFields[],
+): CustomerBookingWindowRequestStats {
+  let pendingDeposit = 0;
+  let scheduledBWandWLE = 0;
+  let unscheduledBWandWLE = 0;
+  let canceledBWandWLE = 0;
+
+  bookingWindows.forEach((bookingWindow) => {
+    switch (bookingWindow.status) {
+      case BookingStatus.PENDING_DEPOSIT:
+        pendingDeposit++;
+      case BookingStatus.SCHEDULED:
+        scheduledBWandWLE++;
+      case BookingStatus.UNSCHEDULED:
+        unscheduledBWandWLE++;
+      case BookingStatus.CANCELED:
+        canceledBWandWLE++;
+      default:
+        return;
+    }
+  });
+
+  waitlistEntries.forEach((waitlistEntry) => {
+    switch (waitlistEntry.status) {
+      case WaitlistEntryStatus.SCHEDULED:
+        scheduledBWandWLE++;
+      case WaitlistEntryStatus.WAITING:
+        unscheduledBWandWLE++;
+      case WaitlistEntryStatus.CANCELED:
+        canceledBWandWLE++;
+      default:
+        return;
+    }
+  });
+
+  return {
+    pendingDeposit,
+    scheduledBWandWLE,
+    unscheduledBWandWLE,
+    canceledBWandWLE,
+  };
+}
+
+export type AdminBookingWindowRequestStats = {
   pendingDeposit: number;
   scheduledBookingWindows: number;
   unscheduledBookingWindows: number;
@@ -15,7 +68,7 @@ export type BookingWindowRequestStats = {
 export function calculateAdminBookingRequestsStats(
   bookingWindows: BookingWindowPopulatedDto[],
   waitlists: WaitlistPopulatedDto[],
-): BookingWindowRequestStats {
+): AdminBookingWindowRequestStats {
   return {
     pendingDeposit: bookingWindows.filter((bw) => {
       return bw.status === BookingStatus.PENDING_DEPOSIT;

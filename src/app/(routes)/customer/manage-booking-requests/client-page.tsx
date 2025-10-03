@@ -8,10 +8,14 @@ import type {
   WaitlistEntryPopulatedWithBookingZoneDto,
 } from "mydive/server/api/routers/types";
 import BookingRequestsTable from "./components/booking-requests-table/table";
-import { calculateAdminBookingRequestsStats } from "mydive/app/_shared-frontend/utils/stats";
+import {
+  calculateAdminBookingRequestsStats,
+  calculateCustomerBookingRequestsStats,
+} from "mydive/app/_shared-frontend/utils/stats";
 import { CancelWaitlistEntryConfirmationModal } from "mydive/app/_shared-frontend/components/modals/cancellation-confirmation/waitlist-entry";
-import BookingRequestsStatsCards from "mydive/app/_shared-frontend/components/cards/booking-requests-stats-cards";
+import BookingRequestsStatsCards from "mydive/app/(routes)/admin/manage-booking-requests/components/admin-booking-requests-stats-cards";
 import { useRouter } from "next/navigation";
+import CustomerBookingRequestsStats from "./components/customer-booking-request-stats";
 
 export default function ManageBookingRequestsClient({
   loadedBookingWindows,
@@ -37,7 +41,7 @@ export default function ManageBookingRequestsClient({
 
   // Statistics calculation
   const stats = useMemo(() => {
-    return calculateAdminBookingRequestsStats(loadedBookingWindows, []);
+    return calculateCustomerBookingRequestsStats(loadedBookingWindows, []);
   }, [loadedBookingWindows]);
 
   // Mutations
@@ -97,7 +101,7 @@ export default function ManageBookingRequestsClient({
       className="flex flex-col space-y-5"
       style={{ height: "calc(100vh - 250px)" }} // I don't love this but it works
     >
-      <BookingRequestsStatsCards stats={stats} />
+      <CustomerBookingRequestsStats stats={stats} />
 
       <div className="flex h-full max-h-full flex-1 flex-col overflow-auto bg-white/95 p-0 shadow-2xl backdrop-blur-sm">
         <BookingRequestsTable

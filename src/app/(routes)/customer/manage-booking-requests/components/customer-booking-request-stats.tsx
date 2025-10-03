@@ -2,18 +2,18 @@ import {
   CalendarIcon,
   CheckCircleIcon,
   ClockIcon,
-  XCircleIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  XCircleIcon,
 } from "@heroicons/react/24/outline";
 import { Card, CardBody } from "@nextui-org/react";
 import { useState } from "react";
-import type { BookingWindowRequestStats } from "../../utils/stats";
+import type { CustomerBookingWindowRequestStats } from "mydive/app/_shared-frontend/utils/stats";
 
-export default function BookingRequestsStatsCards({
+export default function CustomerBookingRequestsStats({
   stats,
 }: {
-  stats: BookingWindowRequestStats;
+  stats: CustomerBookingWindowRequestStats;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -31,13 +31,13 @@ export default function BookingRequestsStatsCards({
               <div className="flex items-center space-x-6">
                 <div className="text-center">
                   <div className="text-lg font-bold text-green-600">
-                    {stats.scheduledBookingWindows}
+                    {stats.scheduledBWandWLE}
                   </div>
                   <div className="text-xs text-gray-600">Scheduled</div>
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-bold text-yellow-600">
-                    {stats.unscheduledBookingWindows}
+                    {stats.unscheduledBWandWLE}
                   </div>
                   <div className="text-xs text-gray-600">Unscheduled</div>
                 </div>
@@ -45,20 +45,14 @@ export default function BookingRequestsStatsCards({
                   <div className="text-lg font-bold text-blue-600">
                     {stats.pendingDeposit}
                   </div>
-                  <div className="text-xs text-gray-600">Pending deposit</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold text-purple-600">
-                    {stats.openWaitlists}
-                  </div>
-                  <div className="text-xs text-gray-600">Open waitlists</div>
+                  <div className="text-xs text-gray-600">Incomplete</div>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                {stats.canceledBookingWindows > 0 && (
+                {stats.canceledBWandWLE > 0 && (
                   <div className="text-center">
                     <div className="text-lg font-bold text-red-600">
-                      {stats.canceledBookingWindows}
+                      {stats.canceledBWandWLE}
                     </div>
                     <div className="text-xs text-gray-600">Canceled</div>
                   </div>
@@ -79,7 +73,7 @@ export default function BookingRequestsStatsCards({
                     <div>
                       <p className="text-xs text-green-100">Scheduled</p>
                       <p className="text-xl font-bold">
-                        {stats.scheduledBookingWindows}
+                        {stats.scheduledBWandWLE}
                       </p>
                     </div>
                     <CheckCircleIcon className="h-6 w-6 text-green-200" />
@@ -91,7 +85,7 @@ export default function BookingRequestsStatsCards({
                     <div>
                       <p className="text-xs text-yellow-100">Unscheduled</p>
                       <p className="text-xl font-bold">
-                        {stats.unscheduledBookingWindows}
+                        {stats.unscheduledBWandWLE}
                       </p>
                     </div>
                     <ClockIcon className="h-6 w-6 text-yellow-200" />
@@ -101,7 +95,7 @@ export default function BookingRequestsStatsCards({
                 <div className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 p-3 text-white">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-blue-100">Pending deposit</p>
+                      <p className="text-xs text-blue-100">Incomplete</p>
                       <p className="text-xl font-bold">
                         {stats.pendingDeposit}
                       </p>
@@ -113,21 +107,12 @@ export default function BookingRequestsStatsCards({
                 <div className="rounded-lg bg-gradient-to-r from-red-500 to-red-600 p-3 text-white">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-red-100">Open waitlists</p>
-                      <p className="text-xl font-bold">{stats.openWaitlists}</p>
-                    </div>
-                    <XCircleIcon className="h-6 w-6 text-red-200" />
-                  </div>
-                </div>
-
-                <div className="col-span-2 rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 p-3 text-white">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-purple-100">Canceled</p>
+                      <p className="text-xs text-red-100">Canceled</p>
                       <p className="text-xl font-bold">
-                        {stats.canceledBookingWindows}
+                        {stats.canceledBWandWLE}
                       </p>
                     </div>
+                    <XCircleIcon className="h-6 w-6 text-red-200" />
                   </div>
                 </div>
               </div>
@@ -143,9 +128,7 @@ export default function BookingRequestsStatsCards({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-green-100">Scheduled bookings</p>
-                <p className="text-2xl font-bold">
-                  {stats.scheduledBookingWindows}
-                </p>
+                <p className="text-2xl font-bold">{stats.scheduledBWandWLE}</p>
               </div>
               <CheckCircleIcon className="h-8 w-8 text-green-200" />
             </div>
@@ -158,7 +141,7 @@ export default function BookingRequestsStatsCards({
               <div>
                 <p className="text-sm text-yellow-100">Unscheduled bookings</p>
                 <p className="text-2xl font-bold">
-                  {stats.unscheduledBookingWindows}
+                  {stats.unscheduledBWandWLE}
                 </p>
               </div>
               <ClockIcon className="h-8 w-8 text-yellow-200" />
@@ -170,22 +153,10 @@ export default function BookingRequestsStatsCards({
           <CardBody className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-blue-100">Pending deposit</p>
+                <p className="text-sm text-blue-100">Incomplete</p>
                 <p className="text-2xl font-bold">{stats.pendingDeposit}</p>
               </div>
               <CalendarIcon className="h-8 w-8 text-blue-200" />
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg transition-shadow duration-200 hover:shadow-xl">
-          <CardBody className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-red-100">Open waitlists</p>
-                <p className="text-2xl font-bold">{stats.openWaitlists}</p>
-              </div>
-              <XCircleIcon className="h-8 w-8 text-red-200" />
             </div>
           </CardBody>
         </Card>
@@ -195,9 +166,7 @@ export default function BookingRequestsStatsCards({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-purple-100">Canceled bookings</p>
-                <p className="text-2xl font-bold">
-                  {stats.canceledBookingWindows}
-                </p>
+                <p className="text-2xl font-bold">{stats.canceledBWandWLE}</p>
               </div>
             </div>
           </CardBody>

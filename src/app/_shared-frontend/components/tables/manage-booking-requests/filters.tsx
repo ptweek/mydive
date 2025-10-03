@@ -53,7 +53,7 @@ export default function BookingRequestsTableFilters({
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700">
-              Show unfinalized booking windows
+              Show incomplete bookings
             </span>
             <input
               type="checkbox"
@@ -109,7 +109,7 @@ export default function BookingRequestsTableFilters({
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span className="text-sm font-medium text-gray-700">
-                Show unfinalized booking windows
+                Show incomplete bookings
               </span>
             </label>
           </div>
@@ -155,7 +155,7 @@ export default function BookingRequestsTableFilters({
               className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span className="text-sm font-medium text-gray-700">
-              Show unfinalized booking windows
+              Show incomplete bookings
             </span>
           </label>
         </div>

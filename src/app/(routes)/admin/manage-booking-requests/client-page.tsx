@@ -7,7 +7,7 @@ import type {
   WaitlistPopulatedDto,
 } from "mydive/server/api/routers/types";
 import { calculateAdminBookingRequestsStats } from "mydive/app/_shared-frontend/utils/stats";
-import BookingRequestsStatsCards from "mydive/app/_shared-frontend/components/cards/booking-requests-stats-cards";
+import BookingRequestsStatsCards from "mydive/app/(routes)/admin/manage-booking-requests/components/admin-booking-requests-stats-cards";
 import AdminBookingRequestsTable from "./components/booking-requests-table/table";
 import _ from "lodash";
 
