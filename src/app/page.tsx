@@ -12,25 +12,32 @@ export default async function Home() {
 
   return (
     <HydrateClient>
-      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-white">
-        {/* Background Video */}
+      <main className="relative min-h-screen">
         <video
           autoPlay
           muted
           loop
           playsInline
-          className="absolute inset-0 z-0 h-full w-full object-cover"
+          className="absolute inset-0 z-0 object-cover"
+          style={{
+            width: "100%",
+            height: "110vh",
+            minHeight: "-webkit-fill-available",
+          }}
         >
           <source src="/videos/skydiving-background.mp4" type="video/mp4" />
-
-          {/* Fallback gradient background */}
         </video>
+        <div
+          className="absolute inset-0 z-10 bg-black/40"
+          style={{
+            height: "110vh",
+            minHeight: "-webkit-fill-available",
+          }}
+        />
 
-        {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 z-10 bg-black/40"></div>
-
-        {/* Content */}
-        <HomePageClient />
+        <div className="relative z-20 flex min-h-screen items-center justify-center text-white">
+          <HomePageClient />
+        </div>
       </main>
     </HydrateClient>
   );
