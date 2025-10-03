@@ -5,6 +5,7 @@ import {
   getActiveScheduledJumpDatesFromBookingWindow,
 } from "mydive/app/_shared-frontend/utils/booking";
 import type { BookingWindowPopulatedDto } from "mydive/server/api/routers/types";
+import { createPortal } from "react-dom";
 
 export const CancelBookingWindowConfirmationModal = ({
   bookingWindow,
@@ -21,7 +22,7 @@ export const CancelBookingWindowConfirmationModal = ({
   const activeScheduledJumpDates =
     getActiveScheduledJumpDatesFromBookingWindow(bookingWindow);
 
-  return (
+  const modalContent = (
     <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
       <div className="mx-4 max-w-md rounded-lg bg-white p-6">
         <h3 className="mb-4 text-lg font-semibold text-gray-900">
@@ -67,4 +68,5 @@ export const CancelBookingWindowConfirmationModal = ({
       </div>
     </div>
   );
+  return createPortal(modalContent, document.body);
 };
