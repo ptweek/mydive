@@ -3,6 +3,7 @@ import type { WaitlistStatus } from "@prisma/client";
 import type { WaitlistEntryWithUser, WaitlistWithUsers } from "../../types";
 import { api } from "mydive/trpc/react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 
 const AdminWaitlistInfoModal = ({
   waitlist,
@@ -139,7 +140,7 @@ const AdminWaitlistInfoModal = ({
     setConfirmationModalOpen(false);
   };
 
-  return (
+  const modalContent = (
     <>
       {/* Main Modal */}
       <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
@@ -357,7 +358,7 @@ const AdminWaitlistInfoModal = ({
               <button
                 disabled={isSubmitting}
                 onClick={handleRemoveFromWaitlist}
-                className="rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
               >
                 {"Confirm"}
               </button>
@@ -367,6 +368,7 @@ const AdminWaitlistInfoModal = ({
       )}
     </>
   );
+  return createPortal(modalContent, document.body);
 };
 
 export default AdminWaitlistInfoModal;

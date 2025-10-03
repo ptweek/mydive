@@ -12,6 +12,7 @@ import type {
 } from "mydive/server/api/routers/types";
 import { api } from "mydive/trpc/react";
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 
 const AdminScheduledJumpInfoModal = ({
   scheduledJump,
@@ -128,7 +129,7 @@ const AdminScheduledJumpInfoModal = ({
     scheduledJump.schedulingMethod,
   );
 
-  return (
+  const modalContent = (
     <>
       {/* Main Modal */}
       <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
@@ -334,6 +335,8 @@ const AdminScheduledJumpInfoModal = ({
       )}
     </>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default AdminScheduledJumpInfoModal;
