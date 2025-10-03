@@ -177,7 +177,7 @@ export const getTableCells = (
 
     // Actions cell
     <TableCell key="actions">
-      <div className="flex flex-col justify-center space-y-1">
+      <div className="flex flex-col justify-center space-y-1 text-center">
         {isDateTodayOrPast(scheduledJump.jumpDate) &&
           isAdminView &&
           handleJumpCompletionClick &&

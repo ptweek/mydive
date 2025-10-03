@@ -18,10 +18,7 @@ import { useRouter } from "next/navigation";
 import { CompleteScheduleJumpConfirmationModal } from "../../modals/complete-confirmation/scheduled-jump";
 import { CalendarIcon, UserIcon } from "@heroicons/react/24/outline";
 import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
-import {
-  getBookingStatusIcon,
-  getScheduledJumpStatusIcon,
-} from "mydive/app/_shared-frontend/components/statusIcons";
+import { getScheduledJumpStatusIcon } from "mydive/app/_shared-frontend/components/statusIcons";
 import { isDateInPast } from "mydive/app/(routes)/customer/booking-calendar/components/calendar/helpers";
 import { convertBookingZoneEnumToDisplayString } from "mydive/app/_shared-types/defaults";
 
@@ -32,7 +29,6 @@ const MobileScheduledJumpCard = ({
   isAdminView,
   handleJumpCancellationClick,
   handleContactInfoClick,
-  handleJumpCompletionClick,
 }: {
   scheduledJump: ScheduledJump;
   user?: UserDto;
