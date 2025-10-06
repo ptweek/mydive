@@ -18,11 +18,10 @@ export function parseIntSafe(value: string): number | null {
   return parsed;
 }
 
-export default async function PaymentsPage({
-  params,
-}: {
-  params: { bookingWindowId: string };
+export default async function PaymentsPage(props: {
+  params: Promise<{ bookingWindowId: string }>;
 }) {
+  const params = await props.params;
   const { bookingWindowId } = params;
   const bookingWindowInput = parseIntSafe(bookingWindowId);
   const user = await currentUser();
