@@ -1,8 +1,8 @@
-import type { PrismaClient } from "@prisma/client";
 import { BookingWindowService } from "./bookingWindow";
 import { WaitlistService } from "./waitlist";
 import { ScheduledJumpService } from "./scheduledJump";
 import { WaitlistEntryService } from "./waitlistEntry";
+import type { ExtendedPrismaClient } from "../db";
 
 export interface ServiceContainer {
   bookingWindow: BookingWindowService;
@@ -11,7 +11,7 @@ export interface ServiceContainer {
   waitlistEntry: WaitlistEntryService;
 }
 
-export const createServices = (db: PrismaClient): ServiceContainer => {
+export const createServices = (db: ExtendedPrismaClient): ServiceContainer => {
   return {
     bookingWindow: new BookingWindowService(db),
     waitlist: new WaitlistService(db),

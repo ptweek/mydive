@@ -1,9 +1,10 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
+import type { ExtendedPrismaClient } from "../db";
 
 export type ScheduledJump = Prisma.ScheduledJumpGetPayload<object>;
 
 export class ScheduledJumpService {
-  constructor(private db: PrismaClient) {}
+  constructor(private db: ExtendedPrismaClient) {}
 
   async findAll(): Promise<ScheduledJump[]> {
     return await this.db.scheduledJump.findMany();

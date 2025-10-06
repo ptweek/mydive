@@ -1,21 +1,23 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaLibSQL } from "@prisma/adapter-libsql";
+import { withAccelerate } from "@prisma/extension-accelerate";
 
-const adapter = new PrismaLibSQL({
-  url: process.env.TURSO_DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN!,
-});
-
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+const prismaClientSingleton = () => {
+  return new PrismaClient({
+    log:
+      process.env.NODE_ENV === "development"
+        ? ["query", "error", "warn"]
+        : ["error"],
+  }).$extends(withAccelerate());
 };
 
-export const db =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    adapter,
-    log:
-      process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-  });
+export type ExtendedPrismaClient = ReturnType<typeof prismaClientSingleton>;
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+declare const globalThis: {
+  prismaGlobal: ReturnType<typeof prismaClientSingleton>;
+} & typeof global;
+
+const db = globalThis.prismaGlobal ?? prismaClientSingleton();
+
+export { db };
+
+if (process.env.NODE_ENV !== "production") globalThis.prismaGlobal = db;

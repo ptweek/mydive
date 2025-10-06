@@ -1,5 +1,6 @@
-import { BookingStatus, type Prisma, type PrismaClient } from "@prisma/client";
+import { BookingStatus, type Prisma } from "@prisma/client";
 import type { Logger } from "pino";
+import type { ExtendedPrismaClient } from "../db";
 
 const bookingWindowIncludeConfig = {
   scheduledJumpDates: {
@@ -20,7 +21,7 @@ export type BookingWindowWithPopulatedFields = Prisma.BookingWindowGetPayload<{
 }>;
 
 export class BookingWindowService {
-  constructor(private db: PrismaClient) {}
+  constructor(private db: ExtendedPrismaClient) {}
 
   async findAll(): Promise<BookingWindow[]> {
     return await this.db.bookingWindow.findMany();

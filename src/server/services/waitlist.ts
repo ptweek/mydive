@@ -1,4 +1,5 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
+import type { ExtendedPrismaClient } from "../db";
 
 const waitlistIncludeConfig = {
   associatedBooking: true,
@@ -7,7 +8,7 @@ const waitlistIncludeConfig = {
 } as const;
 
 export class WaitlistService {
-  constructor(private db: PrismaClient) {}
+  constructor(private db: ExtendedPrismaClient) {}
 
   async findAll(): Promise<Waitlist[]> {
     return await this.db.waitlist.findMany();

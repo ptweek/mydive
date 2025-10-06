@@ -1,11 +1,12 @@
-import type { Prisma, PrismaClient } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
+import type { ExtendedPrismaClient } from "../db";
 
 const waitlistEntryIncludeConfig = {
   waitlist: true,
 } as const;
 
 export class WaitlistEntryService {
-  constructor(private db: PrismaClient) {}
+  constructor(private db: ExtendedPrismaClient) {}
 
   async findByIdPopulated(
     id: number,
