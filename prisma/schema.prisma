@@ -1,30 +1,26 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
-    previewFeatures = ["driverAdapters"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
-// Suggested by turso
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-/* best lifecycle -> PENDING_DEPOSIT -> UNSCHEDULED -> SCHEDULED -> COMPLETED */
+/// best lifecycle -> PENDING_DEPOSIT -> UNSCHEDULED -> SCHEDULED -> COMPLETED
 enum BookingStatus {
-  PENDING_DEPOSIT // initial state until payment webhook from stripe updates the status.
-  UNSCHEDULED // no scheduled days
-  SCHEDULED // has some scheduled days
-  COMPLETED 
+  PENDING_DEPOSIT
+  UNSCHEDULED
+  SCHEDULED
+  COMPLETED
   CANCELED
 }
 
 enum WaitlistStatus {
   OPENED
   CLOSED
-  CONFIRMED // this means that the booking is confirmed by the Admin
+  CONFIRMED
 }
 
 enum WaitlistEntryStatus {
@@ -34,7 +30,7 @@ enum WaitlistEntryStatus {
 }
 
 enum SchedulingMethod {
-  BOOKING_WINDOW 
+  BOOKING_WINDOW
   WAITLIST
 }
 
@@ -49,81 +45,66 @@ enum BookingZone {
   MAMMOTH_LAKES
 }
 
+
 model BookingWindow {
-    id Int @id @default(autoincrement())
-    status BookingStatus @default(PENDING_DEPOSIT) 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id                 Int             @id @default(autoincrement())
+  status             BookingStatus   @default(PENDING_DEPOSIT)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  bookingZone        BookingZone
+  numJumpers         Int
+  windowStartDate    DateTime
+  windowEndDate      DateTime
+  idealizedJumpDate  DateTime
+  depositPaid        Boolean?
+  depositPaidAt      DateTime?
+  cancellationReason String?
+  bookedBy           String
+  scheduledJumpDates ScheduledJump[]
+  waitlists          Waitlist[]
 
-    bookingZone BookingZone
-    numJumpers Int
-    windowStartDate DateTime // End date is always 3 days afterwards
-    windowEndDate DateTime
-    idealizedJumpDate DateTime
-
-    depositPaid Boolean?
-    depositPaidAt DateTime? // Set this field when the deposit is paid
-
-    cancellationReason String? // set when booking window is cancelled
-    bookedBy String
-
-    waitlists Waitlist[]
-    scheduledJumpDates ScheduledJump[]
-    
-    @@index([bookedBy])
+  @@index([bookedBy])
 }
 
 model ScheduledJump {
-    id Int @id @default(autoincrement())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id                   Int                 @id @default(autoincrement())
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  status               ScheduledJumpStatus @default(SCHEDULED)
+  jumpDate             DateTime
+  bookingZone          BookingZone
+  numJumpers           Int
+  schedulingMethod     SchedulingMethod
+  associatedBookingId  Int
+  associatedWaitlistId Int?
+  bookedBy             String
+  confirmedBy          String
+  associatedWaitlist   Waitlist?           @relation(fields: [associatedWaitlistId], references: [id])
+  associatedBooking    BookingWindow       @relation(fields: [associatedBookingId], references: [id])
 
-    status ScheduledJumpStatus @default(SCHEDULED)
-
-    jumpDate DateTime 
-    bookingZone BookingZone
-    numJumpers Int
-    schedulingMethod SchedulingMethod // how the jump day got booked, if waitlist should have waitlist id
-
-    associatedBooking BookingWindow @relation(fields: [associatedBookingId], references: [id])
-    associatedBookingId Int
-
-    associatedWaitlist Waitlist? @relation(fields: [associatedWaitlistId], references: [id]) 
-    associatedWaitlistId Int? 
-
-    bookedBy String // jumperId
-    confirmedBy String // adminId
-
-    // Add canceled by?
-
-    @@index([jumpDate])
+  @@index([jumpDate])
 }
 
 model Waitlist {
-  id                  Int             @id @default(autoincrement())
-  status WaitlistStatus @default(OPENED)
-  day                 DateTime   
-  entries             WaitlistEntry[]
-
-  associatedBooking   BookingWindow         @relation(fields: [associatedBookingId], references: [id])
-  associatedBookingId Int     
-
-  associatedScheduledJumps ScheduledJump[] // note: there should only be ONE active scheduled jump
-  
-  @@unique([day]) // Keep this - one waitlist per day globally
+  id                       Int             @id @default(autoincrement())
+  status                   WaitlistStatus  @default(OPENED)
+  day                      DateTime        @unique
+  associatedBookingId      Int
+  associatedScheduledJumps ScheduledJump[]
+  associatedBooking        BookingWindow   @relation(fields: [associatedBookingId], references: [id])
+  entries                  WaitlistEntry[]
 }
 
 model WaitlistEntry {
-  id         Int      @id @default(autoincrement())
-  
-  status WaitlistEntryStatus @default(WAITING) // when we confirm a waitlist booking, we should confirm this and cancel all the others. 
-  waitlistId Int
-  waitlistedUserId     String   // clerkId of waitlisted user 
-  latestPosition Int
-  activePosition   Int? // For any active waitlist entry, we need this. Cancelled with have this set as undefined. See src/server/services/waitlistEntry.ts.
-  createdAt  DateTime @default(now())
-  
-  waitlist   Waitlist @relation(fields: [waitlistId], references: [id], onDelete: Cascade)
+  id               Int                 @id @default(autoincrement())
+  status           WaitlistEntryStatus @default(WAITING)
+  waitlistId       Int
+  waitlistedUserId String
+  latestPosition   Int
+  activePosition   Int?
+  createdAt        DateTime            @default(now())
+  waitlist         Waitlist            @relation(fields: [waitlistId], references: [id], onDelete: Cascade)
 
-  @@unique([waitlistId, activePosition]) // Ensure no duplicate positions
+  @@unique([waitlistId, activePosition])
 }
+
