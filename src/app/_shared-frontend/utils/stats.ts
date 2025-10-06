@@ -16,8 +16,6 @@ export function calculateCustomerBookingRequestsStats(
   bookingWindows: BookingWindowPopulatedDto[],
   waitlistEntries: WaitlistEntryWithPopulatedFields[],
 ): CustomerBookingWindowRequestStats {
-  console.log("waitlistEntries", waitlistEntries);
-  console.log("bookingWindows", bookingWindows);
   let pendingDeposit = 0;
   let scheduledBWandWLE = 0;
   let unscheduledBWandWLE = 0;
