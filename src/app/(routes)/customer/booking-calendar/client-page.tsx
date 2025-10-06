@@ -35,7 +35,6 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
   const [showEventForm, setShowEventForm] = useState(false);
   const [showWaitlistForm, setShowWaitlistForm] = useState(false);
   const [newEvent, setNewEvent] = useState<CalendarEvent | null>(null);
-  console.log("newEvent", newEvent);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
@@ -151,10 +150,8 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
         createdById: userId,
         bookingZone: bookingWindow.bookingZone,
       });
-      console.log("created booking mutation");
       router.push(`/customer/payments/${result.id}`);
     } catch (error) {
-      console.error("Error submitting booking:", error);
       alert("Error submitting booking. Please try again.");
     }
   };
@@ -333,7 +330,6 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
               date={currentDate}
               onNavigate={handleNavigate}
               onSelectSlot={(slotInfo) => {
-                console.log("Slot selected:", slotInfo);
                 handleSelectSlot(slotInfo, userId);
               }}
               selectable={true}

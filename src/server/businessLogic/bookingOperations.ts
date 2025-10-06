@@ -64,7 +64,6 @@ export const cancelWaitlistEntry = protectedProcedure
   )
   .mutation(async ({ ctx, input }) => {
     try {
-      console.log(`Trying to remove waitlist entry ${input.waitlistEntryId}`);
       const waitlistEntry = await ctx.services.waitlistEntry.findByIdPopulated(
         input.waitlistEntryId,
       );
@@ -283,7 +282,6 @@ export const createBookingWindow = protectedProcedure
           ],
         },
       });
-      console.log("existingBookingWindows", existingBookingWindows);
       if (existingBookingWindows.length > 0) {
         throw new Error(
           "Booking window overlaps with existing booking window!",

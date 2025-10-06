@@ -92,7 +92,6 @@ export const adminBookingManagerRouter = createTRPCRouter({
         const confirmedDates = input.confirmedDates.map(
           (dateStr) => new Date(dateStr),
         );
-        console.log("confirmedDates", confirmedDates);
 
         // Validate that all confirmed dates are within the booking window
         const windowStart = new Date(existingBooking.windowStartDate);
