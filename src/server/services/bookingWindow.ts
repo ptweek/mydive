@@ -103,11 +103,15 @@ export class BookingWindowService {
     id: number,
     log: Logger,
   ): Promise<BookingWindow> {
-    log.info({ bookingWindowId: id }, "Updating booking window");
+    log.info(
+      { bookingWindowId: id },
+      "Received checkout completion event from stripe. Beginning confirmation of booking window.",
+    );
     try {
       /* 
         whenever I schedule a booking date, I need to look at
       */
+      log.info({ bookingWindowId: id }, "Booking window confirmed");
       const bookingWindow = await this.db.bookingWindow.findFirst({
         where: { id },
       });
