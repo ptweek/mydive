@@ -374,7 +374,7 @@ const AdminBookingRequestsTable = ({
                               status: WaitlistStatus,
                             ) => {
                               switch (status) {
-                                case "OPENED":
+                                case "OPEN":
                                   return {
                                     bg: "bg-yellow-50",
                                     icon: "text-yellow-600",

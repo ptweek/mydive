@@ -185,7 +185,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
                 // Reopen the waitlist when we cancel a jump
                 return tx.waitlist.update({
                   where: { id: waitlist.id },
-                  data: { status: "OPENED" },
+                  data: { status: "OPEN" },
                 });
               }
               return null;
@@ -222,7 +222,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
                 where: { day: jumpDateStart },
               });
 
-              if (waitlist && waitlist.status === "OPENED") {
+              if (waitlist && waitlist.status === "OPEN") {
                 // Close the waitlist when we schedule a jump
                 return tx.waitlist.update({
                   where: { id: waitlist.id },

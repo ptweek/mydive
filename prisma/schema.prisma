@@ -18,7 +18,7 @@ enum BookingStatus {
 }
 
 enum WaitlistStatus {
-  OPENED
+  OPEN
   CLOSED
   CONFIRMED
 }
@@ -87,7 +87,7 @@ model ScheduledJump {
 
 model Waitlist {
   id                       Int             @id @default(autoincrement())
-  status                   WaitlistStatus  @default(OPENED)
+  status                   WaitlistStatus  @default(OPEN)
   day                      DateTime        @unique
   associatedBookingId      Int
   associatedScheduledJumps ScheduledJump[]

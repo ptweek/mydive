@@ -87,7 +87,7 @@ export function calculateAdminBookingRequestsStats(
       return bw.status === BookingStatus.UNSCHEDULED;
     }).length,
     openWaitlists: waitlists.filter((wl) => {
-      return wl.status === "OPENED";
+      return wl.status === "OPEN";
     }).length,
     canceledBookingWindows: bookingWindows.filter((bw) => {
       return bw.status === BookingStatus.CANCELED;

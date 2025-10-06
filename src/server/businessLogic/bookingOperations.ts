@@ -195,13 +195,13 @@ export const cancelScheduledJump = protectedProcedure
         if (waitlistForDay) {
           await tx.waitlist.update({
             where: { id: waitlistForDay.id },
-            data: { status: "OPENED" },
+            data: { status: "OPEN" },
           });
         }
       } else if (scheduledJump.schedulingMethod === "WAITLIST") {
         await tx.waitlist.update({
           where: { id: scheduledJump.associatedWaitlistId! },
-          data: { status: "OPENED" },
+          data: { status: "OPEN" },
         });
       }
 

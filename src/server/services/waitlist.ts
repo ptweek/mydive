@@ -40,7 +40,7 @@ export class WaitlistService {
       where: {
         id,
       },
-      data: { status: "OPENED" },
+      data: { status: "OPEN" },
     });
   }
   async closeById(id: number): Promise<void> {

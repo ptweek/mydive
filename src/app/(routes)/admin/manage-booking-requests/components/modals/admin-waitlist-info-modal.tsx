@@ -77,7 +77,7 @@ const AdminWaitlistInfoModal = ({
     const baseClasses =
       "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium";
     switch (status) {
-      case "OPENED":
+      case "OPEN":
         return `${baseClasses} bg-green-100 text-green-800`;
       case "CLOSED":
         return `${baseClasses} bg-red-100 text-red-800`;
