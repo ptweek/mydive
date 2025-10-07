@@ -6,6 +6,7 @@ import {
   BookingZone,
   WaitlistEntryStatus,
 } from "@prisma/client";
+import { normalizeToUTCMidnight } from "../utils/dates";
 
 export const cancelBookingWindow = protectedProcedure
   .input(
@@ -39,7 +40,7 @@ export const cancelBookingWindow = protectedProcedure
             in: waitlistIds,
           },
         },
-        data: { status: "CANCELED" },
+        data: { status: "CANCELED", activePosition: null },
       });
       await ctx.services.scheduledJump.cancelMany({ ids: scheduledJumpIds });
     } catch (error) {
@@ -248,7 +249,10 @@ export const createBookingWindow = protectedProcedure
     }),
   )
   .mutation(async ({ ctx, input }) => {
-    const { windowStartDate, windowEndDate, idealizedJumpDay } = input;
+    const windowStartDate = normalizeToUTCMidnight(input.windowStartDate);
+    const windowEndDate = normalizeToUTCMidnight(input.windowEndDate);
+    const idealizedJumpDate = normalizeToUTCMidnight(input.idealizedJumpDay);
+
     // Validate that windowEndDate is after windowStartDay
     if (windowEndDate <= windowStartDate) {
       throw new Error("Window end date must be after start date");
@@ -256,8 +260,8 @@ export const createBookingWindow = protectedProcedure
 
     // Validate that idealizedJumpDay is within the window
     if (
-      idealizedJumpDay < windowStartDate ||
-      idealizedJumpDay > windowEndDate
+      idealizedJumpDate < windowStartDate ||
+      idealizedJumpDate > windowEndDate
     ) {
       throw new Error("Idealized jump day must be within the booking window");
     }
@@ -291,9 +295,9 @@ export const createBookingWindow = protectedProcedure
         data: {
           bookingZone: input.bookingZone,
           numJumpers: input.numJumpers,
-          windowStartDate: input.windowStartDate,
-          windowEndDate: input.windowEndDate,
-          idealizedJumpDate: input.idealizedJumpDay,
+          windowStartDate,
+          windowEndDate,
+          idealizedJumpDate,
           bookedBy: input.createdById,
           status: "PENDING_DEPOSIT", // new field
         },

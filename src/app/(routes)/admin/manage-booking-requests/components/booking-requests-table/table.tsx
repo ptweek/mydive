@@ -216,7 +216,9 @@ const AdminBookingRequestsTable = ({
           <TableColumn className="text-center">WAITLISTS</TableColumn>
           <TableColumn className="text-center">ACTIONS</TableColumn>
         </TableHeader>
-        <TableBody emptyContent="No bookings found">
+        <TableBody
+          emptyContent={<span className="text-black">`No bookings found`</span>}
+        >
           {filteredBookings.map((booking) => {
             const user = users.find((user) => {
               return user.userId === booking.bookedBy;

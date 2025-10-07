@@ -4,6 +4,7 @@ import {
   createBookingWindow,
   cancelWaitlistEntry,
 } from "mydive/server/businessLogic/bookingOperations";
+import { normalizeToUTCMidnight } from "mydive/server/utils/dates";
 import z from "zod";
 
 export const customerBookingManagerRouter = createTRPCRouter({
@@ -83,11 +84,12 @@ export const customerBookingManagerRouter = createTRPCRouter({
         if (!existingBooking) {
           throw new Error("Booking not found");
         }
+        const day = normalizeToUTCMidnight(input.day);
 
         // Check if a waitlist already exists for this day
         let waitlist = await ctx.db.waitlist.findFirst({
           where: {
-            day: input.day,
+            day: day,
           },
           include: {
             entries: {
@@ -101,7 +103,7 @@ export const customerBookingManagerRouter = createTRPCRouter({
         // If no waitlist exists, create one
         waitlist ??= await ctx.db.waitlist.create({
           data: {
-            day: input.day,
+            day,
             associatedBookingId: input.associatedBookingId,
           },
           include: {
@@ -196,10 +198,11 @@ export const customerBookingManagerRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       try {
+        const day = normalizeToUTCMidnight(input.day);
         // Find the waitlist for the specified day
         const waitlist = await ctx.db.waitlist.findFirst({
           where: {
-            day: input.day,
+            day,
           },
           include: {
             entries: {

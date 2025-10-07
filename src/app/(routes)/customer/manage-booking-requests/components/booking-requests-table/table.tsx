@@ -334,7 +334,11 @@ export default function BookingRequestsTable({
             <TableColumn className="text-center">DATE BOOKED</TableColumn>
             <TableColumn className="text-center">ACTIONS</TableColumn>
           </TableHeader>
-          <TableBody emptyContent="No bookings found">
+          <TableBody
+            emptyContent={
+              <span className="text-black">`No bookings found`</span>
+            }
+          >
             {filteredBookings.map((tableRow) => {
               const isAwaitingDeposit = tableRow.status === "PENDING_DEPOSIT";
               const activeScheduledJumps = isBookingWindowPopulatedDto(

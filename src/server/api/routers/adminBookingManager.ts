@@ -7,6 +7,7 @@ import {
 } from "mydive/server/businessLogic/bookingOperations";
 import z from "zod";
 import { createLogger } from "mydive/lib/logger";
+import { normalizeToUTCMidnight } from "mydive/server/utils/dates";
 
 type UserDto = {
   userId: string;
@@ -91,16 +92,16 @@ export const adminBookingManagerRouter = createTRPCRouter({
           throw new Error("Cannot confirm dates for a canceled booking");
         }
 
-        // Convert date strings to Date objects for validation
-        const confirmedDates = input.confirmedDates.map(
-          (dateStr) => new Date(dateStr),
+        // Convert date strings to normalized utc dat objects for validation
+        const datesConfirmedByAdmin = input.confirmedDates.map((dateStr) =>
+          normalizeToUTCMidnight(dateStr),
         );
 
         // Validate that all confirmed dates are within the booking window
         const windowStart = new Date(existingBooking.windowStartDate);
         const windowEnd = new Date(existingBooking.windowEndDate);
 
-        for (const date of confirmedDates) {
+        for (const date of datesConfirmedByAdmin) {
           if (date < windowStart || date > windowEnd) {
             throw new Error(
               `All confirmed dates must be within the booking window (${windowStart.toDateString()} - ${windowEnd.toDateString()})`,
@@ -109,7 +110,13 @@ export const adminBookingManagerRouter = createTRPCRouter({
         }
 
         // Remove duplicate dates and sort them
-        const uniqueDateStrings = [...new Set(input.confirmedDates)].sort();
+        const uniqueDateConfirmedByAdminISOStrings = [
+          ...new Set(datesConfirmedByAdmin),
+        ]
+          .sort()
+          .map((ds) => {
+            return ds.toISOString();
+          });
 
         // Get existing scheduled jumps for this booking
         const existingScheduledJumps =
@@ -118,9 +125,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
           });
 
         // Convert confirmed dates to ISO strings for comparison
-        const confirmedDateISOStrings = uniqueDateStrings.map((dateStr) =>
-          new Date(dateStr).toISOString(),
-        );
+        const confirmedDateISOStrings = uniqueDateConfirmedByAdminISOStrings;
 
         // Two types of jumps to cancel, one is a jump that is now being removed by the admin, or another is a booking window jump
         // Overwriting a waitlist jump
@@ -150,11 +155,8 @@ export const adminBookingManagerRouter = createTRPCRouter({
         );
 
         const datesForNewScheduledJumps = [
-          ...uniqueDateStrings.filter(
-            (dateStr) =>
-              !existingJumpDateStrings.includes(
-                new Date(dateStr).toISOString(),
-              ),
+          ...uniqueDateConfirmedByAdminISOStrings.filter(
+            (dateStr) => !existingJumpDateStrings.includes(dateStr),
           ), // Adding in any new ones that haven't existed yet.
           ...wlJumpsOverwrittenByAdmin.map((jump) => {
             return jump.jumpDate.toISOString();
@@ -192,20 +194,11 @@ export const adminBookingManagerRouter = createTRPCRouter({
           console.log("Canceled Jumps:", canceledJumps.count);
 
           // 2. Get all waitlists affected by admin modification
-          const waitlistQueryDates = [...datesModifiedByAdmin].map(
-            (dateIsoStr) => {
-              const jumpDateStart = new Date(dateIsoStr);
-              jumpDateStart.setHours(0, 0, 0, 0);
-              return jumpDateStart;
-            },
-          );
+          const waitlistQueryDates = [...datesModifiedByAdmin];
 
           console.log("=== WAITLIST QUERY ===");
           console.log("Query Dates (count):", waitlistQueryDates.length);
-          console.log(
-            "Query Dates (ISO):",
-            waitlistQueryDates.map((d) => d.toISOString()),
-          );
+          console.log("Query Dates (ISO):", waitlistQueryDates);
 
           const waitlistsAffectedByModification = await tx.waitlist.findMany({
             where: {
@@ -234,17 +227,14 @@ export const adminBookingManagerRouter = createTRPCRouter({
 
           const waitlistIdsForReopening = bwJumpsRemovedByAdmin
             .map((jump) => {
-              const jumpDateStart = new Date(jump.jumpDate);
-              jumpDateStart.setHours(0, 0, 0, 0);
-
               console.log(
-                `Looking for waitlist - Jump Date: ${jump.jumpDate.toISOString()}, Normalized: ${jumpDateStart.toISOString()}, Timestamp: ${jumpDateStart.getTime()}`,
+                `Looking for waitlist - Jump Date: ${jump.jumpDate.toISOString()}}`,
               );
 
               const waitlistForReopening = waitlistsAffectedByModification.find(
                 (waitlist) => {
                   const match =
-                    waitlist.day.getTime() === jumpDateStart.getTime();
+                    waitlist.day.getTime() === jump.jumpDate.getTime();
                   console.log(
                     `  Comparing with waitlist ${waitlist.id}: ${waitlist.day.toISOString()} (${waitlist.day.getTime()}) - Match: ${match}`,
                   );
@@ -273,7 +263,7 @@ export const adminBookingManagerRouter = createTRPCRouter({
             datesForNewScheduledJumps.map(async (dateStr) => {
               return tx.scheduledJump.create({
                 data: {
-                  jumpDate: new Date(dateStr),
+                  jumpDate: dateStr,
                   bookingZone: existingBooking.bookingZone,
                   numJumpers: existingBooking.numJumpers,
                   associatedBookingId: input.bookingId,
@@ -294,16 +284,11 @@ export const adminBookingManagerRouter = createTRPCRouter({
 
           const waitlistIdsForClosing = datesForNewScheduledJumps
             .map((date) => {
-              const jumpDateStart = new Date(date);
-              jumpDateStart.setHours(0, 0, 0, 0);
-
-              console.log(
-                `Looking for waitlist to close - Date: ${date}, Normalized: ${jumpDateStart.toISOString()}, Timestamp: ${jumpDateStart.getTime()}`,
-              );
+              console.log(`Looking for waitlist to close - Date: ${date}}`);
 
               const waitlistToBeClosed = waitlistsAffectedByModification.find(
                 (wl) => {
-                  const match = wl.day.getTime() === jumpDateStart.getTime();
+                  const match = wl.day.getTime() === new Date(date).getTime();
                   console.log(
                     `  Comparing with waitlist ${wl.id}: ${wl.day.toISOString()} (${wl.day.getTime()}) - Match: ${match}`,
                   );
@@ -335,7 +320,9 @@ export const adminBookingManagerRouter = createTRPCRouter({
             },
             data: {
               status:
-                uniqueDateStrings.length > 0 ? "SCHEDULED" : "UNSCHEDULED",
+                uniqueDateConfirmedByAdminISOStrings.length > 0
+                  ? "SCHEDULED"
+                  : "UNSCHEDULED",
             },
             include: {
               scheduledJumpDates: true,

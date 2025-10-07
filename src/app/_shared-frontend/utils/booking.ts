@@ -62,5 +62,5 @@ export function getActiveScheduledJumpDates(
 }
 
 export const formatDateShort = (date: Date) => {
-  return moment(date).format("MMM DD YYYY");
+  return moment.utc(date).format("MMM DD YYYY");
 };
