@@ -191,7 +191,7 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
       if (isConfirmedJumpDate) {
         const confirmedJumpEvent = events.find((event) =>
           event.confirmedJumpDays?.some((jumpDay) =>
-            moment(jumpDay).isSame(moment(date), "day"),
+            moment.utc(jumpDay).isSame(moment(date), "day"),
           ),
         );
         const isUserConfirmedJump = confirmedJumpEvent?.bookedBy === userId;
@@ -213,15 +213,14 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
       }
 
       if (newEvent) {
-        const newEventStart = moment(newEvent.start);
-        const newEventEnd = moment(newEvent.start).add(3, "days");
-        const checkDate = moment(date);
+        const newEventStart = moment.utc(newEvent.start);
+        const newEventEnd = moment.utc(newEvent.start).add(3, "days");
+        const checkDate = moment.utc(date);
 
         if (checkDate.isBetween(newEventStart, newEventEnd, "day", "[)")) {
-          const isNewEventIdealizedDay = moment(date).isSame(
-            moment(newEvent.idealizedDay),
-            "day",
-          );
+          const isNewEventIdealizedDay = moment
+            .utc(date)
+            .isSame(moment.utc(newEvent.idealizedDay), "day");
 
           if (isNewEventIdealizedDay) {
             return {
@@ -246,17 +245,18 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
 
       const maybeEvent = events.find((event) => {
         return (
-          moment(event.start).isSame(moment(date), "day") ||
-          moment(event.start).isSame(moment(date).subtract(1, "day"), "day") ||
-          moment(event.start).isSame(moment(date).subtract(2, "day"), "day")
+          moment.utc(event.start).isSame(moment(date), "day") ||
+          moment
+            .utc(event.start)
+            .isSame(moment(date).subtract(1, "day"), "day") ||
+          moment.utc(event.start).isSame(moment(date).subtract(2, "day"), "day")
         );
       });
 
       if (maybeEvent) {
-        const isIdealizedDay = moment(date).isSame(
-          moment(maybeEvent.idealizedDay),
-          "day",
-        );
+        const isIdealizedDay = moment
+          .utc(date)
+          .isSame(moment.utc(maybeEvent.idealizedDay), "day");
         const isUserBooking = maybeEvent.bookedBy === userId;
 
         const baseStyle = {

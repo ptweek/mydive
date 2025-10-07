@@ -3,7 +3,7 @@ import type { CalendarEvent } from "./types";
 import type { BookingWindow } from "@prisma/client";
 
 export const isDateBookable = (date: Date, events: CalendarEvent[]) => {
-  const checkDate = moment(date);
+  const checkDate = moment.utc(date);
 
   const day1 = checkDate.clone();
   const day2 = checkDate.clone().add(1, "day");
@@ -17,14 +17,14 @@ export const isDateBookable = (date: Date, events: CalendarEvent[]) => {
 };
 
 export const isDateInPast = (date: Date) => {
-  return moment(date).isBefore(moment(), "day");
+  return moment.utc(date).isBefore(moment.utc(), "day");
 };
 
 export const findBookingByDate = (date: Date, bookings: BookingWindow[]) => {
   return bookings.find((booking) => {
-    const bookingStart = moment(booking.windowStartDate);
-    const bookingEnd = moment(booking.windowEndDate);
-    const target = moment(date);
+    const bookingStart = moment.utc(booking.windowStartDate);
+    const bookingEnd = moment.utc(booking.windowEndDate);
+    const target = moment.utc(date);
 
     // Check if target date is between start and end (inclusive)
     return target.isBetween(bookingStart, bookingEnd, "day", "[]");
@@ -39,8 +39,8 @@ export const isDatePartOfEvent = (
   const checkDate = moment(date);
 
   return events.some((event) => {
-    const eventStart = moment(event.start);
-    const eventEnd = moment(event.end);
+    const eventStart = moment.utc(event.start);
+    const eventEnd = moment.utc(event.end);
     // Check if the date falls within the event's range
     return checkDate.isBetween(eventStart, eventEnd, "day", "[]");
   });
@@ -51,11 +51,11 @@ export const isDatePartOfYourEvent = (
   events: CalendarEvent[],
   userId: string,
 ): boolean => {
-  const checkDate = moment(date);
+  const checkDate = moment.utc(date);
 
   return events.some((event) => {
-    const eventStart = moment(event.start);
-    const eventEnd = moment(event.end);
+    const eventStart = moment.utc(event.start);
+    const eventEnd = moment.utc(event.end);
     // Check if the date falls within the event's range
     return (
       checkDate.isBetween(eventStart, eventEnd, "day", "[]") &&
@@ -70,7 +70,7 @@ export const isDateConfirmedJumpdate = (
 ): boolean => {
   return events.some((event) =>
     event.confirmedJumpDays?.some((jumpDay) =>
-      moment(jumpDay).isSame(moment(date), "day"),
+      moment.utc(jumpDay).isSame(moment(date), "day"),
     ),
   );
 };
@@ -80,9 +80,9 @@ export const isIdealizedDay = (
   date: Date,
   events: CalendarEvent[],
 ): boolean => {
-  const checkDate = moment(date);
+  const checkDate = moment.utc(date);
 
   return events.some((event) => {
-    return checkDate.isSame(moment(event.idealizedDay), "day");
+    return checkDate.isSame(moment.utc(event.idealizedDay), "day");
   });
 };
