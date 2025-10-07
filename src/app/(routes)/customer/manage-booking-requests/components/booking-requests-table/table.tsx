@@ -36,6 +36,7 @@ import {
 import { useMemo, useState } from "react";
 import BookingRequestsTableFilters from "mydive/app/_shared-frontend/components/tables/manage-booking-requests/filters";
 import { MobileBookingCard } from "./mobile-booking-card";
+import { normalizeToUTCMidnight } from "mydive/server/utils/dates";
 
 export const getActiveBookingWindowJumpDatesForBookedUser = (
   bookingWindow: BookingWindowPopulatedDto,
@@ -213,14 +214,12 @@ export default function BookingRequestsTable({
     }
     if (!showPast) {
       filtered = filtered.filter((tableRow) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set to start of today
+        const today = normalizeToUTCMidnight(new Date());
 
         if (tableRow.type === "BOOKING_WINDOW") {
           if (isBookingWindowPopulatedDto(tableRow.data)) {
             const bookingWindow = tableRow.data;
-            const windowEndDate = new Date(bookingWindow.windowEndDate);
-            windowEndDate.setHours(0, 0, 0, 0); // Set to start of that day
+            const windowEndDate = bookingWindow.windowEndDate;
             return windowEndDate >= today;
           } else {
             throw new Error("Issue with booking window");
@@ -228,8 +227,7 @@ export default function BookingRequestsTable({
         } else {
           if (isWaitlistEntryPopulatedDto(tableRow.data)) {
             const waitlistEntryWaitlist = tableRow.data.waitlist;
-            const day = new Date(waitlistEntryWaitlist.day);
-            day.setHours(0, 0, 0, 0); // Set to start of that day
+            const day = waitlistEntryWaitlist.day;
             return day >= today;
           } else {
             throw new Error("Issue with waitlist entry");

@@ -1,10 +1,6 @@
 import { UserIcon } from "@heroicons/react/24/outline";
 import { Button } from "@nextui-org/react";
-import type {
-  BookingStatus,
-  ScheduledJumpStatus,
-  SchedulingMethod,
-} from "@prisma/client";
+import type { ScheduledJumpStatus, SchedulingMethod } from "@prisma/client";
 import {
   formatDateLong,
   formatDateTime,

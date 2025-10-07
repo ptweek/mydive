@@ -26,6 +26,7 @@ import { api } from "mydive/trpc/react";
 import { getActiveScheduledJumpDatesFromBookingWindow } from "mydive/app/_shared-frontend/utils/booking";
 import CalendarLegend from "./components/calendar/components/calendar-legend";
 import { BookingZone } from "@prisma/client";
+import { normalizeToUTCMidnight } from "mydive/server/utils/dates";
 
 const localizer = momentLocalizer(moment);
 
@@ -169,7 +170,8 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
   }, []);
 
   const dayPropGetter = useCallback(
-    (date: Date) => {
+    (day: Date) => {
+      const date = normalizeToUTCMidnight(day);
       const unbookableStyling = {
         style: {
           background:
