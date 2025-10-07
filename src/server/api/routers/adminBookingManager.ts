@@ -6,6 +6,7 @@ import {
   cancelWaitlistEntry,
 } from "mydive/server/businessLogic/bookingOperations";
 import z from "zod";
+import { createLogger } from "mydive/lib/logger";
 
 type UserDto = {
   userId: string;
@@ -28,6 +29,8 @@ export const clerkUserToDto = (user: User): UserDto => {
     }),
   };
 };
+
+const log = createLogger("admin-booking-manager");
 
 // We should create a very specific admin checking procedure!
 export const adminBookingManagerRouter = createTRPCRouter({
@@ -136,6 +139,11 @@ export const adminBookingManagerRouter = createTRPCRouter({
           ...wlJumpsOverwrittenByAdmin,
         ];
 
+        console.log("=== BOOKING MODIFICATION DEBUG ===");
+        console.log("Booking ID:", input.bookingId);
+        console.log("BW Jumps Removed:", bwJumpsRemovedByAdmin.length);
+        console.log("WL Jumps Overwritten:", wlJumpsOverwrittenByAdmin.length);
+
         // Find dates that need new scheduled jumps (not already existing)
         const existingJumpDateStrings = existingScheduledJumps.map((jump) =>
           jump.jumpDate.toISOString(),
@@ -153,12 +161,22 @@ export const adminBookingManagerRouter = createTRPCRouter({
           }),
         ];
 
+        console.log(
+          "New Scheduled Jumps to Create:",
+          datesForNewScheduledJumps.length,
+        );
+
         const datesModifiedByAdmin = new Set([
           ...confirmedDateISOStrings,
           ...jumpsToCancel.map((jump) => {
             return jump.jumpDate.toISOString();
           }),
         ]);
+
+        console.log(
+          "Total Dates Modified by Admin:",
+          datesModifiedByAdmin.size,
+        );
 
         // Use a transaction to ensure all operations succeed or fail together
         const result = await ctx.db.$transaction(async (tx) => {
@@ -171,37 +189,84 @@ export const adminBookingManagerRouter = createTRPCRouter({
             data: { status: "CANCELED" },
           });
 
+          console.log("Canceled Jumps:", canceledJumps.count);
+
           // 2. Get all waitlists affected by admin modification
+          const waitlistQueryDates = [...datesModifiedByAdmin].map(
+            (dateIsoStr) => {
+              const jumpDateStart = new Date(dateIsoStr);
+              jumpDateStart.setHours(0, 0, 0, 0);
+              return jumpDateStart;
+            },
+          );
+
+          console.log("=== WAITLIST QUERY ===");
+          console.log("Query Dates (count):", waitlistQueryDates.length);
+          console.log(
+            "Query Dates (ISO):",
+            waitlistQueryDates.map((d) => d.toISOString()),
+          );
+
           const waitlistsAffectedByModification = await tx.waitlist.findMany({
             where: {
               day: {
-                in: [...datesModifiedByAdmin].map((dateIsoStr) => {
-                  const jumpDateStart = new Date(dateIsoStr);
-                  jumpDateStart.setHours(0, 0, 0, 0);
-                  return jumpDateStart;
-                }),
+                in: waitlistQueryDates,
               },
             },
           });
 
+          console.log(
+            "Waitlists Found:",
+            waitlistsAffectedByModification.length,
+          );
+          console.log(
+            "Waitlist Days (ISO):",
+            waitlistsAffectedByModification.map((w) => ({
+              id: w.id,
+              day: w.day.toISOString(),
+              status: w.status,
+            })),
+          );
+
           // 3. Reopen waitlists for Booking Window jumps that were cancelled
+          console.log("=== WAITLIST REOPENING ===");
+          console.log("BW Jumps to Process:", bwJumpsRemovedByAdmin.length);
+
           const waitlistIdsForReopening = bwJumpsRemovedByAdmin
             .map((jump) => {
               const jumpDateStart = new Date(jump.jumpDate);
               jumpDateStart.setHours(0, 0, 0, 0);
+
+              console.log(
+                `Looking for waitlist - Jump Date: ${jump.jumpDate.toISOString()}, Normalized: ${jumpDateStart.toISOString()}, Timestamp: ${jumpDateStart.getTime()}`,
+              );
+
               const waitlistForReopening = waitlistsAffectedByModification.find(
                 (waitlist) => {
-                  return waitlist.day.getTime() === jumpDateStart.getTime();
+                  const match =
+                    waitlist.day.getTime() === jumpDateStart.getTime();
+                  console.log(
+                    `  Comparing with waitlist ${waitlist.id}: ${waitlist.day.toISOString()} (${waitlist.day.getTime()}) - Match: ${match}`,
+                  );
+                  return match;
                 },
+              );
+
+              console.log(
+                `  Result: ${waitlistForReopening ? `Found ID ${waitlistForReopening.id}` : "NOT FOUND"}`,
               );
               return waitlistForReopening?.id;
             })
             .filter((id) => id !== undefined);
 
+          console.log("Waitlist IDs for Reopening:", waitlistIdsForReopening);
+
           const waitlistUpdatesForCanceled = await tx.waitlist.updateMany({
             where: { id: { in: waitlistIdsForReopening } },
             data: { status: "OPEN" },
           });
+
+          console.log("Waitlists Reopened:", waitlistUpdatesForCanceled.count);
 
           // 4. Create new ScheduledJump records for dates that don't already exist
           const newScheduledJumps = await Promise.all(
@@ -221,25 +286,48 @@ export const adminBookingManagerRouter = createTRPCRouter({
             }),
           );
 
-          // 4. Handle waitlist status for new jump dates
+          console.log("New Scheduled Jumps Created:", newScheduledJumps.length);
+
+          // 5. Handle waitlist status for new jump dates
+          console.log("=== WAITLIST CLOSING ===");
+          console.log("Dates for New Jumps:", datesForNewScheduledJumps.length);
+
           const waitlistIdsForClosing = datesForNewScheduledJumps
             .map((date) => {
               const jumpDateStart = new Date(date);
               jumpDateStart.setHours(0, 0, 0, 0);
+
+              console.log(
+                `Looking for waitlist to close - Date: ${date}, Normalized: ${jumpDateStart.toISOString()}, Timestamp: ${jumpDateStart.getTime()}`,
+              );
+
               const waitlistToBeClosed = waitlistsAffectedByModification.find(
                 (wl) => {
-                  return wl.day.getTime() === jumpDateStart.getTime();
+                  const match = wl.day.getTime() === jumpDateStart.getTime();
+                  console.log(
+                    `  Comparing with waitlist ${wl.id}: ${wl.day.toISOString()} (${wl.day.getTime()}) - Match: ${match}`,
+                  );
+                  return match;
                 },
+              );
+
+              console.log(
+                `  Result: ${waitlistToBeClosed ? `Found ID ${waitlistToBeClosed.id}` : "NOT FOUND"}`,
               );
               return waitlistToBeClosed?.id;
             })
             .filter((id) => id !== undefined);
+
+          console.log("Waitlist IDs for Closing:", waitlistIdsForClosing);
+
           const waitlistUpdatesForNew = await tx.waitlist.updateMany({
             where: { id: { in: waitlistIdsForClosing } },
             data: { status: "CLOSED" },
           });
 
-          // 5. Update the booking status to SCHEDULED (if it has any confirmed dates)
+          console.log("Waitlists Closed:", waitlistUpdatesForNew.count);
+
+          // 6. Update the booking status to SCHEDULED (if it has any confirmed dates)
           const updatedBooking = await tx.bookingWindow.update({
             where: {
               id: input.bookingId,
@@ -268,6 +356,15 @@ export const adminBookingManagerRouter = createTRPCRouter({
           result.updatedBooking.scheduledJumpDates.filter((jump) => {
             return jump.status === "SCHEDULED";
           });
+
+        console.log("=== FINAL SUMMARY ===");
+        console.log("Total Confirmed Jumps:", confirmedScheduledJumps.length);
+        console.log(
+          "Waitlists Reopened:",
+          result.waitlistUpdatesForCanceled.count,
+        );
+        console.log("Waitlists Closed:", result.waitlistUpdatesForNew.count);
+        console.log("=== END DEBUG ===");
 
         return {
           success: true,
