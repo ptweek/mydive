@@ -69,6 +69,6 @@ export const formatDateLong = (date: Date) => {
   return moment.utc(date).format("dddd, MMMM D, YYYY");
 };
 
-const formatDateTime = (dateString: Date) => {
+export const formatDateTime = (dateString: Date) => {
   return moment.utc(dateString).format("MMM D, YYYY, h:mm A");
 };

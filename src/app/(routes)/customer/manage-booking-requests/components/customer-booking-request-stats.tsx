@@ -49,14 +49,12 @@ export default function CustomerBookingRequestsStats({
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                {stats.canceledBWandWLE > 0 && (
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-red-600">
-                      {stats.canceledBWandWLE}
-                    </div>
-                    <div className="text-xs text-gray-600">Canceled</div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-red-600">
+                    {stats.canceledBWandWLE}
                   </div>
-                )}
+                  <div className="text-xs text-gray-600">Canceled</div>
+                </div>
                 {isExpanded ? (
                   <ChevronUpIcon className="h-5 w-5 text-gray-400" />
                 ) : (
