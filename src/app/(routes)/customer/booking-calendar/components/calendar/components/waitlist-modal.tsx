@@ -4,6 +4,7 @@ import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@nextui-org/react";
+import { formatDateLong } from "mydive/app/_shared-frontend/utils/booking";
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -129,15 +130,6 @@ export default function WaitlistModal({
     }
   };
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   const getWaitlistStatusMessage = () => {
     if (waitlistInfoError) {
       return "Unable to load waitlist information";
@@ -257,7 +249,7 @@ export default function WaitlistModal({
                   </p>
                   <p className="text-sm leading-relaxed text-gray-600">
                     {`We'll notify you if a spot opens up on`}{" "}
-                    <strong>{formatDate(day)}</strong>. You can monitor your
+                    <strong>{formatDateLong(day)}</strong>. You can monitor your
                     waitlist in the{" "}
                     <span
                       className="text-blue-600 underline"
@@ -286,7 +278,7 @@ export default function WaitlistModal({
                   </h2>
                   <p className="px-2 text-sm text-gray-600 sm:text-base">
                     Checking waitlist status for{" "}
-                    <strong>{formatDate(day)}</strong>
+                    <strong>{formatDateLong(day)}</strong>
                   </p>
                 </div>
 
@@ -340,7 +332,7 @@ export default function WaitlistModal({
                     {waitlistInfo?.isUserOnWaitlist
                       ? "You're on the waitlist for"
                       : "Get notified when"}{" "}
-                    <strong>{formatDate(day)}</strong>{" "}
+                    <strong>{formatDateLong(day)}</strong>{" "}
                     {waitlistInfo?.isUserOnWaitlist
                       ? ""
                       : "becomes available for jumping."}
@@ -353,7 +345,7 @@ export default function WaitlistModal({
                     {waitlistInfo?.isUserOnWaitlist
                       ? "You're on the waitlist for"
                       : "Get notified when"}{" "}
-                    <strong>{formatDate(day)}</strong>{" "}
+                    <strong>{formatDateLong(day)}</strong>{" "}
                     {waitlistInfo?.isUserOnWaitlist
                       ? ""
                       : "becomes available for jumping."}

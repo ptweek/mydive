@@ -5,6 +5,10 @@ import type {
   ScheduledJumpStatus,
   SchedulingMethod,
 } from "@prisma/client";
+import {
+  formatDateLong,
+  formatDateTime,
+} from "mydive/app/_shared-frontend/utils/booking";
 import { convertBookingZoneEnumToDisplayString } from "mydive/app/_shared-types/defaults";
 import type {
   ScheduledJumpDto,
@@ -45,25 +49,6 @@ const AdminScheduledJumpInfoModal = ({
     useState(false);
 
   if (!isOpen) return null;
-
-  const formatDate = (dateString: Date) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const formatDateTime = (dateString: Date) => {
-    return new Date(dateString).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  };
 
   const getStatusBadge = (status: ScheduledJumpStatus) => {
     const baseClasses =
@@ -167,7 +152,7 @@ const AdminScheduledJumpInfoModal = ({
               <div className="rounded-lg bg-blue-50 p-3">
                 <h4 className="mb-1 font-medium text-gray-900">Jump Date</h4>
                 <p className="text-sm font-medium text-gray-700">
-                  {formatDate(scheduledJump.jumpDate)}
+                  {formatDateLong(scheduledJump.jumpDate)}
                 </p>
               </div>
 
@@ -302,7 +287,7 @@ const AdminScheduledJumpInfoModal = ({
                 </span>{" "}
                 scheduled for{" "}
                 <span className="font-medium text-gray-900">
-                  {formatDate(scheduledJump.jumpDate)}
+                  {formatDateLong(scheduledJump.jumpDate)}
                 </span>
                 ?
               </p>

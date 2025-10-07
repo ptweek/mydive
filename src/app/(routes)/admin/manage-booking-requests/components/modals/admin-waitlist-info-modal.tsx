@@ -4,7 +4,10 @@ import type { WaitlistEntryWithUser, WaitlistWithUsers } from "../../types";
 import { api } from "mydive/trpc/react";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
-import { formatDateLong } from "mydive/app/_shared-frontend/utils/booking";
+import {
+  formatDateLong,
+  formatDateTime,
+} from "mydive/app/_shared-frontend/utils/booking";
 
 const AdminWaitlistInfoModal = ({
   waitlist,
@@ -56,15 +59,6 @@ const AdminWaitlistInfoModal = ({
         console.error("Failed to remove entry from wailist:", error.message);
       },
     });
-
-  const formatDateTime = (dateString: Date) => {
-    return new Date(dateString).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  };
 
   const getStatusBadge = (status: WaitlistStatus) => {
     const baseClasses =
