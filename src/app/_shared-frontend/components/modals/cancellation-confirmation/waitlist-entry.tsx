@@ -1,5 +1,8 @@
 import { WaitlistEntryStatus } from "@prisma/client";
-import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
+import {
+  formatDateLong,
+  formatDateShort,
+} from "mydive/app/_shared-frontend/utils/booking";
 import type { WaitlistEntryPopulatedDto } from "mydive/server/api/routers/types";
 
 export const CancelWaitlistEntryConfirmationModal = ({
@@ -21,14 +24,18 @@ export const CancelWaitlistEntryConfirmationModal = ({
         <h3 className="mb-4 text-lg font-semibold text-gray-900">
           {waitlistEntry.status === WaitlistEntryStatus.WAITING
             ? `Leave waitlist`
-            : `Cancel jump`}
+            : `Cancel scheduled jump`}
         </h3>
         <p className="mb-6 text-gray-600">
-          {waitlistEntry.status === WaitlistEntryStatus.WAITING
-            ? `Are you sure you want to leave your waitlist position on
-          ${formatDateShort(waitlistEntry.waitlist.day)}?`
-            : `Are you sure you want to cancel your jump day on
-          ${formatDateShort(waitlistEntry.waitlist.day)}?`}
+          {waitlistEntry.status === WaitlistEntryStatus.WAITING ? (
+            `Are you sure you want to leave your waitlist position on
+          ${formatDateLong(waitlistEntry.waitlist.day)}?`
+          ) : (
+            <span>
+              Are you sure you want to cancel your shcheduled jump on{" "}
+              <strong>{formatDateLong(waitlistEntry.waitlist.day)}</strong>
+            </span>
+          )}
         </p>
         <div className="flex justify-end gap-3">
           <button

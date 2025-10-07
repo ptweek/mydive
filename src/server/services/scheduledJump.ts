@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import type { ExtendedPrismaClient } from "../db";
 
 export type ScheduledJump = Prisma.ScheduledJumpGetPayload<object>;

@@ -1,4 +1,7 @@
-import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
+import {
+  formatDateLong,
+  formatDateShort,
+} from "mydive/app/_shared-frontend/utils/booking";
 import type { ScheduledJumpDto } from "mydive/server/api/routers/types";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
@@ -31,7 +34,7 @@ export const CancelScheduleJumpConfirmationModal = ({
         <p className="mb-6 text-gray-600">
           Are you sure you want to cancel your booking for{" "}
           {scheduledJump?.numJumpers} jumper(s) on{" "}
-          {formatDateShort(scheduledJump.jumpDate)}
+          <strong>{formatDateLong(scheduledJump.jumpDate)}</strong>?
         </p>
         <div className="flex justify-end gap-3">
           <button

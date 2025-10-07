@@ -96,10 +96,10 @@ const MobileScheduledJumpCard = ({
           <div className="text-center">
             <div className="rounded-lg bg-blue-50 px-3 py-2 text-blue-700">
               <div className="text-sm font-semibold">
-                {formatDateShort(scheduledJump.createdAt)}
+                {scheduledJump.schedulingMethod}
               </div>
             </div>
-            <div className="mt-1 text-xs text-slate-500">Created</div>
+            <div className="mt-1 text-xs text-slate-500">Scheduling Method</div>
           </div>
         </div>
 
