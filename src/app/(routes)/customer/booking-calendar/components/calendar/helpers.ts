@@ -36,7 +36,7 @@ export const isDatePartOfEvent = (
   date: Date,
   events: CalendarEvent[],
 ): boolean => {
-  const checkDate = moment(date);
+  const checkDate = moment.utc(date);
 
   return events.some((event) => {
     const eventStart = moment.utc(event.start);

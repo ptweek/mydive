@@ -16,8 +16,8 @@ const generateDateOptions = () => {
     );
     options.push({
       value: optionDate,
-      label: moment(optionDate).format("MMMM YYYY"),
-      key: moment(optionDate).format("YYYY-MM"),
+      label: moment.utc(optionDate).format("MMMM YYYY"),
+      key: moment.utc(optionDate).format("YYYY-MM"),
     });
   }
 
@@ -27,11 +27,10 @@ const generateDateOptions = () => {
 export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
   const dateOptions = generateDateOptions();
-  const isFirstMonth = moment(date).isSame(dateOptions[0]?.value, "month");
-  const isLastMonth = moment(date).isSame(
-    dateOptions[dateOptions.length - 1]?.value,
-    "month",
-  );
+  const isFirstMonth = moment.utc(date).isSame(dateOptions[0]?.value, "month");
+  const isLastMonth = moment
+    .utc(date)
+    .isSame(dateOptions[dateOptions.length - 1]?.value, "month");
 
   const handleDateSelect = (selectedDate: Date) => {
     onNavigate("DATE", selectedDate);
@@ -87,7 +86,7 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
             onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
             className="flex w-full items-center justify-center gap-1 rounded px-3 py-2 text-base font-medium text-gray-800 hover:bg-gray-50"
           >
-            <span>{moment(date).format("MMM YYYY")}</span>
+            <span>{moment.utc(date).format("MMM YYYY")}</span>
             <svg
               className={`h-4 w-4 transition-transform duration-200 ${
                 isMobileDropdownOpen ? "rotate-180" : ""
@@ -120,13 +119,12 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
                     className={clsx(
                       "w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 focus:bg-blue-50 focus:outline-none",
                       {
-                        "bg-blue-100 font-medium text-blue-900": moment(
-                          option.value,
-                        ).isSame(moment(date), "month"),
-                        "text-gray-700": !moment(option.value).isSame(
-                          moment(date),
-                          "month",
-                        ),
+                        "bg-blue-100 font-medium text-blue-900": moment
+                          .utc(option.value)
+                          .isSame(moment.utc(date), "month"),
+                        "text-gray-700": !moment
+                          .utc(option.value)
+                          .isSame(moment.utc(date), "month"),
                       },
                     )}
                   >
@@ -203,7 +201,7 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
 
         {/* Current Month Title */}
         <h2 className="text-xl font-bold text-gray-900">
-          {moment(date).format("MMMM YYYY")}
+          {moment.utc(date).format("MMMM YYYY")}
         </h2>
 
         {/* Desktop Month/Year Dropdown */}

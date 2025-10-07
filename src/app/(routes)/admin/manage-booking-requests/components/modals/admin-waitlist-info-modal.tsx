@@ -4,6 +4,7 @@ import type { WaitlistEntryWithUser, WaitlistWithUsers } from "../../types";
 import { api } from "mydive/trpc/react";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
+import { formatDateLong } from "mydive/app/_shared-frontend/utils/booking";
 
 const AdminWaitlistInfoModal = ({
   waitlist,
@@ -55,14 +56,6 @@ const AdminWaitlistInfoModal = ({
         console.error("Failed to remove entry from wailist:", error.message);
       },
     });
-  const formatDate = (dateString: Date) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   const formatDateTime = (dateString: Date) => {
     return new Date(dateString).toLocaleString("en-US", {
@@ -156,7 +149,7 @@ const AdminWaitlistInfoModal = ({
               </span>
             </div>
             <p className="text-gray-600">
-              {formatDate(waitlist.day)} •{" "}
+              {formatDateLong(waitlist.day)} •{" "}
               {waitlist.entries?.filter((entry) => {
                 return entry.status !== "CANCELED";
               }).length || 0}{" "}
@@ -295,7 +288,7 @@ const AdminWaitlistInfoModal = ({
                 </span>{" "}
                 to jump on{" "}
                 <span className="font-medium text-gray-900">
-                  {formatDate(waitlist.day)}
+                  {formatDateLong(waitlist.day)}
                 </span>
                 ?
               </p>
@@ -342,7 +335,7 @@ const AdminWaitlistInfoModal = ({
                 </span>{" "}
                 for the jump on{" "}
                 <span className="font-medium text-gray-900">
-                  {formatDate(waitlist.day)}
+                  {formatDateLong(waitlist.day)}
                 </span>
                 ?
               </p>

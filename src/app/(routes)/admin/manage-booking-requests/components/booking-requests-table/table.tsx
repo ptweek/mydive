@@ -28,7 +28,6 @@ import type {
   WaitlistWithUsers,
 } from "../../types";
 import type {
-  BookingWindowDto,
   BookingWindowPopulatedDto,
   ScheduledJumpDto,
   UserDto,

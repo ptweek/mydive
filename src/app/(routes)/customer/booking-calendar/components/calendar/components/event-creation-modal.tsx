@@ -10,14 +10,15 @@ import { DropZoneDropdown } from "mydive/app/_shared-frontend/components/dropdow
 import { BookingZone } from "@prisma/client";
 
 const getIdealizedDate = (startDate: Date, dayNumber: number): Date => {
-  const date = moment(startDate)
+  const date = moment
+    .utc(startDate)
     .add(dayNumber - 1, "days")
     .toDate();
   return date;
 };
 
 const getDayNumber = (startDate: Date, idealizedDate: Date): number => {
-  return moment(idealizedDate).diff(moment(startDate), "days") + 1;
+  return moment.utc(idealizedDate).diff(moment.utc(startDate), "days") + 1;
 };
 
 export default function EventCreationModal({
@@ -157,8 +158,9 @@ export default function EventCreationModal({
                     Booking Window:
                   </p>
                   <p className="mt-1 text-xs font-medium text-blue-700 sm:text-sm">
-                    {moment(newEvent.start).format("MMM DD YYYY")} -{" "}
-                    {moment(newEvent.start)
+                    {moment.utc(newEvent.start).format("MMM DD YYYY")} -{" "}
+                    {moment
+                      .utc(newEvent.start)
                       .add(2, "days")
                       .format("MMM DD YYYY")}
                   </p>
@@ -250,7 +252,7 @@ export default function EventCreationModal({
                 >
                   <span className="text-gray-900">
                     Day {getDayNumber(newEvent.start!, newEvent.idealizedDay)} -{" "}
-                    {moment(newEvent.idealizedDay).format("MMM DD")}
+                    {moment.utc(newEvent.idealizedDay).format("MMM DD")}
                   </span>
                   <svg
                     className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${dayDropdownOpen ? "rotate-180" : ""}`}
@@ -297,7 +299,7 @@ export default function EventCreationModal({
                                 : "text-gray-900 hover:text-blue-900"
                             }`}
                           >
-                            Day {dayNum} - {moment(date).format("MMM DD")}
+                            Day {dayNum} - {moment.utc(date).format("MMM DD")}
                             {isSelected && (
                               <span className="float-right text-blue-600">
                                 ✓

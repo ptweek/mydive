@@ -1,5 +1,8 @@
 "use client";
-import { getActiveScheduledJumpDates } from "mydive/app/_shared-frontend/utils/booking";
+import {
+  formatDateLong,
+  getActiveScheduledJumpDates,
+} from "mydive/app/_shared-frontend/utils/booking";
 import { api } from "mydive/trpc/react";
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
@@ -75,15 +78,6 @@ export const ModifyScheduledJumpsModal = ({
     }
 
     return dates;
-  };
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
   };
 
   const isDateSelected = (date: Date) => {
@@ -224,7 +218,7 @@ export const ModifyScheduledJumpsModal = ({
             <div>
               <span className="font-medium text-gray-700">Preferred:</span>
               <span className="ml-2 text-gray-600">
-                {formatDate(idealizedDate)}
+                {formatDateLong(idealizedDate)}
               </span>
             </div>
           </div>
@@ -281,7 +275,7 @@ export const ModifyScheduledJumpsModal = ({
                         )}
                       </div>
                       <span className="font-medium text-gray-900">
-                        {formatDate(date)}
+                        {formatDateLong(date)}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
