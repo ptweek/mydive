@@ -153,46 +153,57 @@ export const adminBookingManagerRouter = createTRPCRouter({
           }),
         ];
 
+        const datesModifiedByAdmin = new Set([
+          ...confirmedDateISOStrings,
+          ...jumpsToCancel.map((jump) => {
+            return jump.jumpDate.toISOString();
+          }),
+        ]);
+
         // Use a transaction to ensure all operations succeed or fail together
         const result = await ctx.db.$transaction(async (tx) => {
           // 1. Cancel existing scheduled jumps that are not in the confirmed dates
-          const canceledJumps = await Promise.all(
-            jumpsToCancel.map(async (jump) => {
-              return tx.scheduledJump.update({
-                where: { id: jump.id },
-                data: { status: "CANCELED" },
-              });
-            }),
-          );
+          const canceledJumpIds = jumpsToCancel.map((jump) => {
+            return jump.id;
+          });
+          const canceledJumps = await tx.scheduledJump.updateMany({
+            where: { id: { in: canceledJumpIds } },
+            data: { status: "CANCELED" },
+          });
 
-          // 2. Handle waitlist status for canceled jump dates
-          const waitlistUpdatesForCanceled = await Promise.all(
-            jumpsToCancel.map(async (jump) => {
-              // Normalize the date to start of day for comparison
+          // 2. Get all waitlists affected by admin modification
+          const waitlistsAffectedByModification = await tx.waitlist.findMany({
+            where: {
+              day: {
+                in: [...datesModifiedByAdmin].map((dateIsoStr) => {
+                  const jumpDateStart = new Date(dateIsoStr);
+                  jumpDateStart.setHours(0, 0, 0, 0);
+                  return jumpDateStart;
+                }),
+              },
+            },
+          });
+
+          // 3. Reopen waitlists for Booking Window jumps that were cancelled
+          const waitlistIdsForReopening = bwJumpsRemovedByAdmin
+            .map((jump) => {
               const jumpDateStart = new Date(jump.jumpDate);
               jumpDateStart.setHours(0, 0, 0, 0);
+              const waitlistForReopening = waitlistsAffectedByModification.find(
+                (waitlist) => {
+                  return waitlist.day.getTime() === jumpDateStart.getTime();
+                },
+              );
+              return waitlistForReopening?.id;
+            })
+            .filter((id) => id !== undefined);
 
-              // Find waitlist for this specific day
-              const waitlist = await tx.waitlist.findUnique({
-                where: { day: jumpDateStart },
-              });
+          const waitlistUpdatesForCanceled = await tx.waitlist.updateMany({
+            where: { id: { in: waitlistIdsForReopening } },
+            data: { status: "OPEN" },
+          });
 
-              if (
-                waitlist &&
-                (waitlist.status === "CLOSED" ||
-                  waitlist.status === "CONFIRMED")
-              ) {
-                // Reopen the waitlist when we cancel a jump
-                return tx.waitlist.update({
-                  where: { id: waitlist.id },
-                  data: { status: "OPEN" },
-                });
-              }
-              return null;
-            }),
-          );
-
-          // 3. Create new ScheduledJump records for dates that don't already exist
+          // 4. Create new ScheduledJump records for dates that don't already exist
           const newScheduledJumps = await Promise.all(
             datesForNewScheduledJumps.map(async (dateStr) => {
               return tx.scheduledJump.create({
@@ -211,27 +222,22 @@ export const adminBookingManagerRouter = createTRPCRouter({
           );
 
           // 4. Handle waitlist status for new jump dates
-          const waitlistUpdatesForNew = await Promise.all(
-            datesForNewScheduledJumps.map(async (dateStr) => {
-              // Normalize the date to start of day for comparison
-              const jumpDateStart = new Date(dateStr);
+          const waitlistIdsForClosing = datesForNewScheduledJumps
+            .map((date) => {
+              const jumpDateStart = new Date(date);
               jumpDateStart.setHours(0, 0, 0, 0);
-
-              // Find waitlist for this specific day
-              const waitlist = await tx.waitlist.findUnique({
-                where: { day: jumpDateStart },
-              });
-
-              if (waitlist && waitlist.status === "OPEN") {
-                // Close the waitlist when we schedule a jump
-                return tx.waitlist.update({
-                  where: { id: waitlist.id },
-                  data: { status: "CLOSED" },
-                });
-              }
-              return null;
-            }),
-          );
+              const waitlistToBeClosed = waitlistsAffectedByModification.find(
+                (wl) => {
+                  return wl.day.getTime() === jumpDateStart.getTime();
+                },
+              );
+              return waitlistToBeClosed?.id;
+            })
+            .filter((id) => id !== undefined);
+          const waitlistUpdatesForNew = await tx.waitlist.updateMany({
+            where: { id: { in: waitlistIdsForClosing } },
+            data: { status: "CLOSED" },
+          });
 
           // 5. Update the booking status to SCHEDULED (if it has any confirmed dates)
           const updatedBooking = await tx.bookingWindow.update({
@@ -252,9 +258,8 @@ export const adminBookingManagerRouter = createTRPCRouter({
             updatedBooking,
             newScheduledJumps,
             canceledJumps,
-            waitlistUpdatesForCanceled:
-              waitlistUpdatesForCanceled.filter(Boolean),
-            waitlistUpdatesForNew: waitlistUpdatesForNew.filter(Boolean),
+            waitlistUpdatesForCanceled,
+            waitlistUpdatesForNew,
           };
         });
 
@@ -270,18 +275,18 @@ export const adminBookingManagerRouter = createTRPCRouter({
           newScheduledJumps: result.newScheduledJumps,
           canceledJumps: result.canceledJumps,
           newDatesCount: datesForNewScheduledJumps.length,
-          canceledDatesCount: result.canceledJumps.length,
+          canceledDatesCount: result.canceledJumps.count,
           totalConfirmedJumps: confirmedScheduledJumps.length,
           waitlistUpdates: {
-            reopened: result.waitlistUpdatesForCanceled.length,
-            closed: result.waitlistUpdatesForNew.length,
+            reopened: result.waitlistUpdatesForCanceled.count,
+            closed: result.waitlistUpdatesForNew.count,
           },
           summary: {
             created: result.newScheduledJumps.length,
-            canceled: result.canceledJumps.length,
+            canceled: result.canceledJumps.count,
             totalConfirmed: confirmedScheduledJumps.length,
-            waitlistsReopened: result.waitlistUpdatesForCanceled.length,
-            waitlistsClosed: result.waitlistUpdatesForNew.length,
+            waitlistsReopened: result.waitlistUpdatesForCanceled.count,
+            waitlistsClosed: result.waitlistUpdatesForNew.count,
           },
         };
       } catch (error) {
