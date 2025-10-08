@@ -1,4 +1,4 @@
-import { BookingZone } from "@prisma/client";
+import { BookingZone, SchedulingMethod } from "@prisma/client";
 
 export enum BookingZoneString {
   DEFAULT = "Default",
@@ -30,5 +30,18 @@ export const convertBookingZoneDisplayStringToBookingZoneEnum = (
       return BookingZone.MAMMOTH_LAKES;
     default:
       return bookingZoneStr;
+  }
+};
+
+export const convertSchedulingMethodToDisplayString = (
+  schedulingMethod: SchedulingMethod,
+) => {
+  switch (schedulingMethod) {
+    case SchedulingMethod.BOOKING_WINDOW:
+      return "Booking Window";
+    case SchedulingMethod.WAITLIST:
+      return "Waitlist";
+    default:
+      return schedulingMethod;
   }
 };

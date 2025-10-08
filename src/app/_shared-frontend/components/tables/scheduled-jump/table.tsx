@@ -20,7 +20,10 @@ import { CalendarIcon, UserIcon } from "@heroicons/react/24/outline";
 import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
 import { getScheduledJumpStatusIcon } from "mydive/app/_shared-frontend/components/statusIcons";
 import { isDateInPast } from "mydive/app/(routes)/customer/booking-calendar/components/calendar/helpers";
-import { convertBookingZoneEnumToDisplayString } from "mydive/app/_shared-types/defaults";
+import {
+  convertBookingZoneEnumToDisplayString,
+  convertSchedulingMethodToDisplayString,
+} from "mydive/app/_shared-types/defaults";
 
 // Mobile Card Component
 const MobileScheduledJumpCard = ({
@@ -96,7 +99,9 @@ const MobileScheduledJumpCard = ({
           <div className="text-center">
             <div className="rounded-lg bg-blue-50 px-3 py-2 text-blue-700">
               <div className="text-sm font-semibold">
-                {scheduledJump.schedulingMethod}
+                {convertSchedulingMethodToDisplayString(
+                  scheduledJump.schedulingMethod,
+                )}
               </div>
             </div>
             <div className="mt-1 text-xs text-slate-500">Scheduling Method</div>
