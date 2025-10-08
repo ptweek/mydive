@@ -22,7 +22,7 @@ export default async function CustomerLayout({
         className="absolute inset-0 z-0 object-cover"
         style={{
           width: "100%",
-          height: "120vh",
+          height: "110vh",
           minHeight: "-webkit-fill-available",
         }}
       >
