@@ -67,8 +67,6 @@ export class BookingWindowService {
     const whereQuery = {
       ...(query?.ids !== undefined && { id: { in: query.ids } }),
     };
-    console.log("skip", (page - 1) * limit);
-    console.log("take", limit);
     return await this.db.bookingWindow.findMany({
       where: whereQuery,
       include: bookingWindowIncludeConfig,
