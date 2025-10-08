@@ -53,7 +53,7 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
       status: { notIn: ["CANCELED", "PENDING_DEPOSIT"] },
       windowStartDate: {
         gte: normalizeToUTCMidnight(
-          new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+          new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1),
         ),
         lt: normalizeToUTCMidnight(
           new Date(currentDate.getFullYear(), currentDate.getMonth() + 2, 1),
