@@ -28,7 +28,12 @@ export default async function ContactUsPage() {
         />
 
         {/* Content */}
-        <ContactUsClient />
+        <div
+          className="z-20 flex flex-col space-y-5 overflow-auto"
+          style={{ height: "calc(100vh - 80px)" }} // I don't love this but it works
+        >
+          <ContactUsClient />
+        </div>
       </main>
     </HydrateClient>
   );

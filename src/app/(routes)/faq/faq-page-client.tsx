@@ -151,7 +151,7 @@ export default function FAQPage() {
                 </button>
 
                 <div
-                  className={`overflow-hidden transition-all duration-300 ${
+                  className={`overflow-auto transition-all duration-300 ${
                     openQuestion === index
                       ? "max-h-96 opacity-100"
                       : "max-h-0 opacity-0"
