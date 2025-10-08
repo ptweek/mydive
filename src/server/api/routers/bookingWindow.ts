@@ -1,3 +1,4 @@
+import { BookingStatus, type Prisma } from "@prisma/client";
 import {
   createTRPCRouter,
   publicProcedure,
@@ -9,21 +10,30 @@ import z from "zod";
 export const bookingWindowRouter = createTRPCRouter({
   getBookings: publicProcedure
     .input(
-      z
-        .object({
-          status: z
-            .object({
-              notIn: z
-                .array(z.enum(["CANCELED", "PENDING_DEPOSIT"]))
-                .optional(),
-              not: z.enum(["CANCELED", "PENDING_DEPOSIT"]).optional(),
-            })
-            .optional(),
-        })
-        .optional(),
+      z.object({
+        status: z
+          .object({
+            notIn: z.array(z.nativeEnum(BookingStatus)),
+          })
+          .optional(),
+        windowStartDate: z
+          .object({
+            gte: z.date(),
+            lt: z.date(),
+          })
+          .optional(),
+      }),
     )
     .query(async ({ ctx, input }) => {
-      const whereClause = input?.status ? { status: input.status } : {};
+      const whereClause: Prisma.BookingWindowWhereInput = {
+        ...(input?.status && { status: { notIn: input.status.notIn } }),
+        ...(input?.windowStartDate && {
+          windowStartDate: {
+            gte: input.windowStartDate.gte,
+            lt: input.windowStartDate.lt,
+          },
+        }),
+      };
       const includeConfig = {
         scheduledJumpDates: {
           orderBy: {

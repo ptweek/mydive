@@ -37,7 +37,9 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
   const [showWaitlistForm, setShowWaitlistForm] = useState(false);
   const [newEvent, setNewEvent] = useState<CalendarEvent | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(
+    normalizeToUTCMidnight(new Date()),
+  );
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [selectedWaitlistDate, setSelectedWaitlistDate] = useState<Date | null>(
     null,
@@ -49,15 +51,22 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
   const { data, isLoading } = api.bookingWindow.getBookings.useQuery(
     {
       status: { notIn: ["CANCELED", "PENDING_DEPOSIT"] },
+      windowStartDate: {
+        gte: normalizeToUTCMidnight(
+          new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+        ),
+        lt: normalizeToUTCMidnight(
+          new Date(currentDate.getFullYear(), currentDate.getMonth() + 2, 1),
+        ),
+      },
     },
     {
-      refetchOnMount: true,
-      refetchOnWindowFocus: true,
-      staleTime: 0,
-      gcTime: 0,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
     },
   );
-
   const createBookingMutation =
     api.customerBookingManager.createBookingWindow.useMutation({
       onSuccess: () => {
@@ -312,6 +321,8 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
     },
     [events, isLoading, newEvent, userId],
   );
+
+  console.log("currentDate", currentDate);
 
   return (
     <div className="flex h-full flex-col gap-3">
