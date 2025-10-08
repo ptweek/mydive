@@ -25,6 +25,24 @@ export class WaitlistService {
       },
     });
   }
+  async findManyPopulated({
+    ids,
+    associatedBookingIds,
+  }: {
+    ids?: number[];
+    associatedBookingIds?: number[];
+  }): Promise<WaitlistWithPopulatedFields[]> {
+    const whereQuery = {
+      ...(ids !== undefined && { id: { in: ids } }),
+      ...(associatedBookingIds !== undefined && {
+        associatedBookingId: { in: associatedBookingIds },
+      }),
+    };
+    return await this.db.waitlist.findMany({
+      where: whereQuery,
+      include: waitlistIncludeConfig,
+    });
+  }
   async findByIdPopulated(
     id: number,
   ): Promise<WaitlistWithPopulatedFields | null> {

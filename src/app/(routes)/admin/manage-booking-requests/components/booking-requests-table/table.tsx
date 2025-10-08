@@ -14,8 +14,6 @@ import {
   TableCell,
   Button,
   Pagination,
-  Select,
-  SelectItem,
 } from "@nextui-org/react";
 import type { WaitlistStatus } from "@prisma/client";
 import { getBookingStatusIcon } from "mydive/app/_shared-frontend/components/statusIcons";
@@ -53,12 +51,26 @@ const AdminBookingRequestsTable = ({
   waitlists,
   scheduledJumps,
   adminUser,
+  isLoading,
+  numPages,
+  totalBookings,
+  page,
+  setPage,
+  rowsPerPage,
+  setRowsPerPage,
 }: {
   bookingWindows: BookingWindowPopulatedDto[];
   users: UserDto[];
   waitlists: WaitlistPopulatedDto[];
   scheduledJumps: ScheduledJumpDto[];
   adminUser: UserDto;
+  isLoading?: boolean;
+  totalBookings?: number;
+  numPages?: number;
+  page: number;
+  setPage: (page: number) => void;
+  rowsPerPage: number;
+  setRowsPerPage: (rowsPerPage: number) => void;
 }) => {
   const router = useRouter();
 
@@ -77,13 +89,9 @@ const AdminBookingRequestsTable = ({
   const [isWaitlistInfoModalOpen, setIsWaitlistInfoModalOpen] = useState(false);
 
   // Filter States
-  const [showCancelled, setShowCancelled] = useState(false);
-  const [showPast, setShowPast] = useState(false);
-  const [showPendingDeposit, setShowPendingDeposit] = useState(false);
-
-  // Pagination States
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [showCancelled, setShowCancelled] = useState(true);
+  const [showPast, setShowPast] = useState(true);
+  const [showPendingDeposit, setShowPendingDeposit] = useState(true);
 
   // Selections
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
@@ -174,18 +182,7 @@ const AdminBookingRequestsTable = ({
     return filtered;
   }, [showCancelled, showPast, showPendingDeposit, tableData]);
 
-  // Paginated data
-  const pages = Math.ceil(filteredBookings.length / rowsPerPage);
-  const paginatedBookings = useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-    return filteredBookings.slice(start, end);
-  }, [page, rowsPerPage, filteredBookings]);
-
-  // Reset to page 1 when filters change
-  useMemo(() => {
-    setPage(1);
-  }, [showCancelled, showPast, showPendingDeposit]);
+  console.log(`Filtered booking windows length ${filteredBookings.length}`);
 
   const hasWaitlistsWithActiveEntries = (waitlists: WaitlistPopulatedDto[]) => {
     return !!waitlists.find((waitlist) => {
@@ -209,7 +206,17 @@ const AdminBookingRequestsTable = ({
         setShowPendingDeposit={setShowPendingDeposit}
       />
 
-      <div className="overflow-auto">
+      <div className="relative overflow-auto">
+        {isLoading && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-3">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-slate-600"></div>
+              <span className="text-sm font-medium text-slate-600">
+                Loading bookings...
+              </span>
+            </div>
+          </div>
+        )}
         <Table
           aria-label="Booking table"
           removeWrapper
@@ -240,7 +247,7 @@ const AdminBookingRequestsTable = ({
           <TableBody
             emptyContent={<span className="text-black">No bookings found</span>}
           >
-            {paginatedBookings.map((booking) => {
+            {filteredBookings.map((booking) => {
               const user = users.find((user) => {
                 return user.userId === booking.bookedBy;
               });
@@ -504,20 +511,22 @@ const AdminBookingRequestsTable = ({
       </div>
       <div>
         <div className={`${styles.paginationCustom} mt-4 flex justify-center`}>
-          <Pagination
-            total={pages}
-            page={page}
-            onChange={setPage}
-            showControls
-            variant="light"
-            radius="sm"
-            classNames={{
-              wrapper: "gap-2",
-              item: "text-black/40 bg-transparent border-none",
-              prev: "text-black",
-              next: "text-black",
-            }}
-          />
+          {numPages && (
+            <Pagination
+              total={numPages}
+              page={page}
+              onChange={setPage}
+              showControls
+              variant="light"
+              radius="sm"
+              classNames={{
+                wrapper: "gap-2",
+                item: "text-black/40 bg-transparent border-none",
+                prev: "text-black",
+                next: "text-black",
+              }}
+            />
+          )}
         </div>
         <div className="mx-2 mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -538,9 +547,12 @@ const AdminBookingRequestsTable = ({
           </div>
           <span className="text-sm text-slate-600">
             Showing{" "}
-            {paginatedBookings.length > 0 ? (page - 1) * rowsPerPage + 1 : 0} to{" "}
-            {Math.min(page * rowsPerPage, filteredBookings.length)} of{" "}
-            {filteredBookings.length} bookings
+            {filteredBookings.length > 0 ? (page - 1) * rowsPerPage + 1 : 0} to{" "}
+            {Math.min(
+              page * rowsPerPage,
+              (page - 1) * rowsPerPage + filteredBookings.length,
+            )}{" "}
+            of {totalBookings} bookings
           </span>
         </div>
       </div>

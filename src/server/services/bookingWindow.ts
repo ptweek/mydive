@@ -55,6 +55,28 @@ export class BookingWindowService {
   async findMany({ ids }: { ids: number[] }): Promise<BookingWindow[]> {
     return await this.db.bookingWindow.findMany({ where: { id: { in: ids } } });
   }
+  async findManyPopulatedPaginated({
+    query,
+    limit,
+    page,
+  }: {
+    query?: { ids?: number[] };
+    limit: number;
+    page: number;
+  }): Promise<BookingWindowWithPopulatedFields[]> {
+    const whereQuery = {
+      ...(query?.ids !== undefined && { id: { in: query.ids } }),
+    };
+    console.log("skip", (page - 1) * limit);
+    console.log("take", limit);
+    return await this.db.bookingWindow.findMany({
+      where: whereQuery,
+      include: bookingWindowIncludeConfig,
+      orderBy: { windowStartDate: "asc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+  }
   async findById(id: number): Promise<BookingWindow | null> {
     return await this.db.bookingWindow.findUnique({
       where: {

@@ -322,8 +322,6 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
     [events, isLoading, newEvent, userId],
   );
 
-  console.log("currentDate", currentDate);
-
   return (
     <div className="flex h-full flex-col gap-3">
       <CalendarLegend />

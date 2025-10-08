@@ -59,6 +59,55 @@ export const adminBookingManagerRouter = createTRPCRouter({
 
     return { bookingWindows, waitlists, scheduledJumps, users: userData };
   }),
+  getBookingsCount: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.bookingWindow.count();
+  }),
+  getBookingReservationDataPaginated: protectedProcedure
+    .input(
+      z.object({
+        page: z.number(),
+        limit: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const client = await clerkClient();
+
+      /* First get paginated booking windows */
+      const bookingWindows =
+        await ctx.services.bookingWindow.findManyPopulatedPaginated({
+          limit: input.limit,
+          page: input.page,
+        });
+      console.log(`taking ${bookingWindows.length} booking windows`);
+      const bookingWindowIds = bookingWindows.map((bw) => {
+        return bw.id;
+      });
+
+      /* then fetch waitlists and scheduled jumps based off of those bookingwindow ids */
+      const waitlists = await ctx.services.waitlist.findManyPopulated({
+        associatedBookingIds: bookingWindowIds,
+      });
+      const scheduledJumps = await ctx.services.scheduledJump.findMany({
+        associatedBookingIds: bookingWindowIds,
+      });
+      // Collect user IDs from BOTH booking windows AND waitlist entries
+      const bookingUserIds = bookingWindows.map((b) => b.bookedBy);
+      const waitlistUserIds = waitlists.flatMap((waitlist) =>
+        waitlist.entries.map((entry) => entry.waitlistedUserId),
+      );
+
+      // Combine and deduplicate all user IDs
+      const allUserIds = [...new Set([...bookingUserIds, ...waitlistUserIds])];
+
+      // Fetch all users at once
+      const users = (await client.users.getUserList({ userId: allUserIds }))
+        .data;
+      const userData = users.map((user) => {
+        return clerkUserToDto(user);
+      });
+
+      return { bookingWindows, waitlists, scheduledJumps, users: userData };
+    }),
   modifyBookingDates: protectedProcedure
     .input(
       z.object({
