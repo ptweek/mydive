@@ -37,7 +37,7 @@ export default function AdminBookingRequestsClient({
       style={{ height: "calc(100vh - 250px)" }} // I don't love this but it works
     >
       <BookingRequestsStatsCards stats={stats} />
-      <div className="flex h-full max-h-full flex-1 flex-col overflow-auto bg-white/95 p-0 shadow-2xl backdrop-blur-sm">
+      <div className="flex h-full max-h-full flex-1 flex-col overflow-hidden bg-white/95 p-0 shadow-2xl backdrop-blur-sm">
         <AdminBookingRequestsTable
           bookingWindows={loadedBookingWindows}
           users={loadedUsers}
