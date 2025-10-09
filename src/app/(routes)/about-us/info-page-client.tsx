@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { GradualSpacing } from "mydive/app/_shared-frontend/components/animated-text/gradual-spacing";
+import { CardWithGridEllipsis } from "mydive/app/_shared-frontend/components/cards/ellipse-card";
 
 export default function InfoPage() {
   const router = useRouter();
@@ -22,15 +24,12 @@ export default function InfoPage() {
         />
 
         <div className="relative z-10 mx-auto max-w-6xl px-6 text-center">
-          <h1 className="mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-5xl leading-tight font-bold text-transparent md:text-7xl lg:text-8xl">
-            We Are Not Another Dropzone
-          </h1>
-
+          <GradualSpacing text="We Are Not Another Dropzone" />
           <p className="mx-auto mb-12 max-w-4xl text-xl leading-relaxed text-gray-300 md:text-2xl">
             This is skydiving as it was meant to be:{" "}
             <span className="font-semibold text-blue-400">raw</span>,
             <span className="font-semibold text-purple-400"> rare</span>,
-            <span className="font-semibold text-pink-400"> unforgettable</span>.
+            <span className="font-semibold text-pink-400"> unforgettable</span>
           </p>
         </div>
       </section>
