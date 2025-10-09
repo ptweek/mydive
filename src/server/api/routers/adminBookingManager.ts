@@ -59,9 +59,26 @@ export const adminBookingManagerRouter = createTRPCRouter({
 
     return { bookingWindows, waitlists, scheduledJumps, users: userData };
   }),
-  getBookingsCount: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.db.bookingWindow.count();
-  }),
+  getBookingsCount: protectedProcedure
+    .input(
+      z.object({
+        windowStartDate: z.object({
+          gte: z.date(),
+          lt: z.date(),
+        }),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const whereQuery = {
+        windowStartDate: {
+          gte: input.windowStartDate.gte,
+          lt: input.windowStartDate.lt,
+        },
+      };
+      return await ctx.db.bookingWindow.count({
+        where: whereQuery,
+      });
+    }),
   getBookingReservationDataPaginated: protectedProcedure
     .input(
       z.object({

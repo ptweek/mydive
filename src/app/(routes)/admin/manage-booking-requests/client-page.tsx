@@ -24,7 +24,25 @@ export default function AdminBookingRequestsClient({
   }, []);
 
   const { data: bookingsCount, isLoading: isLoadingBookingsCount } =
-    api.adminBookingManager.getBookingsCount.useQuery();
+    api.adminBookingManager.getBookingsCount.useQuery(
+      {
+        windowStartDate: {
+          gte: normalizeToUTCMidnight(
+            new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+          ),
+          lt: normalizeToUTCMidnight(
+            new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
+          ),
+        },
+      },
+      {
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        gcTime: 10 * 60 * 1000, // 10 minutes
+      },
+    );
+
   const { data, isLoading } =
     api.adminBookingManager.getBookingReservationDataPaginated.useQuery(
       {
