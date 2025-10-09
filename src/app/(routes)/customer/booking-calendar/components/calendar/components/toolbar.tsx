@@ -2,7 +2,6 @@ import clsx from "clsx";
 import moment from "moment";
 import { useState } from "react";
 import type { ToolbarProps } from "react-big-calendar";
-import type { CalendarEvent } from "../types";
 
 const generateDateOptions = (isAdmin?: boolean) => {
   const options = [];

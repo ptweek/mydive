@@ -281,7 +281,9 @@ const AdminBookingRequestsTable = ({
             </TableHeader>
             <TableBody
               emptyContent={
-                <span className="text-black">No bookings found</span>
+                <div className="flex min-h-[300px] min-w-full items-center justify-center text-center text-slate-700">
+                  <span>No bookings found</span>
+                </div>
               }
             >
               {filteredBookings.map((booking) => {
