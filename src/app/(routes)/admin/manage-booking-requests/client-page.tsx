@@ -5,6 +5,7 @@ import { calculateAdminBookingRequestsStats } from "mydive/app/_shared-frontend/
 import BookingRequestsStatsCards from "mydive/app/(routes)/admin/manage-booking-requests/components/admin-booking-requests-stats-cards";
 import AdminBookingRequestsTable from "./components/booking-requests-table/table";
 import { api } from "mydive/trpc/react";
+import { normalizeToUTCMidnight } from "mydive/server/utils/dates";
 
 export default function AdminBookingRequestsClient({
   adminUser,
@@ -13,6 +14,9 @@ export default function AdminBookingRequestsClient({
 }) {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [currentDate, setCurrentDate] = useState(
+    normalizeToUTCMidnight(new Date()),
+  );
 
   /* might need to do this on the backend now */
   const stats = useMemo(() => {
@@ -22,14 +26,29 @@ export default function AdminBookingRequestsClient({
   const { data: bookingsCount, isLoading: isLoadingBookingsCount } =
     api.adminBookingManager.getBookingsCount.useQuery();
   const { data, isLoading } =
-    api.adminBookingManager.getBookingReservationDataPaginated.useQuery({
-      page,
-      limit: rowsPerPage,
-    });
+    api.adminBookingManager.getBookingReservationDataPaginated.useQuery(
+      {
+        page,
+        limit: rowsPerPage,
+        windowStartDate: {
+          gte: normalizeToUTCMidnight(
+            new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+          ),
+          lt: normalizeToUTCMidnight(
+            new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
+          ),
+        },
+      },
+      {
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        gcTime: 10 * 60 * 1000, // 10 minutes
+      },
+    );
   const numPages = useMemo(() => {
     return bookingsCount ? Math.ceil(bookingsCount / rowsPerPage) : undefined;
   }, [bookingsCount, rowsPerPage]);
-  console.log("numPages", numPages);
 
   const {
     bookingWindows: loadedBookingWindows,
@@ -63,6 +82,8 @@ export default function AdminBookingRequestsClient({
           setPage={setPage}
           rowsPerPage={rowsPerPage}
           setRowsPerPage={setRowsPerPage}
+          currentDate={currentDate}
+          setCurrentDate={setCurrentDate}
         />
       </div>
     </div>

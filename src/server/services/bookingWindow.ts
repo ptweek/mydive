@@ -60,13 +60,26 @@ export class BookingWindowService {
     limit,
     page,
   }: {
-    query?: { ids?: number[] };
+    query?: {
+      ids?: number[];
+      windowStartDate?: {
+        gte?: Date;
+        lt?: Date;
+      };
+    };
     limit: number;
     page: number;
   }): Promise<BookingWindowWithPopulatedFields[]> {
     const whereQuery = {
       ...(query?.ids !== undefined && { id: { in: query.ids } }),
+      ...(query?.windowStartDate && {
+        windowStartDate: {
+          gte: query.windowStartDate.gte,
+          lt: query.windowStartDate.lt,
+        },
+      }),
     };
+
     return await this.db.bookingWindow.findMany({
       where: whereQuery,
       include: bookingWindowIncludeConfig,

@@ -67,6 +67,10 @@ export const adminBookingManagerRouter = createTRPCRouter({
       z.object({
         page: z.number(),
         limit: z.number(),
+        windowStartDate: z.object({
+          gte: z.date(),
+          lt: z.date(),
+        }),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -77,6 +81,12 @@ export const adminBookingManagerRouter = createTRPCRouter({
         await ctx.services.bookingWindow.findManyPopulatedPaginated({
           limit: input.limit,
           page: input.page,
+          query: {
+            windowStartDate: {
+              gte: input.windowStartDate.gte,
+              lt: input.windowStartDate.lt,
+            },
+          },
         });
       console.log(`taking ${bookingWindows.length} booking windows`);
       const bookingWindowIds = bookingWindows.map((bw) => {

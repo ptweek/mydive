@@ -62,6 +62,8 @@ const AdminBookingRequestsTable = ({
   setPage,
   rowsPerPage,
   setRowsPerPage,
+  currentDate,
+  setCurrentDate,
 }: {
   bookingWindows: BookingWindowPopulatedDto[];
   users: UserDto[];
@@ -75,6 +77,8 @@ const AdminBookingRequestsTable = ({
   setPage: (page: number) => void;
   rowsPerPage: number;
   setRowsPerPage: (rowsPerPage: number) => void;
+  currentDate: Date;
+  setCurrentDate: (date: Date) => void;
 }) => {
   const router = useRouter();
 
@@ -195,29 +199,28 @@ const AdminBookingRequestsTable = ({
       return hasActiveEntries;
     });
   };
-  const [toolbarDate, setDate] = useState(normalizeToUTCMidnight(new Date()));
   const localizer = momentLocalizer(moment);
 
   return (
     <>
       <CalendarToolbar
-        date={toolbarDate}
+        date={currentDate}
         onNavigate={(action, date) => {
           if (action === "NEXT") {
-            const nextMonth = toolbarDate;
+            const nextMonth = currentDate;
             nextMonth.setMonth(nextMonth.getMonth() + 1);
-            setDate(normalizeToUTCMidnight(nextMonth));
+            setCurrentDate(normalizeToUTCMidnight(nextMonth));
           } else if (action === "PREV") {
-            const prevMonth = toolbarDate;
+            const prevMonth = currentDate;
             prevMonth.setMonth(prevMonth.getMonth() - 1);
-            setDate(normalizeToUTCMidnight(prevMonth));
+            setCurrentDate(normalizeToUTCMidnight(prevMonth));
           } else if (action === "TODAY") {
-            setDate(normalizeToUTCMidnight(new Date()));
+            setCurrentDate(normalizeToUTCMidnight(new Date()));
           } else if (action === "DATE") {
             if (!date) {
               throw new Error("There should be a date here!");
             }
-            setDate(date);
+            setCurrentDate(date);
           }
         }}
         view="month"
