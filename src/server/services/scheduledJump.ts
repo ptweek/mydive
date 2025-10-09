@@ -27,6 +27,39 @@ export class ScheduledJumpService {
       where: whereQuery,
     });
   }
+  async findManyPaginated({
+    query,
+    limit,
+    page,
+  }: {
+    query?: {
+      ids?: number[];
+      jumpDate?: {
+        gte?: Date;
+        lt?: Date;
+      };
+    };
+    limit: number;
+    page: number;
+  }): Promise<ScheduledJump[]> {
+    const whereQuery = {
+      ...(query?.ids !== undefined && { id: { in: query.ids } }),
+      ...(query?.jumpDate && {
+        jumpDate: {
+          gte: query.jumpDate.gte,
+          lt: query.jumpDate.lt,
+        },
+      }),
+    };
+
+    return await this.db.scheduledJump.findMany({
+      where: whereQuery,
+      orderBy: { jumpDate: "asc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+  }
+
   async findAllByUserId(id: string): Promise<ScheduledJump[]> {
     return await this.db.scheduledJump.findMany({ where: { bookedBy: id } });
   }

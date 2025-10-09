@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, CardBody } from "@nextui-org/react";
+import { Card, CardBody } from "@nextui-org/react";
 import DashboardActionButton from "mydive/app/_shared-frontend/components/buttons/dashboard-action-buttons";
 import { useRouter } from "next/navigation";
 export default function AdminDashboardClient({

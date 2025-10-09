@@ -5,6 +5,26 @@ import { clerkUserToDto } from "./adminBookingManager";
 import z from "zod";
 
 export const adminScheduledJumpsManagerRouter = createTRPCRouter({
+  getScheduledJumpsCount: protectedProcedure
+    .input(
+      z.object({
+        jumpDate: z.object({
+          gte: z.date(),
+          lt: z.date(),
+        }),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const whereQuery = {
+        jumpDate: {
+          gte: input.jumpDate.gte,
+          lt: input.jumpDate.lt,
+        },
+      };
+      return await ctx.db.scheduledJump.count({
+        where: whereQuery,
+      });
+    }),
   getScheduledJumpsAndUsers: protectedProcedure.query(async ({ ctx }) => {
     const client = await clerkClient();
     const scheduledJumps = await ctx.services.scheduledJump.findAll();
@@ -21,10 +41,31 @@ export const adminScheduledJumpsManagerRouter = createTRPCRouter({
 
     return { scheduledJumps, users: userData };
   }),
-  getScheduledJumpsAndUsersPaginated: protectedProcedure.query(
-    async ({ ctx }) => {
+  getScheduledJumpsAndUsersPaginated: protectedProcedure
+    .input(
+      z.object({
+        page: z.number(),
+        limit: z.number(),
+        jumpDate: z.object({
+          gte: z.date(),
+          lt: z.date(),
+        }),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
       const client = await clerkClient();
-      const scheduledJumps = await ctx.services.scheduledJump.findAll();
+      const scheduledJumps = await ctx.services.scheduledJump.findManyPaginated(
+        {
+          limit: input.limit,
+          page: input.page,
+          query: {
+            jumpDate: {
+              gte: input.jumpDate.gte,
+              lt: input.jumpDate.lt,
+            },
+          },
+        },
+      );
 
       const allUserIds = scheduledJumps.map((scheduledJump) => {
         return scheduledJump.bookedBy;
@@ -38,8 +79,7 @@ export const adminScheduledJumpsManagerRouter = createTRPCRouter({
       });
 
       return { scheduledJumps, users: userData };
-    },
-  ),
+    }),
   completeScheduledJump: protectedProcedure
     .input(
       z.object({

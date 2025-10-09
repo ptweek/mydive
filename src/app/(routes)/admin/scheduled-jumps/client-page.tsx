@@ -1,32 +1,70 @@
 "use client";
 
-import type { ScheduledJump } from "@prisma/client";
 import ScheduledJumpsStatsCards from "mydive/app/_shared-frontend/components/cards/scheduled-jumps-stats-cards";
 import { computeScheduledJumpStats } from "mydive/app/_shared-frontend/utils/stats";
-import type { UserDto } from "mydive/server/api/routers/types";
 import { useMemo, useState } from "react";
 import ScheduledJumpsTable, {
   type PaginationProps,
 } from "mydive/app/_shared-frontend/components/tables/scheduled-jump/table";
 import { normalizeToUTCMidnight } from "mydive/server/utils/dates";
+import { api } from "mydive/trpc/react";
 
-export default function AdminScheduledJumpsClient({
-  scheduledJumps,
-  users,
-}: {
-  scheduledJumps: ScheduledJump[];
-  users: UserDto[];
-}) {
+export default function AdminScheduledJumpsClient() {
   const stats = useMemo(() => {
-    return computeScheduledJumpStats(scheduledJumps);
-  }, [scheduledJumps]);
+    return computeScheduledJumpStats([]);
+  }, []);
 
   const [currentDate, setCurrentDate] = useState(
     normalizeToUTCMidnight(new Date()),
   );
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const totalBookings = 0;
+
+  /* Queries here*/
+
+  const monthStart = normalizeToUTCMidnight(
+    new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+  );
+  const monthEnd = normalizeToUTCMidnight(
+    new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
+  );
+
+  const { data: scheduledJumpsCount, isLoading: isCountLoading } =
+    api.adminScheduledJumpsManager.getScheduledJumpsCount.useQuery(
+      {
+        jumpDate: {
+          gte: monthStart,
+          lt: monthEnd,
+        },
+      },
+      {
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        gcTime: 10 * 60 * 1000, // 10 minutes
+      },
+    );
+
+  const { data, isLoading: isRowsLoading } =
+    api.adminScheduledJumpsManager.getScheduledJumpsAndUsersPaginated.useQuery(
+      {
+        page,
+        limit: rowsPerPage,
+        jumpDate: {
+          gte: monthStart,
+          lt: monthEnd,
+        },
+      },
+      {
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        gcTime: 10 * 60 * 1000, // 10 minutes
+      },
+    );
+
+  const scheduledJumps = data?.scheduledJumps;
+  const users = data?.users;
 
   const paginationProps: PaginationProps = {
     currentDate,
@@ -35,7 +73,8 @@ export default function AdminScheduledJumpsClient({
     setPage,
     rowsPerPage,
     setRowsPerPage,
-    totalBookings,
+    totalBookings: scheduledJumpsCount,
+    isLoading: isRowsLoading || isCountLoading,
   };
   return (
     <div
@@ -45,7 +84,7 @@ export default function AdminScheduledJumpsClient({
       <ScheduledJumpsStatsCards stats={stats} />
       <div className="flex h-full max-h-full flex-1 flex-col overflow-auto bg-white/95 p-0 shadow-2xl backdrop-blur-sm">
         <ScheduledJumpsTable
-          scheduledJumps={scheduledJumps}
+          scheduledJumps={scheduledJumps ?? []}
           users={users}
           isAdminView={true}
           paginationProps={paginationProps}

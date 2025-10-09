@@ -139,7 +139,7 @@ export type PaginationProps = {
   rowsPerPage: number;
   setRowsPerPage: (rowsPerPage: number) => void;
   numPages?: number;
-  totalBookings: number;
+  totalBookings?: number;
 };
 
 export default function ScheduledJumpsTable({
@@ -183,8 +183,11 @@ export default function ScheduledJumpsTable({
     useState<ScheduledJump | null>(null);
 
   // Filters
-  const [showPast, setShowPast] = useState(false);
-  const [showCancelled, setShowCancelled] = useState(false);
+  // for admin, we always show past views, because we are showing in a booking table where we want to review the full month.
+  const [showPast, setShowPast] = useState(isAdminView ? true : false);
+  const [showCancelled, setShowCancelled] = useState(
+    isAdminView ? true : false,
+  );
 
   // click and close handlers
   const handleContactInfoClick = (user: UserDto) => {
@@ -238,7 +241,7 @@ export default function ScheduledJumpsTable({
   // useMemo hooks
   const convertedTableData = useMemo(() => {
     return scheduledJumps
-      .map((scheduledJump) => {
+      ?.map((scheduledJump) => {
         return {
           scheduledJump,
           user: users?.find((user) => {
@@ -257,16 +260,14 @@ export default function ScheduledJumpsTable({
   const tableData = useMemo(() => {
     let tableData = convertedTableData;
     if (!showPast) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      tableData = tableData.filter((row) => {
-        const jumpDate = new Date(row.scheduledJump.jumpDate);
-        jumpDate.setHours(0, 0, 0, 0);
+      const today = normalizeToUTCMidnight(new Date());
+      tableData = tableData?.filter((row) => {
+        const jumpDate = row.scheduledJump.jumpDate; // should be already normalized.
         return jumpDate >= today;
       });
     }
     if (!showCancelled) {
-      tableData = tableData.filter((row) => {
+      tableData = tableData?.filter((row) => {
         return row.scheduledJump.status !== "CANCELED";
       });
     }
@@ -276,33 +277,6 @@ export default function ScheduledJumpsTable({
   // Column Definitions
   const columns = getColumns(isAdminView);
 
-  if (tableData.length === 0) {
-    return (
-      <div className="flex h-full flex-col">
-        {/* Fixed Filters */}
-        <div className="flex-shrink-0">
-          <ScheduledJumpsTableFilters
-            numVisibleRows={tableData.length}
-            showPast={showPast}
-            setShowPast={setShowPast}
-            showCancelled={showCancelled}
-            setShowCancelled={setShowCancelled}
-          />
-        </div>
-
-        {/* Empty State */}
-        <div className="flex flex-1 flex-col items-center justify-center py-12 text-center">
-          <CalendarIcon className="mb-4 h-16 w-16 text-gray-300" />
-          <h3 className="mb-2 text-lg font-medium text-gray-900">
-            No scheduled jumps found
-          </h3>
-          <p className="text-gray-500">
-            Your scheduled jumps will appear here when they are booked.
-          </p>
-        </div>
-      </div>
-    );
-  }
   const localizer = momentLocalizer(moment);
 
   return (
@@ -342,7 +316,8 @@ export default function ScheduledJumpsTable({
       {/* Fixed Filters */}
       <div className="flex-shrink-0">
         <ScheduledJumpsTableFilters
-          numVisibleRows={tableData.length}
+          numVisibleRows={tableData?.length ?? 0}
+          isAdmin={isAdminView}
           showPast={showPast}
           setShowPast={setShowPast}
           showCancelled={showCancelled}
@@ -354,7 +329,7 @@ export default function ScheduledJumpsTable({
       <div className="min-h-0 flex-1 overflow-auto">
         {/* Mobile View - Cards */}
         <div className="block p-4 md:hidden">
-          {tableData.map((row) => {
+          {tableData?.map((row) => {
             const { scheduledJump, user } = row;
             return (
               <MobileScheduledJumpCard
@@ -411,7 +386,8 @@ export default function ScheduledJumpsTable({
           setRowsPerPage &&
           setPage &&
           page !== undefined &&
-          rowsPerPage && (
+          rowsPerPage &&
+          !isLoading && (
             <div>
               <div className="mt-4 flex justify-center">
                 {!isLoading && (
