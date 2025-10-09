@@ -234,7 +234,7 @@ export default function ScheduledJumpsTable({
       </div>
 
       {/* Desktop View - Table */}
-      <div className="relative overflow-auto">
+      <div className="sm: relative hidden overflow-auto">
         <Table
           aria-label="Scheduled Jumps Table"
           id="scheduled-jumps-table"
@@ -296,7 +296,7 @@ export default function ScheduledJumpsTable({
         page !== undefined &&
         rowsPerPage &&
         !isLoading && (
-          <div>
+          <div className="sm: hidden">
             <div
               className={`${styles.paginationCustom} mt-4 flex justify-center`}
             >
