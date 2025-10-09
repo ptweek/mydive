@@ -13,8 +13,6 @@ export default function AdminBookingRequestsClient({
 }) {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  console.log("page", page);
-  console.log("rowsPerPage", rowsPerPage);
 
   /* might need to do this on the backend now */
   const stats = useMemo(() => {

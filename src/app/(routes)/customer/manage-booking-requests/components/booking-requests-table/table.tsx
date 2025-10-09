@@ -280,10 +280,9 @@ export default function BookingRequestsTable({
           numVisibleRows={filteredBookings.length}
           showCancelled={showCancelled}
           setShowCancelled={setShowCancelled}
-          showPast={showPast}
-          setShowPast={setShowPast}
           showPendingDeposit={showPendingDeposit}
           setShowPendingDeposit={setShowPendingDeposit}
+          showPastOpts={{ showPast, setShowPast }}
         />
       </div>
       {/* Mobile View - Cards */}

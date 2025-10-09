@@ -44,6 +44,10 @@ import { ContactModal } from "mydive/app/_shared-frontend/components/modals/cont
 import AdminWaitlistInfoModal from "../modals/admin-waitlist-info-modal";
 import AdminScheduledJumpInfoModal from "../modals/admin-scheduled-jump-info-modal";
 import styles from "./style-overrides.module.css";
+import CalendarToolbar from "mydive/app/(routes)/customer/booking-calendar/components/calendar/components/toolbar";
+import { normalizeToUTCMidnight } from "mydive/server/utils/dates";
+import { momentLocalizer } from "react-big-calendar";
+import moment from "moment";
 
 const AdminBookingRequestsTable = ({
   bookingWindows,
@@ -191,15 +195,43 @@ const AdminBookingRequestsTable = ({
       return hasActiveEntries;
     });
   };
+  const [toolbarDate, setDate] = useState(normalizeToUTCMidnight(new Date()));
+  const localizer = momentLocalizer(moment);
 
   return (
     <>
+      <CalendarToolbar
+        date={toolbarDate}
+        onNavigate={(action, date) => {
+          if (action === "NEXT") {
+            const nextMonth = toolbarDate;
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            setDate(normalizeToUTCMidnight(nextMonth));
+          } else if (action === "PREV") {
+            const prevMonth = toolbarDate;
+            prevMonth.setMonth(prevMonth.getMonth() - 1);
+            setDate(normalizeToUTCMidnight(prevMonth));
+          } else if (action === "TODAY") {
+            setDate(normalizeToUTCMidnight(new Date()));
+          } else if (action === "DATE") {
+            if (!date) {
+              throw new Error("There should be a date here!");
+            }
+            setDate(date);
+          }
+        }}
+        view="month"
+        views={["month"]}
+        label="calendar"
+        localizer={localizer}
+        onView={() => {
+          /* empty */
+        }}
+      />
       <BookingRequestsTableFilters
         numVisibleRows={filteredBookings.length}
         showCancelled={showCancelled}
         setShowCancelled={setShowCancelled}
-        showPast={showPast}
-        setShowPast={setShowPast}
         showPendingDeposit={showPendingDeposit}
         setShowPendingDeposit={setShowPendingDeposit}
       />

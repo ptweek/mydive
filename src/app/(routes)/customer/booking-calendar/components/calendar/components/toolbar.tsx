@@ -8,7 +8,7 @@ const generateDateOptions = () => {
   const currentDate = new Date();
 
   // Generate options for next 36 months
-  for (let i = 0; i < 36; i++) {
+  for (let i = -12; i < 36; i++) {
     const optionDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth() + i,
@@ -61,7 +61,7 @@ export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
   );
 
   return (
-    <div className="mb-2 sm:mb-6">
+    <div className="sm:mb-6">
       {/* Compact Mobile Layout */}
       <div className="flex items-center justify-between gap-2 rounded-lg bg-white p-3 shadow-sm sm:hidden">
         {/* Prev Button */}
