@@ -1,0 +1,3 @@
+.paginationCustom :global([data-slot="item"][data-active="true"]) {
+  color: black !important;
+}

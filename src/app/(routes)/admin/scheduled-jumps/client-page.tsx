@@ -10,10 +10,6 @@ import { normalizeToUTCMidnight } from "mydive/server/utils/dates";
 import { api } from "mydive/trpc/react";
 
 export default function AdminScheduledJumpsClient() {
-  const stats = useMemo(() => {
-    return computeScheduledJumpStats([]);
-  }, []);
-
   const [currentDate, setCurrentDate] = useState(
     normalizeToUTCMidnight(new Date()),
   );
@@ -21,14 +17,12 @@ export default function AdminScheduledJumpsClient() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   /* Queries here*/
-
   const monthStart = normalizeToUTCMidnight(
     new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
   );
   const monthEnd = normalizeToUTCMidnight(
     new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
   );
-
   const { data: scheduledJumpsCount, isLoading: isCountLoading } =
     api.adminScheduledJumpsManager.getScheduledJumpsCount.useQuery(
       {
@@ -62,9 +56,18 @@ export default function AdminScheduledJumpsClient() {
         gcTime: 10 * 60 * 1000, // 10 minutes
       },
     );
-
   const scheduledJumps = data?.scheduledJumps;
   const users = data?.users;
+
+  const stats = useMemo(() => {
+    return computeScheduledJumpStats(scheduledJumps ?? []);
+  }, [scheduledJumps]);
+
+  const numPages = useMemo(() => {
+    return scheduledJumpsCount
+      ? Math.ceil(scheduledJumpsCount / rowsPerPage)
+      : undefined;
+  }, [scheduledJumpsCount, rowsPerPage]);
 
   const paginationProps: PaginationProps = {
     currentDate,
@@ -73,6 +76,7 @@ export default function AdminScheduledJumpsClient() {
     setPage,
     rowsPerPage,
     setRowsPerPage,
+    numPages,
     totalBookings: scheduledJumpsCount,
     isLoading: isRowsLoading || isCountLoading,
   };
@@ -82,7 +86,7 @@ export default function AdminScheduledJumpsClient() {
       style={{ height: "calc(100vh - 250px)" }} // I don't love this but it works
     >
       <ScheduledJumpsStatsCards stats={stats} />
-      <div className="flex h-full max-h-full flex-1 flex-col overflow-auto bg-white/95 p-0 shadow-2xl backdrop-blur-sm">
+      <div className="flex h-full max-h-full flex-1 flex-col overflow-hidden bg-white/95 p-0 shadow-2xl backdrop-blur-sm">
         <ScheduledJumpsTable
           scheduledJumps={scheduledJumps ?? []}
           users={users}

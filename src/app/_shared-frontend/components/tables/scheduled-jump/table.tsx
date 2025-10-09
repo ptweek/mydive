@@ -3,8 +3,6 @@ import {
   TableBody,
   TableHeader,
   TableRow,
-  Card,
-  CardBody,
   Pagination,
 } from "@nextui-org/react";
 import type { ScheduledJump } from "@prisma/client";
@@ -17,119 +15,13 @@ import ScheduledJumpsTableFilters from "./filters";
 import { getColumns, getTableCells } from "./table-helpers";
 import { useRouter } from "next/navigation";
 import { CompleteScheduleJumpConfirmationModal } from "../../modals/complete-confirmation/scheduled-jump";
-import { CalendarIcon, UserIcon } from "@heroicons/react/24/outline";
-import { formatDateShort } from "mydive/app/_shared-frontend/utils/booking";
-import { getScheduledJumpStatusIcon } from "mydive/app/_shared-frontend/components/statusIcons";
-import { isDateInPast } from "mydive/app/(routes)/customer/booking-calendar/components/calendar/helpers";
-import {
-  convertBookingZoneEnumToDisplayString,
-  convertSchedulingMethodToDisplayString,
-} from "mydive/app/_shared-types/defaults";
 import CalendarToolbar from "mydive/app/(routes)/customer/booking-calendar/components/calendar/components/toolbar";
 import { normalizeToUTCMidnight } from "mydive/server/utils/dates";
 import { momentLocalizer } from "react-big-calendar";
 import moment from "moment";
+import styles from "./style-overrides.module.css";
+import { MobileScheduledJumpCard } from "./mobile-scheduled-jump-card";
 
-// Mobile Card Component
-const MobileScheduledJumpCard = ({
-  scheduledJump,
-  user,
-  isAdminView,
-  handleJumpCancellationClick,
-  handleContactInfoClick,
-}: {
-  scheduledJump: ScheduledJump;
-  user?: UserDto;
-  isAdminView: boolean;
-  handleJumpCancellationClick: (scheduledJump: ScheduledJump) => void;
-  handleContactInfoClick: (user: UserDto) => void;
-  handleJumpCompletionClick: (scheduledJump: ScheduledJump) => void;
-}) => {
-  return (
-    <Card className="mb-3 shadow-sm transition-shadow duration-200 hover:shadow-md">
-      <CardBody className="p-4">
-        {/* Header with Date and Status */}
-        <div className="mb-3 flex items-start justify-between">
-          <div className="flex-1">
-            <div className="text-base font-semibold text-slate-800">
-              {formatDateShort(scheduledJump.jumpDate)}
-            </div>
-            <div className="mt-1 flex items-center gap-1 text-sm text-slate-500">
-              <CalendarIcon className="h-4 w-4" />
-              Jump Date
-            </div>
-          </div>
-
-          <div className="ml-4 flex items-center gap-3">
-            {getScheduledJumpStatusIcon(scheduledJump.status)}
-          </div>
-        </div>
-
-        {/* Customer Info (Admin View Only) */}
-        {isAdminView && user && (
-          <div className="mb-4 rounded-lg bg-gray-50 p-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <UserIcon className="h-4 w-4 text-gray-600" />
-                <span className="text-sm font-medium text-gray-800">
-                  {user.firstName} {user.lastName}
-                </span>
-              </div>
-              <button
-                onClick={() => handleContactInfoClick(user)}
-                className="text-xs font-medium text-blue-600 hover:text-blue-800"
-              >
-                Contact Info
-              </button>
-            </div>
-            <div className="mt-1 text-xs text-gray-600">{user.email}</div>
-          </div>
-        )}
-
-        {/* Details Grid */}
-        <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
-          {/* Jump Type */}
-          <div className="text-center">
-            <div className="rounded-lg bg-purple-50 px-3 py-2 text-purple-700">
-              <div className="text-sm font-semibold capitalize">
-                {convertBookingZoneEnumToDisplayString(
-                  scheduledJump.bookingZone,
-                )}
-              </div>
-            </div>
-            <div className="mt-1 text-xs text-slate-500">Booking Zone</div>
-          </div>
-
-          {/* Created Date */}
-          <div className="text-center">
-            <div className="rounded-lg bg-blue-50 px-3 py-2 text-blue-700">
-              <div className="text-sm font-semibold">
-                {convertSchedulingMethodToDisplayString(
-                  scheduledJump.schedulingMethod,
-                )}
-              </div>
-            </div>
-            <div className="mt-1 text-xs text-slate-500">Scheduling Method</div>
-          </div>
-        </div>
-
-        {/* Actions */}
-        {!isAdminView &&
-        scheduledJump.status === "SCHEDULED" &&
-        !isDateInPast(scheduledJump.jumpDate) ? (
-          <div className="mt-4 flex gap-2 border-t border-slate-100 pt-4">
-            <button
-              onClick={() => handleJumpCancellationClick(scheduledJump)}
-              className={`${isAdminView ? "flex-1" : "w-full"} rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700`}
-            >
-              Cancel Jump
-            </button>
-          </div>
-        ) : null}
-      </CardBody>
-    </Card>
-  );
-};
 export type PaginationProps = {
   currentDate: Date;
   setCurrentDate: (date: Date) => void;
@@ -185,9 +77,7 @@ export default function ScheduledJumpsTable({
   // Filters
   // for admin, we always show past views, because we are showing in a booking table where we want to review the full month.
   const [showPast, setShowPast] = useState(isAdminView ? true : false);
-  const [showCancelled, setShowCancelled] = useState(
-    isAdminView ? true : false,
-  );
+  const [showCancelled, setShowCancelled] = useState(false);
 
   // click and close handlers
   const handleContactInfoClick = (user: UserDto) => {
@@ -280,7 +170,7 @@ export default function ScheduledJumpsTable({
   const localizer = momentLocalizer(moment);
 
   return (
-    <div className="flex h-full flex-col p-0">
+    <>
       {isAdminView && currentDate && setCurrentDate && (
         <CalendarToolbar
           date={currentDate}
@@ -326,123 +216,140 @@ export default function ScheduledJumpsTable({
       </div>
 
       {/* Scrollable Content */}
-      <div className="min-h-0 flex-1 overflow-auto">
-        {/* Mobile View - Cards */}
-        <div className="block p-4 md:hidden">
-          {tableData?.map((row) => {
-            const { scheduledJump, user } = row;
-            return (
-              <MobileScheduledJumpCard
-                key={scheduledJump.id}
-                scheduledJump={scheduledJump}
-                user={user}
-                isAdminView={isAdminView}
-                handleJumpCancellationClick={handleJumpCancellationClick}
-                handleContactInfoClick={handleContactInfoClick}
-                handleJumpCompletionClick={handleJumpCompletionClick}
-              />
-            );
-          })}
-        </div>
-
-        {/* Desktop View - Table */}
-        <div className="hidden md:block">
-          <Table
-            aria-label="Scheduled Jumps Table"
-            id="scheduled-jumps-table"
-            removeWrapper
-            classNames={{
-              base: "min-h-0",
-              wrapper: "p-0 shadow-none bg-transparent",
-              table: "min-h-0",
-              thead: "bg-transparent",
-              tbody: "bg-transparent",
-              th: "bg-gradient-to-r from-slate-50 to-slate-100 text-slate-700 font-semibold text-xs uppercase tracking-wider border-b-2 border-slate-200 py-4 sticky top-0 z-10",
-              td: "py-4 px-6 border-b border-slate-100",
-              tr: "hover:bg-slate-50/50 transition-colors duration-200",
-            }}
-          >
-            <TableHeader>{columns}</TableHeader>
-            <TableBody emptyContent="No scheduled jumps found">
-              {tableData.map((row) => {
-                const { scheduledJump, user } = row;
-                return (
-                  <TableRow key={scheduledJump.id} className="group">
-                    {getTableCells(
-                      isAdminView,
-                      scheduledJump,
-                      handleJumpCancellationClick,
-                      user,
-                      handleContactInfoClick,
-                      handleJumpCompletionClick,
-                    )}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-        {isAdminView &&
-          setRowsPerPage &&
-          setPage &&
-          page !== undefined &&
-          rowsPerPage &&
-          !isLoading && (
-            <div>
-              <div className="mt-4 flex justify-center">
-                {!isLoading && (
-                  <Pagination
-                    total={numPages ?? 0}
-                    page={page}
-                    onChange={setPage}
-                    showControls
-                    variant="light"
-                    radius="sm"
-                    classNames={{
-                      wrapper: "gap-2",
-                      item: "text-black/40 bg-transparent border-none",
-                      prev: "text-black",
-                      next: "text-black",
-                    }}
-                  />
-                )}
-              </div>
-              <div className="mx-2 mb-4 flex items-center justify-between">
-                {!isLoading && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-600">
-                      Rows per page:
-                    </span>
-                    <select
-                      value={rowsPerPage}
-                      onChange={(e) => {
-                        setRowsPerPage(Number(e.target.value));
-                        setPage(1);
-                      }}
-                      className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm focus:border-slate-500 focus:ring-1 focus:ring-slate-500 focus:outline-none"
-                    >
-                      <option value="10">10</option>
-                      <option value="25">25</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                    </select>
-                  </div>
-                )}
-                {!isLoading && (
-                  <span className="text-sm text-slate-600">
-                    Showing{" "}
-                    {tableData.length > 0 ? (page - 1) * rowsPerPage + 1 : 0} to{" "}
-                    {Math.min(
-                      page * rowsPerPage,
-                      (page - 1) * rowsPerPage + tableData.length,
-                    )}{" "}
-                    of {totalBookings} bookings
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
+      <div className="block overflow-auto p-4 md:hidden">
+        {tableData?.map((row) => {
+          const { scheduledJump, user } = row;
+          return (
+            <MobileScheduledJumpCard
+              key={scheduledJump.id}
+              scheduledJump={scheduledJump}
+              user={user}
+              isAdminView={isAdminView}
+              handleJumpCancellationClick={handleJumpCancellationClick}
+              handleContactInfoClick={handleContactInfoClick}
+              handleJumpCompletionClick={handleJumpCompletionClick}
+            />
+          );
+        })}
       </div>
+
+      {/* Desktop View - Table */}
+      <div className="relative overflow-auto">
+        <Table
+          aria-label="Scheduled Jumps Table"
+          id="scheduled-jumps-table"
+          removeWrapper
+          suppressHydrationWarning
+          classNames={{
+            base: "bg-transparent min-h-[400px]",
+            wrapper: "p-0 shadow-none bg-transparent",
+            table: "min-h-full",
+            thead: "bg-transparent",
+            tbody: "bg-transparent min-h-[400px]",
+            th: "bg-gradient-to-r from-slate-50 to-slate-100 text-slate-700 font-semibold text-xs uppercase tracking-wider border-b-2 border-slate-200 py-4 sticky top-0 z-10",
+            td: "py-4 px-6 border-b border-slate-100",
+            tr: "hover:bg-slate-50/50 transition-colors duration-200",
+          }}
+        >
+          <TableHeader>{columns}</TableHeader>
+          <TableBody
+            emptyContent={
+              isLoading ? (
+                <div className="flex min-h-[300px] items-center justify-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-slate-600"></div>
+                    <span className="text-sm font-medium text-slate-600">
+                      Loading scheduled jumps...
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex min-h-[300px] min-w-full items-center justify-center text-center text-slate-700">
+                  <span>No scheduled jumps found</span>
+                </div>
+              )
+            }
+          >
+            {isLoading
+              ? []
+              : tableData.map((row) => {
+                  const { scheduledJump, user } = row;
+                  return (
+                    <TableRow key={scheduledJump.id} className="group">
+                      {getTableCells(
+                        isAdminView,
+                        scheduledJump,
+                        handleJumpCancellationClick,
+                        user,
+                        handleContactInfoClick,
+                        handleJumpCompletionClick,
+                      )}
+                    </TableRow>
+                  );
+                })}
+          </TableBody>
+        </Table>
+      </div>
+      {isAdminView &&
+        setRowsPerPage &&
+        setPage &&
+        page !== undefined &&
+        rowsPerPage &&
+        !isLoading && (
+          <div>
+            <div
+              className={`${styles.paginationCustom} mt-4 flex justify-center`}
+            >
+              {!isLoading && (
+                <Pagination
+                  total={numPages ?? 0}
+                  page={page}
+                  onChange={setPage}
+                  showControls
+                  variant="light"
+                  radius="sm"
+                  classNames={{
+                    wrapper: "gap-2",
+                    item: "text-black/40 bg-transparent border-none",
+                    prev: "text-black",
+                    next: "text-black",
+                  }}
+                />
+              )}
+            </div>
+            <div className="mx-2 mb-4 flex items-center justify-between">
+              {!isLoading && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-600">Rows per page:</span>
+                  <select
+                    value={rowsPerPage}
+                    onChange={(e) => {
+                      setRowsPerPage(Number(e.target.value));
+                      setPage(1);
+                    }}
+                    className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm focus:border-slate-500 focus:ring-1 focus:ring-slate-500 focus:outline-none"
+                  >
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                </div>
+              )}
+              {!isLoading && (
+                <span className="text-sm text-slate-600">
+                  Showing{" "}
+                  {tableData.length > 0 ? (page - 1) * rowsPerPage + 1 : 0} to{" "}
+                  {Math.min(
+                    page * rowsPerPage,
+                    (page - 1) * rowsPerPage + tableData.length,
+                  )}{" "}
+                  of {totalBookings} bookings
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
       {selectedUser && (
         <ContactModal
@@ -473,6 +380,6 @@ export default function ScheduledJumpsTable({
           }
         />
       )}
-    </div>
+    </>
   );
 }
