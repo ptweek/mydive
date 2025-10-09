@@ -224,6 +224,7 @@ const AdminBookingRequestsTable = ({
         views={["month"]}
         label="calendar"
         localizer={localizer}
+        isAdmin={true}
         onView={() => {
           /* empty */
         }}

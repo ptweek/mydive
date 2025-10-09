@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import { Calendar, momentLocalizer, type SlotInfo } from "react-big-calendar";
+import {
+  Calendar,
+  momentLocalizer,
+  type SlotInfo,
+  type ToolbarProps,
+} from "react-big-calendar";
 import moment from "moment";
 import CalendarToolbar from "./components/calendar/components/toolbar";
 import EventComponent from "./components/calendar/components/event";
@@ -346,7 +351,9 @@ export default function CalendarClientPage({ userId }: { userId: string }) {
               selectable={true}
               dayPropGetter={dayPropGetter}
               components={{
-                toolbar: CalendarToolbar,
+                toolbar: (props: ToolbarProps) => (
+                  <CalendarToolbar {...props} />
+                ),
                 event: EventComponent,
               }}
               views={["month"]}

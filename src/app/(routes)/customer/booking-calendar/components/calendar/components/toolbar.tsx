@@ -2,13 +2,16 @@ import clsx from "clsx";
 import moment from "moment";
 import { useState } from "react";
 import type { ToolbarProps } from "react-big-calendar";
+import type { CalendarEvent } from "../types";
 
-const generateDateOptions = () => {
+const generateDateOptions = (isAdmin?: boolean) => {
   const options = [];
   const currentDate = new Date();
 
+  const startingMonth = isAdmin ? -12 : 0;
+
   // Generate options for next 36 months
-  for (let i = -12; i < 36; i++) {
+  for (let i = startingMonth; i < 36; i++) {
     const optionDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth() + i,
@@ -24,9 +27,13 @@ const generateDateOptions = () => {
   return options;
 };
 
-export default function CalendarToolbar({ onNavigate, date }: ToolbarProps) {
+export default function CalendarToolbar({
+  onNavigate,
+  date,
+  isAdmin,
+}: ToolbarProps & { isAdmin?: boolean }) {
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
-  const dateOptions = generateDateOptions();
+  const dateOptions = generateDateOptions(isAdmin);
   const isFirstMonth = moment.utc(date).isSame(dateOptions[0]?.value, "month");
   const isLastMonth = moment
     .utc(date)
