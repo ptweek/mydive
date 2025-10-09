@@ -67,7 +67,7 @@ export default function CalendarToolbar({
   );
 
   return (
-    <div className="sm:mb-6">
+    <div>
       {/* Compact Mobile Layout */}
       <div className="flex items-center justify-between gap-2 rounded-lg bg-white p-3 shadow-sm sm:hidden">
         {/* Prev Button */}
