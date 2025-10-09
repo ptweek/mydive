@@ -5,6 +5,7 @@ import {
   TableRow,
   Card,
   CardBody,
+  Pagination,
 } from "@nextui-org/react";
 import type { ScheduledJump } from "@prisma/client";
 import type { UserDto } from "mydive/server/api/routers/types";
@@ -24,6 +25,10 @@ import {
   convertBookingZoneEnumToDisplayString,
   convertSchedulingMethodToDisplayString,
 } from "mydive/app/_shared-types/defaults";
+import CalendarToolbar from "mydive/app/(routes)/customer/booking-calendar/components/calendar/components/toolbar";
+import { normalizeToUTCMidnight } from "mydive/server/utils/dates";
+import { momentLocalizer } from "react-big-calendar";
+import moment from "moment";
 
 // Mobile Card Component
 const MobileScheduledJumpCard = ({
@@ -125,16 +130,41 @@ const MobileScheduledJumpCard = ({
     </Card>
   );
 };
+export type PaginationProps = {
+  currentDate: Date;
+  setCurrentDate: (date: Date) => void;
+  isLoading?: boolean;
+  page: number;
+  setPage: (page: number) => void;
+  rowsPerPage: number;
+  setRowsPerPage: (rowsPerPage: number) => void;
+  numPages?: number;
+  totalBookings: number;
+};
 
 export default function ScheduledJumpsTable({
   scheduledJumps,
   users,
   isAdminView = false,
+  paginationProps,
 }: {
   scheduledJumps: ScheduledJump[];
   users?: UserDto[];
   isAdminView?: boolean;
+  // we only paginate right now on admin view.
+  paginationProps?: PaginationProps;
 }) {
+  // extract admin-only pagination props
+  const currentDate = paginationProps?.currentDate;
+  const setCurrentDate = paginationProps?.setCurrentDate;
+  const isLoading = paginationProps?.isLoading;
+  const page = paginationProps?.page;
+  const setPage = paginationProps?.setPage;
+  const rowsPerPage = paginationProps?.rowsPerPage;
+  const setRowsPerPage = paginationProps?.setRowsPerPage;
+  const numPages = paginationProps?.numPages;
+  const totalBookings = paginationProps?.totalBookings;
+
   const router = useRouter();
   // modal states
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -273,9 +303,42 @@ export default function ScheduledJumpsTable({
       </div>
     );
   }
+  const localizer = momentLocalizer(moment);
 
   return (
     <div className="flex h-full flex-col p-0">
+      {isAdminView && currentDate && setCurrentDate && (
+        <CalendarToolbar
+          date={currentDate}
+          onNavigate={(action, date) => {
+            if (action === "NEXT") {
+              const nextMonth = currentDate;
+              nextMonth.setMonth(nextMonth.getMonth() + 1);
+              setCurrentDate(normalizeToUTCMidnight(nextMonth));
+            } else if (action === "PREV") {
+              const prevMonth = currentDate;
+              prevMonth.setMonth(prevMonth.getMonth() - 1);
+              setCurrentDate(normalizeToUTCMidnight(prevMonth));
+            } else if (action === "TODAY") {
+              setCurrentDate(normalizeToUTCMidnight(new Date()));
+            } else if (action === "DATE") {
+              if (!date) {
+                throw new Error("There should be a date here!");
+              }
+              setCurrentDate(date);
+            }
+          }}
+          view="month"
+          views={["month"]}
+          label="calendar"
+          localizer={localizer}
+          isAdmin={true}
+          onView={() => {
+            /* empty */
+          }}
+        />
+      )}
+
       {/* Fixed Filters */}
       <div className="flex-shrink-0">
         <ScheduledJumpsTableFilters
@@ -344,6 +407,65 @@ export default function ScheduledJumpsTable({
             </TableBody>
           </Table>
         </div>
+        {isAdminView &&
+          setRowsPerPage &&
+          setPage &&
+          page !== undefined &&
+          rowsPerPage && (
+            <div>
+              <div className="mt-4 flex justify-center">
+                {!isLoading && (
+                  <Pagination
+                    total={numPages ?? 0}
+                    page={page}
+                    onChange={setPage}
+                    showControls
+                    variant="light"
+                    radius="sm"
+                    classNames={{
+                      wrapper: "gap-2",
+                      item: "text-black/40 bg-transparent border-none",
+                      prev: "text-black",
+                      next: "text-black",
+                    }}
+                  />
+                )}
+              </div>
+              <div className="mx-2 mb-4 flex items-center justify-between">
+                {!isLoading && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-slate-600">
+                      Rows per page:
+                    </span>
+                    <select
+                      value={rowsPerPage}
+                      onChange={(e) => {
+                        setRowsPerPage(Number(e.target.value));
+                        setPage(1);
+                      }}
+                      className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm focus:border-slate-500 focus:ring-1 focus:ring-slate-500 focus:outline-none"
+                    >
+                      <option value="10">10</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                  </div>
+                )}
+                {!isLoading && (
+                  <span className="text-sm text-slate-600">
+                    Showing{" "}
+                    {tableData.length > 0 ? (page - 1) * rowsPerPage + 1 : 0} to{" "}
+                    {Math.min(
+                      page * rowsPerPage,
+                      (page - 1) * rowsPerPage + tableData.length,
+                    )}{" "}
+                    of {totalBookings} bookings
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
       </div>
 
       {selectedUser && (
