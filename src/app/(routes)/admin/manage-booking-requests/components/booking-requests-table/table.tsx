@@ -242,17 +242,6 @@ const AdminBookingRequestsTable = ({
       />
 
       <div className="relative overflow-auto">
-        {isLoading && (
-          <div className="relative flex min-h-[500px] items-center justify-center overflow-auto">
-            <div className="flex flex-col items-center gap-3">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-slate-600"></div>
-              <span className="text-sm font-medium text-slate-600">
-                Loading bookings...
-              </span>
-            </div>
-          </div>
-        )}
-
         <Table
           aria-label="Booking table"
           removeWrapper
@@ -283,270 +272,287 @@ const AdminBookingRequestsTable = ({
           </TableHeader>
           <TableBody
             emptyContent={
-              <div className="flex min-h-[300px] min-w-full items-center justify-center text-center text-slate-700">
-                <span>No bookings found</span>
-              </div>
+              isLoading ? (
+                <div className="flex min-h-[300px] items-center justify-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-slate-600"></div>
+                    <span className="text-sm font-medium text-slate-600">
+                      Loading bookings...
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex min-h-[300px] min-w-full items-center justify-center text-center text-slate-700">
+                  <span>No bookings found</span>
+                </div>
+              )
             }
           >
-            {filteredBookings.map((booking) => {
-              const user = users.find((user) => {
-                return user.userId === booking.bookedBy;
-              });
-              const status = booking.status;
-              return (
-                <TableRow key={booking.id} className="group">
-                  <TableCell>
-                    <div className="flex flex-col space-y-1">
-                      <div className="mt-2 ml-5">
-                        <div className="text-sm font-semibold text-slate-700">
-                          {formatDateShort(booking.windowStartDate)} -{" "}
-                          {formatDateShort(booking.windowEndDate)}
-                        </div>
-                        <div className="mt-1 flex items-center gap-1 text-xs text-slate-500">
-                          <CalendarIcon className="h-3 w-3" />
-                          3-day booking window
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {user ? (
-                      <Button
-                        variant="ghost"
-                        className="h-auto justify-start p-2 text-left transition-colors duration-200 hover:bg-blue-50"
-                        onPress={() => handleContactClick(user)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="rounded-full bg-blue-100 p-1">
-                            <UserIcon className="h-3 w-3 text-blue-600" />
-                          </div>
-                          <div>
-                            <div className="font-medium text-slate-700">
-                              {user.firstName} {user.lastName}
+            {isLoading
+              ? []
+              : filteredBookings.map((booking) => {
+                  const user = users.find((user) => {
+                    return user.userId === booking.bookedBy;
+                  });
+                  const status = booking.status;
+                  return (
+                    <TableRow key={booking.id} className="group">
+                      <TableCell>
+                        <div className="flex flex-col space-y-1">
+                          <div className="mt-2 ml-5">
+                            <div className="text-sm font-semibold text-slate-700">
+                              {formatDateShort(booking.windowStartDate)} -{" "}
+                              {formatDateShort(booking.windowEndDate)}
                             </div>
-                            <div className="text-xs text-slate-500">
-                              Click for contact info
+                            <div className="mt-1 flex items-center gap-1 text-xs text-slate-500">
+                              <CalendarIcon className="h-3 w-3" />
+                              3-day booking window
                             </div>
                           </div>
                         </div>
-                      </Button>
-                    ) : (
-                      <div className="text-slate-500 italic">
-                        User not found
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex justify-center text-black">
-                      {getBookingStatusIcon(status)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-center">
-                      <div className="rounded-full border border-purple-200 bg-gradient-to-r from-purple-100 to-pink-100 p-3">
-                        <div className="flex items-center gap-2">
-                          <UsersIcon className="h-4 w-4 text-purple-600" />
-                          <span className="text-lg font-bold text-purple-800">
-                            {booking.numJumpers}
-                          </span>
+                      </TableCell>
+                      <TableCell>
+                        {user ? (
+                          <Button
+                            variant="ghost"
+                            className="h-auto justify-start p-2 text-left transition-colors duration-200 hover:bg-blue-50"
+                            onPress={() => handleContactClick(user)}
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className="rounded-full bg-blue-100 p-1">
+                                <UserIcon className="h-3 w-3 text-blue-600" />
+                              </div>
+                              <div>
+                                <div className="font-medium text-slate-700">
+                                  {user.firstName} {user.lastName}
+                                </div>
+                                <div className="text-xs text-slate-500">
+                                  Click for contact info
+                                </div>
+                              </div>
+                            </div>
+                          </Button>
+                        ) : (
+                          <div className="text-slate-500 italic">
+                            User not found
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center text-black">
+                          {getBookingStatusIcon(status)}
                         </div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex justify-center">
-                      <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-center">
-                        <div className="text-sm font-semibold text-blue-900">
-                          {formatDateShort(booking.idealizedJumpDate)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-center">
+                          <div className="rounded-full border border-purple-200 bg-gradient-to-r from-purple-100 to-pink-100 p-3">
+                            <div className="flex items-center gap-2">
+                              <UsersIcon className="h-4 w-4 text-purple-600" />
+                              <span className="text-lg font-bold text-purple-800">
+                                {booking.numJumpers}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-xs text-blue-600">Preferred</div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex justify-center">
-                      {getActiveScheduledJumps(
-                        booking.scheduledJumpDates,
-                        "BOOKING_WINDOW",
-                      ).length > 0 ? (
-                        <div className="space-y-1">
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center">
+                          <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-center">
+                            <div className="text-sm font-semibold text-blue-900">
+                              {formatDateShort(booking.idealizedJumpDate)}
+                            </div>
+                            <div className="text-xs text-blue-600">
+                              Preferred
+                            </div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center">
                           {getActiveScheduledJumps(
                             booking.scheduledJumpDates,
                             "BOOKING_WINDOW",
-                          )
-                            .sort(
-                              (a, b) =>
-                                a.jumpDate.getTime() - b.jumpDate.getTime(),
-                            )
-                            .map((scheduledJump, idx) => (
-                              <div
-                                key={`${idx}-${scheduledJump.jumpDate.toISOString()}`}
-                                className="flex cursor-pointer items-center gap-2 rounded-md bg-green-50 px-2 py-1 text-sm"
-                                onClick={() => {
-                                  setSelectedJumpDate(scheduledJump);
-                                  setIsScheduledJumpDateInfoModalOpen(true);
-                                }}
-                              >
-                                <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                                <span className="font-medium text-green-800">
-                                  {formatDateShort(scheduledJump.jumpDate)}
-                                </span>
-                              </div>
-                            ))}
-                        </div>
-                      ) : (
-                        <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <ClockIcon className="h-4 w-4 text-gray-400" />
-                            <span className="text-sm font-medium text-gray-500">
-                              Pending
-                            </span>
-                          </div>
-                          <div className="mt-1 text-xs text-gray-400">
-                            Awaiting confirmation
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex justify-center">
-                      <div className="text-center">
-                        <div className="text-sm font-medium text-slate-700">
-                          {formatDateShort(booking.createdAt)}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {new Date(booking.createdAt).toLocaleDateString(
-                            "en-US",
-                            {
-                              weekday: "short",
-                            },
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex justify-center">
-                      {hasWaitlistsWithActiveEntries(booking.waitlists) ? (
-                        <div className="space-y-1">
-                          {booking.waitlists
-                            .filter((waitlist) => {
-                              return waitlist.entries.find((entry) => {
-                                return entry.status !== "CANCELED";
-                              });
-                            })
-                            .sort((a, b) => {
-                              return a.day.getDate() - b.day.getDate();
-                            })
-                            .map((waitlist, idx) => {
-                              const getStatusColors = (
-                                status: WaitlistStatus,
-                              ) => {
-                                switch (status) {
-                                  case "OPEN":
-                                    return {
-                                      bg: "bg-yellow-50",
-                                      icon: "text-yellow-600",
-                                      text: "text-yellow-800",
-                                    };
-                                  case "CONFIRMED":
-                                    return {
-                                      bg: "bg-green-50",
-                                      icon: "text-green-600",
-                                      text: "text-green-800",
-                                    };
-                                  case "CLOSED":
-                                    return {
-                                      bg: "bg-red-50",
-                                      icon: "text-red-600",
-                                      text: "text-red-800",
-                                    };
-                                  default:
-                                    return {
-                                      bg: "bg-gray-50",
-                                      icon: "text-gray-600",
-                                      text: "text-gray-800",
-                                    };
-                                }
-                              };
-
-                              const colors = getStatusColors(waitlist.status);
-                              const activeScheduledJump =
-                                getActiveScheduledJumpFromPopulatedWaitlist(
-                                  waitlist,
-                                );
-
-                              return (
-                                <div
-                                  key={`${idx}-${waitlist.day.toISOString()}`}
-                                  className={`flex items-center gap-2 rounded-md ${colors.bg} px-2 py-1 text-sm`}
-                                >
-                                  <CheckCircleIcon
-                                    className={`h-4 w-4 ${colors.icon}`}
-                                  />
-                                  <span
-                                    className={`font-medium ${colors.text} cursor-pointer`}
+                          ).length > 0 ? (
+                            <div className="space-y-1">
+                              {getActiveScheduledJumps(
+                                booking.scheduledJumpDates,
+                                "BOOKING_WINDOW",
+                              )
+                                .sort(
+                                  (a, b) =>
+                                    a.jumpDate.getTime() - b.jumpDate.getTime(),
+                                )
+                                .map((scheduledJump, idx) => (
+                                  <div
+                                    key={`${idx}-${scheduledJump.jumpDate.toISOString()}`}
+                                    className="flex cursor-pointer items-center gap-2 rounded-md bg-green-50 px-2 py-1 text-sm"
                                     onClick={() => {
-                                      if (waitlist.status === "CLOSED") {
-                                        return;
-                                      }
-                                      if (waitlist.status !== "CONFIRMED") {
-                                        setSelectedWaitlist(waitlist);
-                                        setIsWaitlistInfoModalOpen(true);
-                                      } else {
-                                        if (!activeScheduledJump) {
-                                          throw Error(
-                                            "No active scheduled jump found for confirmed waitlist!",
-                                          );
-                                        }
-                                        setIsScheduledJumpDateInfoModalOpen(
-                                          true,
-                                        );
-                                        setSelectedJumpDate(
-                                          activeScheduledJump,
-                                        );
-                                      }
+                                      setSelectedJumpDate(scheduledJump);
+                                      setIsScheduledJumpDateInfoModalOpen(true);
                                     }}
                                   >
-                                    {formatDateShort(waitlist.day)}
-                                  </span>
-                                </div>
-                              );
-                            })}
+                                    <CheckCircleIcon className="h-4 w-4 text-green-600" />
+                                    <span className="font-medium text-green-800">
+                                      {formatDateShort(scheduledJump.jumpDate)}
+                                    </span>
+                                  </div>
+                                ))}
+                            </div>
+                          ) : (
+                            <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">
+                              <div className="flex items-center justify-center gap-2">
+                                <ClockIcon className="h-4 w-4 text-gray-400" />
+                                <span className="text-sm font-medium text-gray-500">
+                                  Pending
+                                </span>
+                              </div>
+                              <div className="mt-1 text-xs text-gray-400">
+                                Awaiting confirmation
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      ) : (
-                        <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <ClockIcon className="h-4 w-4 text-gray-400" />
-                            <span className="text-sm font-medium text-gray-500">
-                              No waitlist signups
-                            </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center">
+                          <div className="text-center">
+                            <div className="text-sm font-medium text-slate-700">
+                              {formatDateShort(booking.createdAt)}
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              {new Date(booking.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  weekday: "short",
+                                },
+                              )}
+                            </div>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  </TableCell>
+                      </TableCell>
 
-                  <TableCell>
-                    {!(booking.status === "CANCELED") && (
-                      <div className="z-0 flex justify-center">
-                        <BookingActionsDropdown
-                          booking={booking}
-                          onModifyBookingWindowClick={() =>
-                            handleModifyBookingWindowClick(booking)
-                          }
-                          onCancelBookingWindowClick={() =>
-                            handleCancelBookingWindowClick(booking)
-                          }
-                        />
-                      </div>
-                    )}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                      <TableCell>
+                        <div className="flex justify-center">
+                          {hasWaitlistsWithActiveEntries(booking.waitlists) ? (
+                            <div className="space-y-1">
+                              {booking.waitlists
+                                .filter((waitlist) => {
+                                  return waitlist.entries.find((entry) => {
+                                    return entry.status !== "CANCELED";
+                                  });
+                                })
+                                .sort((a, b) => {
+                                  return a.day.getDate() - b.day.getDate();
+                                })
+                                .map((waitlist, idx) => {
+                                  const getStatusColors = (
+                                    status: WaitlistStatus,
+                                  ) => {
+                                    switch (status) {
+                                      case "OPEN":
+                                        return {
+                                          bg: "bg-yellow-50",
+                                          icon: "text-yellow-600",
+                                          text: "text-yellow-800",
+                                        };
+                                      case "CONFIRMED":
+                                        return {
+                                          bg: "bg-green-50",
+                                          icon: "text-green-600",
+                                          text: "text-green-800",
+                                        };
+                                      case "CLOSED":
+                                        return {
+                                          bg: "bg-red-50",
+                                          icon: "text-red-600",
+                                          text: "text-red-800",
+                                        };
+                                      default:
+                                        return {
+                                          bg: "bg-gray-50",
+                                          icon: "text-gray-600",
+                                          text: "text-gray-800",
+                                        };
+                                    }
+                                  };
+
+                                  const colors = getStatusColors(
+                                    waitlist.status,
+                                  );
+                                  const activeScheduledJump =
+                                    getActiveScheduledJumpFromPopulatedWaitlist(
+                                      waitlist,
+                                    );
+
+                                  return (
+                                    <div
+                                      key={`${idx}-${waitlist.day.toISOString()}`}
+                                      className={`flex items-center gap-2 rounded-md ${colors.bg} px-2 py-1 text-sm`}
+                                    >
+                                      <CheckCircleIcon
+                                        className={`h-4 w-4 ${colors.icon}`}
+                                      />
+                                      <span
+                                        className={`font-medium ${colors.text} cursor-pointer`}
+                                        onClick={() => {
+                                          if (waitlist.status === "CLOSED") {
+                                            return;
+                                          }
+                                          if (waitlist.status !== "CONFIRMED") {
+                                            setSelectedWaitlist(waitlist);
+                                            setIsWaitlistInfoModalOpen(true);
+                                          } else {
+                                            if (!activeScheduledJump) {
+                                              throw Error(
+                                                "No active scheduled jump found for confirmed waitlist!",
+                                              );
+                                            }
+                                            setIsScheduledJumpDateInfoModalOpen(
+                                              true,
+                                            );
+                                            setSelectedJumpDate(
+                                              activeScheduledJump,
+                                            );
+                                          }
+                                        }}
+                                      >
+                                        {formatDateShort(waitlist.day)}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                          ) : (
+                            <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center">
+                              <div className="flex items-center justify-center gap-2">
+                                <ClockIcon className="h-4 w-4 text-gray-400" />
+                                <span className="text-sm font-medium text-gray-500">
+                                  No waitlist signups
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        {!(booking.status === "CANCELED") && (
+                          <div className="z-0 flex justify-center">
+                            <BookingActionsDropdown
+                              booking={booking}
+                              onModifyBookingWindowClick={() =>
+                                handleModifyBookingWindowClick(booking)
+                              }
+                              onCancelBookingWindowClick={() =>
+                                handleCancelBookingWindowClick(booking)
+                              }
+                            />
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
           </TableBody>
         </Table>
       </div>
@@ -568,7 +574,7 @@ const AdminBookingRequestsTable = ({
               }}
             />
           ) : (
-            <LoadingThreeDotsJumping />
+            <></>
           )}
         </div>
         <div className="mx-2 mb-4 flex items-center justify-between">
