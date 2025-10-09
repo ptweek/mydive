@@ -256,6 +256,7 @@ const AdminBookingRequestsTable = ({
         <Table
           aria-label="Booking table"
           removeWrapper
+          suppressHydrationWarning
           classNames={{
             base: "bg-transparent min-h-[400px]",
             wrapper: "p-0 shadow-none bg-transparent",
@@ -551,9 +552,9 @@ const AdminBookingRequestsTable = ({
       </div>
       <div>
         <div className={`${styles.paginationCustom} mt-4 flex justify-center`}>
-          {numPages ? (
+          {!isLoading ? (
             <Pagination
-              total={numPages}
+              total={numPages ?? 0}
               page={page}
               onChange={setPage}
               showControls
@@ -567,11 +568,11 @@ const AdminBookingRequestsTable = ({
               }}
             />
           ) : (
-            <></>
+            <LoadingThreeDotsJumping />
           )}
         </div>
         <div className="mx-2 mb-4 flex items-center justify-between">
-          {numPages ? (
+          {!isLoading ? (
             <div className="flex items-center gap-2">
               <span className="text-sm text-slate-600">Rows per page:</span>
               <select
@@ -589,9 +590,9 @@ const AdminBookingRequestsTable = ({
               </select>
             </div>
           ) : (
-            <LoadingThreeDotsJumping />
+            <></>
           )}
-          {numPages ? (
+          {!isLoading ? (
             <span className="text-sm text-slate-600">
               Showing{" "}
               {filteredBookings.length > 0 ? (page - 1) * rowsPerPage + 1 : 0}{" "}
