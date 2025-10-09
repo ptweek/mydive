@@ -48,6 +48,7 @@ import CalendarToolbar from "mydive/app/(routes)/customer/booking-calendar/compo
 import { normalizeToUTCMidnight } from "mydive/server/utils/dates";
 import { momentLocalizer } from "react-big-calendar";
 import moment from "moment";
+import LoadingThreeDotsJumping from "mydive/app/_shared-frontend/components/loading/three-dots-jumping";
 
 const AdminBookingRequestsTable = ({
   bookingWindows,
@@ -550,7 +551,7 @@ const AdminBookingRequestsTable = ({
       </div>
       <div>
         <div className={`${styles.paginationCustom} mt-4 flex justify-center`}>
-          {numPages && (
+          {numPages ? (
             <Pagination
               total={numPages}
               page={page}
@@ -565,26 +566,32 @@ const AdminBookingRequestsTable = ({
                 next: "text-black",
               }}
             />
+          ) : (
+            <></>
           )}
         </div>
         <div className="mx-2 mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-600">Rows per page:</span>
-            <select
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setPage(1);
-              }}
-              className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm focus:border-slate-500 focus:ring-1 focus:ring-slate-500 focus:outline-none"
-            >
-              <option value="10">10</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-            </select>
-          </div>
-          {numPages && (
+          {numPages ? (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-600">Rows per page:</span>
+              <select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setRowsPerPage(Number(e.target.value));
+                  setPage(1);
+                }}
+                className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm focus:border-slate-500 focus:ring-1 focus:ring-slate-500 focus:outline-none"
+              >
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+          ) : (
+            <LoadingThreeDotsJumping />
+          )}
+          {numPages ? (
             <span className="text-sm text-slate-600">
               Showing{" "}
               {filteredBookings.length > 0 ? (page - 1) * rowsPerPage + 1 : 0}{" "}
@@ -595,6 +602,8 @@ const AdminBookingRequestsTable = ({
               )}{" "}
               of {totalBookings} bookings
             </span>
+          ) : (
+            <></>
           )}
         </div>
       </div>
