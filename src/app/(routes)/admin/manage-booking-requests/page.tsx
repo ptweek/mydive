@@ -1,4 +1,4 @@
-import { api, HydrateClient } from "mydive/trpc/server";
+import { HydrateClient } from "mydive/trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import AdminBookingsClient from "./client-page";
@@ -11,8 +11,7 @@ export default async function AdminManageBookingRequestsPage() {
     redirect("/");
   }
   const adminUserDto = clerkUserToDto(user);
-  const { bookingWindows, waitlists, scheduledJumps, users } =
-    await api.adminBookingManager.getBookingReservationData();
+
   return (
     <HydrateClient>
       <div
@@ -24,13 +23,7 @@ export default async function AdminManageBookingRequestsPage() {
           title={"Admin Booking Requests Manager"}
           description={"Manage and track all your requests"}
         />
-        <AdminBookingsClient
-          loadedBookingWindows={bookingWindows}
-          loadedWaitlists={waitlists}
-          loadedScheduledJumps={scheduledJumps}
-          loadedUsers={users}
-          adminUser={adminUserDto}
-        />
+        <AdminBookingsClient adminUser={adminUserDto} />
       </div>
     </HydrateClient>
   );
