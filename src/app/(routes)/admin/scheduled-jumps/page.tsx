@@ -12,8 +12,6 @@ export default async function AdminScheduledJumpsManager() {
   if (!user) {
     redirect("/");
   }
-  const { scheduledJumps, users } =
-    await api.adminScheduledJumpsManager.getScheduledJumpsAndUsers();
   return (
     <HydrateClient>
       <div
@@ -25,7 +23,7 @@ export default async function AdminScheduledJumpsManager() {
           title="Scheduled Jumps Manager"
           description="See all of your scheduled jumps in one place"
         />
-        <ScheduledJumpsClient scheduledJumps={scheduledJumps} users={users} />
+        <ScheduledJumpsClient />
       </div>
     </HydrateClient>
   );
