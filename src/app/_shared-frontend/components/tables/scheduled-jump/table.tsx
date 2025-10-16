@@ -21,6 +21,7 @@ import { momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import styles from "./style-overrides.module.css";
 import { MobileScheduledJumpCard } from "./mobile-scheduled-jump-card";
+import { table } from "console";
 
 export type PaginationProps = {
   currentDate: Date;
@@ -163,6 +164,7 @@ export default function ScheduledJumpsTable({
     }
     return tableData;
   }, [convertedTableData, showPast, showCancelled]);
+  console.log("tableData", tableData);
 
   // Column Definitions
   const columns = getColumns(isAdminView);
@@ -234,7 +236,7 @@ export default function ScheduledJumpsTable({
       </div>
 
       {/* Desktop View - Table */}
-      <div className="sm: relative hidden overflow-auto">
+      <div className="relative hidden overflow-auto sm:block">
         <Table
           aria-label="Scheduled Jumps Table"
           id="scheduled-jumps-table"
