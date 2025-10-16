@@ -313,31 +313,34 @@ export default function EventCreationModal({
                 )}
               </div>
             </div>
-
-            <DropZoneDropdown
-              value={
-                (newEvent.bookingZone
-                  ? convertBookingZoneEnumToDisplayString(newEvent.bookingZone)
-                  : undefined) ??
-                convertBookingZoneEnumToDisplayString(BookingZone.DEFAULT)
-              }
-              onChange={(value) => {
-                const bookingZone =
-                  convertBookingZoneDisplayStringToBookingZoneEnum(
-                    value as BookingZoneString,
-                  );
-                if (!bookingZone) {
-                  throw new Error("Booking Zone could not be parsed!");
+            <div>
+              <DropZoneDropdown
+                value={
+                  (newEvent.bookingZone
+                    ? convertBookingZoneEnumToDisplayString(
+                        newEvent.bookingZone,
+                      )
+                    : undefined) ??
+                  convertBookingZoneEnumToDisplayString(BookingZone.DEFAULT)
                 }
-                return setNewEvent({
-                  ...newEvent,
-                  bookingZone: bookingZone,
-                });
-              }}
-              options={Object.values(BookingZoneString)}
-              label="Select Drop Zone"
-              placeholder="Choose a drop zone"
-            />
+                onChange={(value) => {
+                  const bookingZone =
+                    convertBookingZoneDisplayStringToBookingZoneEnum(
+                      value as BookingZoneString,
+                    );
+                  if (!bookingZone) {
+                    throw new Error("Booking Zone could not be parsed!");
+                  }
+                  return setNewEvent({
+                    ...newEvent,
+                    bookingZone: bookingZone,
+                  });
+                }}
+                options={Object.values(BookingZoneString)}
+                label="Select Drop Zone"
+                placeholder="Choose a drop zone"
+              />
+            </div>
 
             {/* Action Buttons - Mobile optimized */}
             <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:gap-3 sm:pt-4">

@@ -64,7 +64,10 @@ export const DropZoneDropdown: React.FC<DropZoneDropdownProps> = ({
 
         {isOpen && (
           <div className="absolute z-20 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-xl">
-            <div className="overflow-auto py-1" style={{ maxHeight: "200px" }}>
+            <div
+              className="overflow-auto py-1"
+              style={{ maxHeight: "calc(2 * 2.75rem)" }}
+            >
               {options.map((option) => {
                 const isSelected = value === option;
                 return (
