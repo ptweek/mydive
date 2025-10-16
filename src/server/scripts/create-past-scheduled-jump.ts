@@ -13,7 +13,7 @@ async function createScheduledJump() {
     // If you don't have one, create it first:
     const bookingWindow = await prisma.bookingWindow.create({
       data: {
-        bookingZone: BookingZone.MAMMOTH_LAKES, // adjust as needed
+        bookingZone: BookingZone.MAMMOTH, // adjust as needed
         numJumpers: 4,
         windowStartDate: new Date("2025-09-01"),
         windowEndDate: new Date("2025-09-04"),
@@ -29,7 +29,7 @@ async function createScheduledJump() {
     const scheduledJump = await prisma.scheduledJump.create({
       data: {
         jumpDate: new Date("2025-09-15T10:00:00"), // Set your desired date/time in September
-        bookingZone: BookingZone.MAMMOTH_LAKES, // adjust as needed
+        bookingZone: BookingZone.MAMMOTH, // adjust as needed
         numJumpers: 4,
         schedulingMethod: SchedulingMethod.BOOKING_WINDOW,
         associatedBookingId: bookingWindow.id,

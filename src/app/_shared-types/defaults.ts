@@ -94,6 +94,10 @@ export const convertBookingZoneDisplayStringToBookingZoneEnum = (
       return BookingZone.ZION;
     case BookingZoneString.PAGE:
       return BookingZone.PAGE;
+    case BookingZoneString.FLORIDA_KEYS:
+      return BookingZone.FLORIDA_KEYS;
+    case BookingZoneString.OUTER_BANKS:
+      return BookingZone.OUTER_BANKS;
     default:
       return bookingZoneStr;
   }
