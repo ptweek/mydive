@@ -10,28 +10,14 @@ export default async function AboutUsPage() {
           muted
           loop
           playsInline
-          className="absolute inset-0 z-0 object-cover"
-          style={{
-            width: "100%",
-            height: "110vh",
-            minHeight: "-webkit-fill-available",
-          }}
+          className="absolute inset-0 z-0 h-full w-full object-cover"
         >
           <source src="/videos/skydiving-background.mp4" type="video/mp4" />
         </video>
-        <div
-          className="absolute inset-0 z-10 bg-black/40"
-          style={{
-            height: "110vh",
-            minHeight: "-webkit-fill-available",
-          }}
-        />
+        <div className="absolute inset-0 z-10 bg-black/40" />
 
         {/* Content */}
-        <div
-          className="z-20 flex flex-col space-y-5 overflow-auto"
-          style={{ height: "calc(100vh - 80px)" }} // I don't love this but it works
-        >
+        <div className="relative z-20 flex h-full w-full flex-col overflow-auto px-4 py-20">
           <InfoPageClient />
         </div>
       </main>

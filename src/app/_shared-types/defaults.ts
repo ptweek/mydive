@@ -5,6 +5,7 @@ export enum BookingZoneString {
   MAMMOTH = "Mammoth, CA",
   LAKE_ISABELLA = "Lake Isabelle, CA",
   MOUNT_SHASTA = "Mt. Shasta, CA",
+  SABOBA = "Saboba (Los Angeles), CA",
   GOLD_BEACH = "Gold Beach, OR",
   CRATER_LAKE = "Crater Lake, OR",
   LEAVENWORTH = "Leavenworth, WA",
@@ -57,6 +58,8 @@ export const convertBookingZoneEnumToDisplayString = (
       return BookingZoneString.FLORIDA_KEYS;
     case BookingZone.OUTER_BANKS:
       return BookingZoneString.OUTER_BANKS;
+    case BookingZone.SABOBA:
+      return BookingZoneString.SABOBA;
     default:
       return bookingZone;
   }
@@ -98,6 +101,8 @@ export const convertBookingZoneDisplayStringToBookingZoneEnum = (
       return BookingZone.FLORIDA_KEYS;
     case BookingZoneString.OUTER_BANKS:
       return BookingZone.OUTER_BANKS;
+    case BookingZoneString.SABOBA:
+      return BookingZone.SABOBA;
     default:
       return bookingZoneStr;
   }
