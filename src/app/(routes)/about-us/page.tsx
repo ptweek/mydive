@@ -17,7 +17,7 @@ export default async function AboutUsPage() {
         <div className="absolute inset-0 z-10 bg-black/40" />
 
         {/* Content */}
-        <div className="relative z-20 flex h-full w-full flex-col overflow-auto px-4 py-20">
+        <div className="relative z-20 flex h-full w-full flex-col overflow-auto px-4">
           <InfoPageClient />
         </div>
       </main>
