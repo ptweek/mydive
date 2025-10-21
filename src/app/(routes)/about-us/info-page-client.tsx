@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { GradualSpacing } from "mydive/app/_shared-frontend/components/animated-text/gradual-spacing";
-import { CardWithGridEllipsis } from "mydive/app/_shared-frontend/components/cards/ellipse-card";
 
 export default function InfoPage() {
   const router = useRouter();
@@ -93,7 +92,7 @@ export default function InfoPage() {
       <section className="px-6 py-12">
         <div className="mx-auto max-w-6xl">
           <div className="mb-12 rounded-2xl bg-black/40 p-8 text-center backdrop-blur-md">
-            <h2 className="mb-4 text-4xl font-bold text-white md:text-5xl">
+            <h2 className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
               The Experience
             </h2>
             <p className="text-2xl text-gray-200">
@@ -132,6 +131,57 @@ export default function InfoPage() {
             <div className="py-6 text-center">
               <p className="text-xl font-semibold text-white md:text-2xl">
                 {`This is an experience you'll never forget.`}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* Locations Section */}
+      <section className="px-6 py-12">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8 rounded-2xl bg-black/40 p-8 text-center backdrop-blur-md">
+            <h2 className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
+              Where We Jump
+            </h2>
+            <p className="text-xl text-gray-200">
+              Epic landscapes across America
+            </p>
+          </div>
+
+          <div className="mb-8 rounded-2xl bg-black/40 p-8 backdrop-blur-md">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                "Mammoth, CA",
+                "Saboba (Los Angeles), California",
+                "Lake Isabella, CA",
+                "Mt Shasta, CA",
+                "Gold Beach, OR",
+                "Crater Lake, OR",
+                "Leavenworth, WA",
+                "Mt Rainier Foothills, WA",
+                "Sun Valley, ID",
+                "Jackson Hole, WY",
+                "Big Sky, MT",
+                "Moab, UT",
+                "Zion, UT",
+                "Page, AZ",
+                "Florida Keys, FL",
+                "Outer Banks, NC",
+              ].map((location, index) => (
+                <div
+                  key={index}
+                  className="rounded-lg border border-white/10 bg-white/5 p-4 text-center text-gray-100 transition-all hover:border-blue-400/50 hover:bg-white/10"
+                >
+                  {location}
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 text-center">
+              <p className="text-lg font-semibold text-blue-400">
+                Is your dream jump not on this list?
+              </p>
+              <p className="mt-2 text-gray-200">
+                Reach out and we will help you jump anywhere you want!
               </p>
             </div>
           </div>
