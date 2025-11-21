@@ -14,7 +14,7 @@ export default function InfoPage() {
   }, []);
 
   return (
-    <div className="min-h-screen text-white">
+    <div className="relative z-20 min-h-screen text-white">
       {/* Hero Section */}
       <section className="relative flex min-h-screen items-center justify-center">
         <div
