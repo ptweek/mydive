@@ -17,7 +17,7 @@ export default async function ContactUsPage() {
             minHeight: "-webkit-fill-available",
           }}
         >
-          <source src="/videos/skydiving-background.mp4" type="video/mp4" />
+          <source src="/videos/new-background.mp4" type="video/mp4" />
         </video>
         <div
           className="absolute inset-0 z-10 bg-black/40"

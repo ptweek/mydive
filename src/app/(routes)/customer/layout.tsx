@@ -26,7 +26,7 @@ export default async function CustomerLayout({
           minHeight: "-webkit-fill-available",
         }}
       >
-        <source src="/videos/skydiving-background.mp4" type="video/mp4" />
+        <source src="/videos/new-background.mp4" type="video/mp4" />
       </video>
 
       <div
